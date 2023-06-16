@@ -6,8 +6,7 @@ namespace Anime_Archive_Handler;
 
 public static class JikanHandler
 {
-    public static readonly string JsonPath = @"C:/Users/leon/OneDrive/Documents/AnimeDataBase/DataBase.json";
-    private static readonly string JsonPath2 = @"C:/Users/leon/OneDrive/Documents/AnimeDataBase";
+    public static readonly string JsonPath = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)!, "DataBase.json");
     private static int _id = 1;
     private static Anime? _anime;
     private static int _consecutiveNulls;
@@ -20,10 +19,6 @@ public static class JikanHandler
 
     public static async Task Start()
     {
-        if (!Directory.Exists(JsonPath2))
-        {
-            Directory.CreateDirectory(JsonPath2);
-        }
         if (!File.Exists(JsonPath))
         {
             await using (FileStream unused = File.Create(JsonPath)) { }

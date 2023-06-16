@@ -90,7 +90,7 @@ abstract class AnimeArchiveHandler
             else
             {
                 ConsoleExt.WriteLineWithPretext("Is this Information Correct? (y/n)", ConsoleExt.OutputType.Warning);
-                string? answer = Console.ReadLine();
+                string? answer = Console.ReadLine()?.ToLower();
                 if (answer == "y")
                 {
                     //ConsoleExt.WriteLineWithPretext("Moving All the Season Episodes!", ConsoleExt.OutputType.Info);
@@ -106,6 +106,8 @@ abstract class AnimeArchiveHandler
                 }
             }
         }
+
+        ConsoleExt.WriteLineWithPretext(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), ConsoleExt.OutputType.Info);
         ConsoleExt.WriteLineWithPretext("Program has finished running!", ConsoleExt.OutputType.Info);
         Thread.Sleep(1000000);
     }
@@ -156,7 +158,7 @@ abstract class AnimeArchiveHandler
                 episodeNumber++;
             }
         }
-        catch (Exception e)
+        catch (Exception)
         {
             ConsoleExt.WriteLineWithPretext("Anime Episode " + episodeNumber + " is Corrupted!", ConsoleExt.OutputType.Error);
             nothingCorrupt = false;
@@ -189,7 +191,7 @@ abstract class AnimeArchiveHandler
         var audioTrackLanguages = new List<string>();
         if (FileIntegrityCheck(new[] { videoFilePath }))
         {
-            var mediaInfo = FFProbe.Analyse(videoFilePath); //this has issues and will break if the file i corrupted!!!
+            var mediaInfo = FFProbe.Analyse(videoFilePath);
 
             foreach (var audioStreamLanguage in mediaInfo.AudioStreams.Select(audioStream => audioStream.Language).Where(audioStreamLanguage => audioStreamLanguage != null))
             {
@@ -218,7 +220,7 @@ abstract class AnimeArchiveHandler
             return;
         }
 
-        string[] files = Directory.GetFiles(inputFolder); //need to make sure i am grabbing the right folder and not a language, movie, or OVA folder
+        string[] files = Directory.GetFiles(inputFolder);
         ConsoleExt.WriteLineWithPretext(files[1], ConsoleExt.OutputType.Info);
         List<string> languages = TrackLanguageFromMetadata(files[1]);
 

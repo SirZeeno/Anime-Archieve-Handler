@@ -21,4 +21,10 @@
       <PackageReference Include="NReco.VideoInfo" Version="1.2.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="DataBase.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>
