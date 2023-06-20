@@ -26,4 +26,77 @@ public static class HelperClass
             _ => number + "th"
         };
     }
+    
+    public static int ConvertRomanToNumber(string roman)
+    {
+        Dictionary<char, int> romanValues = new Dictionary<char, int>()
+        {
+            { 'I', 1 },
+            { 'V', 5 },
+            { 'X', 10 },
+            { 'L', 50 },
+            { 'C', 100 },
+            { 'D', 500 },
+            { 'M', 1000 }
+        };
+
+        int result = 0;
+        int previousValue = 0;
+
+        for (int i = roman.Length - 1; i >= 0; i--)
+        {
+            int currentValue = romanValues[roman[i]];
+
+            if (currentValue < previousValue)
+            {
+                result -= currentValue;
+            }
+            else
+            {
+                result += currentValue;
+            }
+
+            previousValue = currentValue;
+        }
+
+        return result;
+    }
+    
+    public static int ConvertMixedStringToNumber(string input)
+    {
+        Dictionary<char, int> romanValues = new Dictionary<char, int>()
+        {
+            { 'I', 1 },
+            { 'V', 5 },
+            { 'X', 10 },
+            { 'L', 50 },
+            { 'C', 100 },
+            { 'D', 500 },
+            { 'M', 1000 }
+        };
+
+        int result = 0;
+        string currentRoman = string.Empty;
+
+        foreach (char c in input)
+        {
+            if (romanValues.ContainsKey(c))
+            {
+                currentRoman += c;
+            }
+            else if (currentRoman != string.Empty)
+            {
+                result += ConvertRomanToNumber(currentRoman);
+                currentRoman = string.Empty;
+            }
+        }
+
+        // Convert the last extracted Roman numeral if any
+        if (currentRoman != string.Empty)
+        {
+            result += ConvertRomanToNumber(currentRoman);
+        }
+
+        return result;
+    }
 }

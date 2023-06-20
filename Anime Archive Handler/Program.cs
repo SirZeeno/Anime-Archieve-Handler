@@ -3,6 +3,7 @@
 using System.Text.RegularExpressions;
 using System.Security.Cryptography;
 using static JikanHandler;
+using static HelperClass;
 using JikanDotNet;
 using FFMpegCore;
 using Humanizer;
@@ -106,8 +107,6 @@ abstract class AnimeArchiveHandler
                 }
             }
         }
-
-        ConsoleExt.WriteLineWithPretext(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), ConsoleExt.OutputType.Info);
         ConsoleExt.WriteLineWithPretext("Program has finished running!", ConsoleExt.OutputType.Info);
         Thread.Sleep(1000000);
     }
@@ -281,17 +280,27 @@ abstract class AnimeArchiveHandler
         string pattern = @"(?i)(Season|Seasons|S)\s*(\d+)\s*[+\-]+\s*(\d+)";
         string pattern4 = @"(?i)(Season|Seasons|S)\s*(\d+)";
         string pattern2 = @"(?i)\d+\s*(st|nd|rd|th)\s*(Season|Seasons|S)";
+        string pattern5 = @"\b[MCDLXVI]+\b";
 
         var match1 = Regex.Match(fileName, pattern);
         var match2 = Regex.Match(fileName, pattern2);
         var match4 = Regex.Match(fileName, pattern4);
-        if (!match1.Success && !match2.Success && !match4.Success)
+        var match5 = Regex.Match(fileName, pattern5);
+        
+        if (!match1.Success && !match2.Success && !match4.Success && !match5.Success)
         {
-            ConsoleExt.WriteLineWithPretext("No match found", ConsoleExt.OutputType.Warning);
-            // date a live doesnt work with any of these patterns
+            ConsoleExt.WriteLineWithPretext("No Anime Season number Found!", ConsoleExt.OutputType.Warning);
+            if (HeadlessOperations)
+            {
+                _seasonNumbers = new int[1];
+            }
+            else
+            {
+                //ask the user what season the anime is.
+            }
             return;
         }
-        
+
         string pattern3 = @"[+-]";
         var match3 = Regex.Match(match1.Value, pattern3);
 
@@ -305,6 +314,10 @@ abstract class AnimeArchiveHandler
                 else
                 {
                     if (int.TryParse(new string(match2.Value.Where(char.IsDigit).ToArray()), out _seasonNumbers[0])) {}
+                    else
+                    {
+                        if (int.TryParse(ConvertRomanToNumber(match5.Value).ToString(), out _seasonNumbers[0])) {}
+                    }
                 }
             }
             ConsoleExt.WriteLineWithPretext("Season Number: " + _seasonNumbers[0], ConsoleExt.OutputType.Info);
