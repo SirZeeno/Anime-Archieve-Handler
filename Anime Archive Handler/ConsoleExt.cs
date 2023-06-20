@@ -10,7 +10,7 @@ public static class ConsoleExt
         Warning
     }
     
-    public static int WriteLineWithPretext(string output, OutputType outputType)
+    public static int WriteLineWithPretext<T>(T output, OutputType outputType)
     {
         int length1 = CurrentTime();
         int length2 = DetermineOutputType(outputType);
@@ -18,7 +18,7 @@ public static class ConsoleExt
         return length1 + length2;
     }
     
-    public static int WriteWithPretext(string output, OutputType outputType)
+    public static int WriteWithPretext<T>(T output, OutputType outputType)
     {
         int length1 = CurrentTime();
         int length2 = DetermineOutputType(outputType);

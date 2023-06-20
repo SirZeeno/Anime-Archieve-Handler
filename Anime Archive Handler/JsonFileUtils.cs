@@ -1,8 +1,9 @@
 ﻿namespace Anime_Archive_Handler;
 
 using System.IO;
-using Newtonsoft.Json;
 using JikanDotNet;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 public static class JsonFileUtility
 {
@@ -59,5 +60,28 @@ public static class JsonFileUtility
         }
     
         return lastNonNullLine;
+    }
+
+    public static T GetValue<T>(string filePath, string variableName)
+    {
+        try
+        {
+            string jsonContent = File.ReadAllText(filePath);
+            JObject jsonObject = JObject.Parse(jsonContent);
+
+            JToken? valueToken = jsonObject[variableName];
+            if (valueToken != null)
+            {
+                return valueToken.Value<T>()!; //if this throws a null at one point then i need to revisit this to solve this
+            }
+            else
+            {
+                throw new ArgumentException($"Variable '{variableName}' not found in the JSON file.");
+            }
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Error reading JSON file: {ex.Message}");
+        }
     }
 }

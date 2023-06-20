@@ -13,7 +13,6 @@ using Humanizer;
 //also need to remove the anything past the first - to make the search better and more accurate
 //need to implement a file integrity check with ffmpeg where it scans the file and if any error are being thrown the file is corrupt
 //need to handle if a anime has multiple parts of a season
-//need to use ffmpeg to extract the audio track title and see if it is named english
 //need to rework the execution
 //need to add a par2 backup system that creates a 25% or lower par2 backup file for the entire anime folder
 //need to add a want to watch list to this program, and a (already watched/in anime folder) list that i can easily search and that is more user readable then the json database
@@ -30,7 +29,7 @@ using Humanizer;
 
 abstract class AnimeArchiveHandler
 {
-    private static readonly string AnimeFolder = @"Z:\Anime\Test";
+    private static readonly string AnimeOutputFolder = JsonFileUtility.GetValue<string>(GetFileInProgramFolder("UserSettings.json"), "AnimeOutputFolder");
 
     private enum Languages
     {
@@ -44,7 +43,7 @@ abstract class AnimeArchiveHandler
     private static string? _sourceFolder;
 
     private static bool _hasSeasonSubFolder;
-    private static readonly bool HeadlessOperations = true;
+    private static readonly bool HeadlessOperations = JsonFileUtility.GetValue<bool>(GetFileInProgramFolder("UserSettings.json"), "HeadlessOperations");
 
     private static void Main(string[] args)
     {
@@ -108,6 +107,7 @@ abstract class AnimeArchiveHandler
                 }
             }
         }
+        
         ConsoleExt.WriteLineWithPretext("Program has finished running!", ConsoleExt.OutputType.Info);
         Thread.Sleep(1000000);
     }
@@ -411,25 +411,25 @@ abstract class AnimeArchiveHandler
             ConsoleExt.WriteLineWithPretext("Anime Name, Sub or Dub, or Season Number is null", ConsoleExt.OutputType.Error);
             return;
         }
-        if (!Directory.Exists(AnimeFolder))
+        if (!Directory.Exists(AnimeOutputFolder))
         {
-            Directory.CreateDirectory(AnimeFolder);
+            Directory.CreateDirectory(AnimeOutputFolder);
         }
-        if (!Directory.Exists(Path.Combine(AnimeFolder, _subOrDub.ToString()!)))
+        if (!Directory.Exists(Path.Combine(AnimeOutputFolder, _subOrDub.ToString()!)))
         {
-            Directory.CreateDirectory(Path.Combine(AnimeFolder, _subOrDub.ToString()!));
+            Directory.CreateDirectory(Path.Combine(AnimeOutputFolder, _subOrDub.ToString()!));
         }
-        if (!Directory.Exists(Path.Combine(AnimeFolder, _subOrDub.ToString()!, _animeName)))
+        if (!Directory.Exists(Path.Combine(AnimeOutputFolder, _subOrDub.ToString()!, _animeName)))
         {
-            Directory.CreateDirectory(Path.Combine(AnimeFolder, _subOrDub.ToString()!, _animeName));
+            Directory.CreateDirectory(Path.Combine(AnimeOutputFolder, _subOrDub.ToString()!, _animeName));
         }
 
-        if (Directory.Exists(Path.Combine(AnimeFolder, _subOrDub.ToString()!, _animeName, @"\Season ", _seasonNumbers[0].ToString())))//this is only applicable for one season
+        if (Directory.Exists(Path.Combine(AnimeOutputFolder, _subOrDub.ToString()!, _animeName, @"\Season ", _seasonNumbers[0].ToString())))//this is only applicable for one season
         {
             
             return;
         }
-        Directory.CreateDirectory(Path.Combine(AnimeFolder, _subOrDub.ToString()!, _animeName, @"\Season ", _seasonNumbers[0].ToString()));
+        Directory.CreateDirectory(Path.Combine(AnimeOutputFolder, _subOrDub.ToString()!, _animeName, @"\Season ", _seasonNumbers[0].ToString()));
     }
     
     
@@ -443,7 +443,7 @@ abstract class AnimeArchiveHandler
                 foreach (var file in files)
                 {
                     string fileExtension = new FileInfo(file).Extension;
-                    string destinationFile = AnimeFolder + @"\" + _subOrDub + @"\" + _animeName + @"\Season " + season +
+                    string destinationFile = AnimeOutputFolder + @"\" + _subOrDub + @"\" + _animeName + @"\Season " + season +
                                              @"\" + _animeName + " #" + episodeNumber + fileExtension;
                     string[] destinationFileTest = new[] { destinationFile};
                     string[] fileTest = new[] { file};

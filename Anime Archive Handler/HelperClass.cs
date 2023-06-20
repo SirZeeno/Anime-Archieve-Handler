@@ -99,4 +99,10 @@ public static class HelperClass
 
         return result;
     }
+
+    public static string GetFileInProgramFolder(string fileNameWithExtension)
+    {
+        return Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)!,
+            fileNameWithExtension);
+    }
 }

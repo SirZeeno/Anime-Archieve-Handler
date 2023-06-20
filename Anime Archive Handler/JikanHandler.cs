@@ -1,12 +1,13 @@
-﻿using FuzzySharp;
+﻿namespace Anime_Archive_Handler;
+
+using FuzzySharp;
 using JikanDotNet;
 using JikanDotNet.Config;
 
-namespace Anime_Archive_Handler;
 
 public static class JikanHandler
 {
-    public static readonly string JsonPath = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)!, "DataBase.json");
+    public static readonly string JsonPath = HelperClass.GetFileInProgramFolder("DataBase.json");
     private static int _id = 1;
     private static Anime? _anime;
     private static int _consecutiveNulls;
