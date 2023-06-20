@@ -17,6 +17,7 @@ using Humanizer;
 //need to rework the execution
 //need to add a par2 backup system that creates a 25% or lower par2 backup file for the entire anime folder
 //need to add a want to watch list to this program, and a (already watched/in anime folder) list that i can easily search and that is more user readable then the json database
+//Tsukimichi S01 1080p Dual Audio BDRip 10 bits DD x265-EMBER nothing gets removed if nothing has []
 
 
 /// <summary>
@@ -292,7 +293,7 @@ abstract class AnimeArchiveHandler
             ConsoleExt.WriteLineWithPretext("No Anime Season number Found!", ConsoleExt.OutputType.Warning);
             if (HeadlessOperations)
             {
-                _seasonNumbers = new int[1];
+                _seasonNumbers = new[] {1};
             }
             else
             {
