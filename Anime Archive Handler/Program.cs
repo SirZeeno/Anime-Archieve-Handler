@@ -10,13 +10,11 @@ using Humanizer;
 
 //i also need this to be able to handle movie folders inside the anime folder
 //i also need this to be able to handle multiple seasons (working on rn, still need to test)
-//also need to remove the anything past the first - to make the search better and more accurate
-//need to implement a file integrity check with ffmpeg where it scans the file and if any error are being thrown the file is corrupt
 //need to handle if a anime has multiple parts of a season
 //need to rework the execution
 //need to add a par2 backup system that creates a 25% or lower par2 backup file for the entire anime folder
 //need to add a want to watch list to this program, and a (already watched/in anime folder) list that i can easily search and that is more user readable then the json database
-//Tsukimichi S01 1080p Dual Audio BDRip 10 bits DD x265-EMBER nothing gets removed if nothing has []
+//nothing gets removed if nothing has [] like in Tsukimichi S01 1080p Dual Audio BDRip 10 bits DD x265-EMBER
 
 
 /// <summary>
@@ -42,7 +40,7 @@ abstract class AnimeArchiveHandler
     private static int[]? _seasonNumbers;
     private static string? _sourceFolder;
 
-    private static bool _hasSeasonSubFolder;
+    private static bool _hasSubFolder;
     private static readonly bool HeadlessOperations = JsonFileUtility.GetValue<bool>(GetFileInProgramFolder("UserSettings.json"), "HeadlessOperations");
 
     private static void Main(string[] args)
@@ -53,95 +51,62 @@ abstract class AnimeArchiveHandler
             JikanHandler.LoadAnimeDb(); //loads the DB into the _animes list
 
             _sourceFolder = arg;
-            _hasSeasonSubFolder = HasSubFolders(arg);
-            ConsoleExt.WriteLineWithPretext(_hasSeasonSubFolder.ToString(), ConsoleExt.OutputType.Info);
+            _hasSubFolder = HasSubFolders(arg);
+            ConsoleExt.WriteLineWithPretext("Has sub-folders: " + _hasSubFolder, ConsoleExt.OutputType.Info);
             _animeName = RemoveUnnecessaryNamePieces(new DirectoryInfo(arg).Name);
             Anime? animeTitleInDb = JikanHandler.GetAnimeWithTitle(_animeName);
-            ExtractingSeasonNumber(new DirectoryInfo(arg).Name);
-            string[] folders = _hasSeasonSubFolder ? GetSeasonDirectories() : new [] {_sourceFolder};
-            foreach (var folder in folders)
-            {
-                ExtractingLanguage(folder);
-            }
-            if (_seasonNumbers != null)
-            {
-                ConsoleExt.WriteWithPretext(_animeName + " Season " + _seasonNumbers[0], ConsoleExt.OutputType.Info);
-                foreach (var season in _seasonNumbers)
-                {
-                    if (season != _seasonNumbers[0])
-                    {
-                        Console.Write(", " + season);
-                    }
-                }
-                Console.WriteLine();
-            }
-
             if (animeTitleInDb != null)
             {
                 ConsoleExt.WriteLineWithPretext(JikanHandler.GetAnimeTitleWithAnime(animeTitleInDb) + ", " + animeTitleInDb.MalId,
                     ConsoleExt.OutputType.Info);
             }
-            ConsoleExt.WriteLineWithPretext("Database Last Entre was on Line: " + JsonFileUtility.FindLastNonNullLine(JsonPath), ConsoleExt.OutputType.Info);
-            
-            if (HeadlessOperations)
+            ExtractingSeasonNumber(new DirectoryInfo(arg).Name);
+            string[] folders = _hasSubFolder ? GetSeasonDirectories() : new [] {arg};
+            foreach (var folder in folders)
             {
-                //ConsoleExt.WriteLineWithPretext("Moving All the Season Episodes!", ConsoleExt.OutputType.Info);
-                //ConsoleExt.WriteLineWithPretext("Copied all Episodes from that Season to the Anime Folder.", ConsoleExt.OutputType.Info);
-            }
-            else
-            {
-                ConsoleExt.WriteLineWithPretext("Is this Information Correct? (y/n)", ConsoleExt.OutputType.Warning);
-                string? answer = Console.ReadLine()?.ToLower();
-                if (answer == "y")
+                string[] directoryFiles = Directory.GetFiles(folder); //for further use when moving the episodes
+                if (FileIntegrityCheck(directoryFiles))
                 {
-                    //ConsoleExt.WriteLineWithPretext("Moving All the Season Episodes!", ConsoleExt.OutputType.Info);
-                    //ConsoleExt.WriteLineWithPretext("Copied all Episodes from that Season to the Anime Folder.", ConsoleExt.OutputType.Info);
-                }
-                if (answer == "n")
-                {
-                    //need to see whats wrong and correct it
+                    ExtractingLanguage(folder);
+                    if (HeadlessOperations)
+                    {
+                        //ConsoleExt.WriteLineWithPretext("Moving All the Season Episodes!", ConsoleExt.OutputType.Info);
+                        //ConsoleExt.WriteLineWithPretext("Copied all Episodes from that Season to the Anime Folder.", ConsoleExt.OutputType.Info);
+                    }
+                    else
+                    {
+                        if (ManualInformationChecking())
+                        {
+                            //ConsoleExt.WriteLineWithPretext("Moving All the Season Episodes!", ConsoleExt.OutputType.Info);
+                            //ConsoleExt.WriteLineWithPretext("Copied all Episodes from that Season to the Anime Folder.", ConsoleExt.OutputType.Info);
+                        }
+                        else
+                        {
+                            //need to see whats wrong and correct it
+                        }
+                    }
                 }
                 else
                 {
-                    ConsoleExt.WriteLineWithPretext("Answer Provided is either null or not Determinable!", ConsoleExt.OutputType.Error);
+                    ConsoleExt.WriteLineWithPretext("Moving on to next...", ConsoleExt.OutputType.Warning);
                 }
             }
+            ConsoleExt.WriteLineWithPretext("Database Last Entre was on Line: " + JsonFileUtility.FindLastNonNullLine(JsonPath), ConsoleExt.OutputType.Info);
         }
         
         ConsoleExt.WriteLineWithPretext("Program has finished running!", ConsoleExt.OutputType.Info);
         Thread.Sleep(1000000);
     }
 
+    //Checks if the input folder has sub-folders
     private static bool HasSubFolders(string inputDirectory)
     {
         string[] folderNames = Directory.GetDirectories(inputDirectory);
-        bool trueOrFalse = false;
-
-        string pattern4 = @"(?i)(Season|Seasons|S)\s*(\d+)";
-        string pattern2 = @"(?i)\d+\s*(st|nd|rd|th)\s*(Season|Seasons|S)";
-
-        foreach (var folderName in folderNames)
-        {
-            string[] splitFolderName = folderName.Split(@"\");
-            int lastSplit = splitFolderName.Length;
-
-            var match2 = Regex.Match(splitFolderName[lastSplit - 1], pattern2);
-            var match4 = Regex.Match(splitFolderName[lastSplit - 1], pattern4);
-
-            if (match2.Success || match4.Success)
-            {
-                trueOrFalse = true;
-            }
-        }
-
-        if (trueOrFalse != true)
-        {
-            return false;
-        }
-        else
+        if (folderNames.Length > 0)
         {
             return true;
         }
+        return false;
     }
 
     //File integrity check that returns false if the file is corrupt
@@ -189,27 +154,21 @@ abstract class AnimeArchiveHandler
     private static List<string> TrackLanguageFromMetadata(string videoFilePath)
     {
         var audioTrackLanguages = new List<string>();
-        if (FileIntegrityCheck(new[] { videoFilePath }))
+        var mediaInfo = FFProbe.Analyse(videoFilePath);
+
+        foreach (var audioStreamLanguage in mediaInfo.AudioStreams.Select(audioStream => audioStream.Language).Where(audioStreamLanguage => audioStreamLanguage != null))
         {
-            var mediaInfo = FFProbe.Analyse(videoFilePath);
-
-            foreach (var audioStreamLanguage in mediaInfo.AudioStreams.Select(audioStream => audioStream.Language).Where(audioStreamLanguage => audioStreamLanguage != null))
-            {
-                if (audioStreamLanguage == null) continue;
-                ConsoleExt.WriteLineWithPretext(audioStreamLanguage, ConsoleExt.OutputType.Info);
-                audioTrackLanguages.Add(audioStreamLanguage);
-            }
-
-            return audioTrackLanguages;
+            if (audioStreamLanguage == null) continue;
+            audioTrackLanguages.Add(audioStreamLanguage);
         }
 
-        return new List<string>() {"File Corrupt!"};
+        return audioTrackLanguages;
     }
 
     //extracts the language from the folder name
-    private static void ExtractingLanguage(string inputFolder)
+    private static void ExtractingLanguage(string inputFolderPath)
     {
-        string fileName = new DirectoryInfo(inputFolder).Name;
+        string fileName = new DirectoryInfo(inputFolderPath).Name;
         string pattern = "Dual[- ]Audio";
         
         var match = Regex.Match(fileName, pattern);
@@ -220,8 +179,7 @@ abstract class AnimeArchiveHandler
             return;
         }
 
-        string[] files = Directory.GetFiles(inputFolder);
-        ConsoleExt.WriteLineWithPretext(files[1], ConsoleExt.OutputType.Info);
+        string[] files = Directory.GetFiles(inputFolderPath);
         List<string> languages = TrackLanguageFromMetadata(files[1]);
 
         if (languages.Contains("eng", StringComparer.OrdinalIgnoreCase) || languages.Contains("ger", StringComparer.OrdinalIgnoreCase))
@@ -234,6 +192,11 @@ abstract class AnimeArchiveHandler
         {
             _subOrDub = Languages.Sub;
             ConsoleExt.WriteLineWithPretext("Language is Sub", ConsoleExt.OutputType.Info);
+            return;
+        }
+        if (languages.Contains("N/a", StringComparer.OrdinalIgnoreCase))
+        {
+            ConsoleExt.WriteLineWithPretext("File(s) is/are Corrupt!", ConsoleExt.OutputType.Error);
             return;
         }
 
@@ -334,7 +297,7 @@ abstract class AnimeArchiveHandler
         {
             _seasonNumbers = new int[seasonNumbers.Count];
             _seasonNumbers = seasonNumbers.ToArray();
-            ConsoleExt.WriteWithPretext("Season Number: " + _seasonNumbers[0], ConsoleExt.OutputType.Info);
+            ConsoleExt.WriteWithPretext("Season Numbers: " + _seasonNumbers[0], ConsoleExt.OutputType.Info);
             foreach (var number in _seasonNumbers)
             {
                 if (number != _seasonNumbers[0])
@@ -350,7 +313,7 @@ abstract class AnimeArchiveHandler
             int highestNumber = seasonNumbers.Max();
             _seasonNumbers = new int[highestNumber];
             int index = 0;
-            ConsoleExt.WriteWithPretext("Season Number: " + lowestNumber, ConsoleExt.OutputType.Info);
+            ConsoleExt.WriteWithPretext("Season Numbers: " + lowestNumber, ConsoleExt.OutputType.Info);
             for (int i = lowestNumber; i <= highestNumber; i++)
             {
                 _seasonNumbers[index] = i;
@@ -443,11 +406,11 @@ abstract class AnimeArchiveHandler
                 foreach (var file in files)
                 {
                     string fileExtension = new FileInfo(file).Extension;
-                    string destinationFile = AnimeOutputFolder + @"\" + _subOrDub + @"\" + _animeName + @"\Season " + season +
+                    string destinationFile = AnimeOutputFolder + @"\" + _subOrDub + @"\" + _animeName + @"\Season " +
+                                             season +
                                              @"\" + _animeName + " #" + episodeNumber + fileExtension;
-                    string[] destinationFileTest = new[] { destinationFile};
-                    string[] fileTest = new[] { file};
-                    if (!CheckForExistence(file, destinationFile) && !FileIntegrityCheck(destinationFileTest) && FileIntegrityCheck(fileTest))
+                    string[] destinationFileTest = { destinationFile };
+                    if (!CheckForExistence(file, destinationFile) && !FileIntegrityCheck(destinationFileTest))
                     {
                         FileInfo fileInfo = new FileInfo(file);
                         long fileSize = fileInfo.Length;

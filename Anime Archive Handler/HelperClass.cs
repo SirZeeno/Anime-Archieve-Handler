@@ -105,4 +105,24 @@ public static class HelperClass
         return Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)!,
             fileNameWithExtension);
     }
+
+    public static bool ManualInformationChecking()
+    {
+        ConsoleExt.WriteLineWithPretext("Is this Information Correct? (y/n)", ConsoleExt.OutputType.Warning);
+        string? answer = Console.ReadLine()?.ToLower();
+        if (answer?.ToLower() == "y")
+        {
+            return true;
+        }
+        if (answer?.ToLower() == "n")
+        {
+            return false;
+        }
+        else
+        {
+            ConsoleExt.WriteLineWithPretext("Answer Provided is either null or not Determinable!", ConsoleExt.OutputType.Error);
+        }
+
+        throw new InvalidOperationException();
+    }
 }
