@@ -11,7 +11,6 @@ using static JikanHandler;
 using static HelperClass;
 
 //i also need this to be able to handle movie folders inside the anime folder
-//i also need this to be able to handle multiple seasons (working on rn, still need to test)
 //need to handle if a anime has multiple parts of a season
 //need to rework the execution
 //need to add a par2 backup system that creates a 25% or lower par2 backup file for the entire anime folder
@@ -256,6 +255,7 @@ abstract class AnimeArchiveHandler
             if (HeadlessOperations)
             {
                 _seasonNumbers = new[] {1};
+                ConsoleExt.WriteLineWithPretext("Season Number: " + _seasonNumbers[0], ConsoleExt.OutputType.Info);
             }
 
             //ask the user what season the anime is.
@@ -331,13 +331,21 @@ abstract class AnimeArchiveHandler
     //removes all unnecessary pieces from the anime name
     private static string RemoveUnnecessaryNamePieces(string fileName)
     {
-        string pattern1 = @"\[.*?\]|\(.*?\)"; //need to add underscores into the pattern
-        //string pattern2 = @"(?<=-\s).*";
-        //string pattern3 = @"([a-z]+-[a-z]+)";
-        string withoutBrackets = Regex.Replace(fileName, pattern1, string.Empty);
-        //string withoutDashes = Regex.Replace(withoutBrackets, pattern2 , string.Empty);
+        string pattern1 = @"\[.*?\]|\(.*?\)";
+        string pattern2 = @"_";
+        string pattern3 = @"(?i)(Season|Seasons|S)\s*(\d+)";
+        string pattern4 = @"\d+(st|nd|rd|th)";
+        string pattern5 = @"\b[MCDLXVI]+\b";
+        string pattern6 = @"\s{2,}.*$";
         
-        string output = withoutBrackets.ApplyCase(LetterCasing.Title).TrimStart().TrimEnd();
+        string withoutBrackets = Regex.Replace(fileName, pattern1, string.Empty);
+        string withoutUnderscore = Regex.Replace(withoutBrackets, pattern2 , " ");
+        string withoutSeason = Regex.Replace(withoutUnderscore, pattern3, " ");
+        string withoutOrdinal = Regex.Replace(withoutSeason, pattern4, string.Empty);
+        string withoutRomanNumerals = Regex.Replace(withoutOrdinal, pattern5, string.Empty);
+        string withoutAfterSpaces = Regex.Replace(withoutRomanNumerals, pattern6, string.Empty); //removes everything after 2 spaces
+        
+        string output = withoutAfterSpaces.ApplyCase(LetterCasing.Title).TrimStart().TrimEnd();
         ConsoleExt.WriteLineWithPretext(output, ConsoleExt.OutputType.Info);
         return output;
     }
@@ -396,62 +404,61 @@ abstract class AnimeArchiveHandler
     // Moves all the episodes to the destination folder
     private static void MoveEpisodes(string[] files)
     {
-        if (_seasonNumbers != null)
-            foreach (var season in _seasonNumbers)
+        if (_seasonNumbers == null) return;
+        foreach (var season in _seasonNumbers)
+        {
+            int episodeNumber = 1;
+            foreach (var file in files)
             {
-                int episodeNumber = 1;
-                foreach (var file in files)
+                string fileExtension = new FileInfo(file).Extension;
+                string destinationFile = AnimeOutputFolder + @"\" + _subOrDub + @"\" + _animeName + @"\Season " +
+                                         season + @"\" + _animeName + " #" + episodeNumber + fileExtension;
+                if (!CheckForExistence(file, File.Exists(destinationFile) ? destinationFile : GetFileInProgramFolder("UserSettings.json")) && 
+                    !FileIntegrityCheck(File.Exists(destinationFile) ? new [] {destinationFile} : new [] {""}))
                 {
-                    string fileExtension = new FileInfo(file).Extension;
-                    string destinationFile = AnimeOutputFolder + @"\" + _subOrDub + @"\" + _animeName + @"\Season " +
-                                             season +
-                                             @"\" + _animeName + " #" + episodeNumber + fileExtension;
-                    string[] destinationFileTest = { destinationFile };
-                    if (!CheckForExistence(file, destinationFile) && !FileIntegrityCheck(destinationFileTest))
+                    FileInfo fileInfo = new FileInfo(file);
+                    long fileSize = fileInfo.Length;
+
+                    //smaller = more precision, but slower
+                    int bufferSize = 4096 * 4096;
+                    byte[] buffer = new byte[bufferSize];
+
+                    long totalBytesRead = 0;
+
+                    string preMessage = "Episode " + episodeNumber + ": ";
+
+                    using (FileStream source = new FileStream(file, FileMode.Open, FileAccess.Read))
                     {
-                        FileInfo fileInfo = new FileInfo(file);
-                        long fileSize = fileInfo.Length;
-
-                        //smaller = more precision, but slower
-                        int bufferSize = 4096 * 4096;
-                        byte[] buffer = new byte[bufferSize];
-
-                        long totalBytesRead = 0;
-
-                        string preMessage = "Episode " + episodeNumber + ": ";
-
-                        using (FileStream source = new FileStream(file, FileMode.Open, FileAccess.Read))
+                        using (FileStream destination =
+                               new FileStream(destinationFile, FileMode.Create, FileAccess.Write))
                         {
-                            using (FileStream destination =
-                                   new FileStream(destinationFile, FileMode.Create, FileAccess.Write))
+                            int bytesRead;
+                            while ((bytesRead = source.Read(buffer, 0, buffer.Length)) > 0)
                             {
-                                int bytesRead;
-                                while ((bytesRead = source.Read(buffer, 0, buffer.Length)) > 0)
-                                {
-                                    totalBytesRead += bytesRead;
-                                    var progress = (int)((double)totalBytesRead / fileSize * 100);
+                                totalBytesRead += bytesRead;
+                                var progress = (int)((double)totalBytesRead / fileSize * 100);
 
-                                    destination.Write(buffer, 0, bytesRead);
+                                destination.Write(buffer, 0, bytesRead);
 
-                                    Console.CursorLeft = 0;
-                                    Console.Write(ConsoleExt.WriteWithPretext(preMessage, ConsoleExt.OutputType.Info));
-                                    Console.CursorLeft = 0 + preMessage.Length;
-                                    Console.Write("[");
-                                    Console.CursorLeft = 1 + preMessage.Length;
-                                    Console.Write(new string('=', progress / 2));
-                                    Console.CursorLeft = 51 + preMessage.Length;
-                                    Console.Write("]");
-                                    Console.CursorLeft = 53 + preMessage.Length;
-                                    Console.Write($"{progress}%");
-                                }
+                                Console.CursorLeft = 0;
+                                Console.Write(ConsoleExt.WriteWithPretext(preMessage, ConsoleExt.OutputType.Info));
+                                Console.CursorLeft = 0 + preMessage.Length;
+                                Console.Write("[");
+                                Console.CursorLeft = 1 + preMessage.Length;
+                                Console.Write(new string('=', progress / 2));
+                                Console.CursorLeft = 51 + preMessage.Length;
+                                Console.Write("]");
+                                Console.CursorLeft = 53 + preMessage.Length;
+                                Console.Write($"{progress}%");
                             }
                         }
-
-                        Console.WriteLine();
                     }
 
-                    episodeNumber++;
+                    Console.WriteLine();
                 }
+
+                episodeNumber++;
             }
+        }
     }
 }

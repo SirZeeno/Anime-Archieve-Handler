@@ -180,6 +180,7 @@ public static class JikanHandler
     {
         string? englishTitle = null;
         string? defaultTitle = null;
+        int similarityPercentage = JsonFileUtility.GetValue<int>(HelperClass.GetFileInProgramFolder("UserSettings.json"), "SimilarityPercentage");
 
         foreach (var anime in _animes!)
         {
@@ -208,10 +209,10 @@ public static class JikanHandler
                     // Perform fuzzy matching using FuzzySharp's token set ratio
                     int similarity = Fuzz.TokenDifferenceRatio(normalizedTitle, normalizedEnglishTitle);
                     
-                    // Check if the similarity exceeds a certain threshold (e.g., 70%)
-                    if (similarity > 80)
+                    // Check if the similarity exceeds a certain threshold (e.g., 80%)
+                    if (similarity > similarityPercentage)
                     {
-                        return anime; // Found a matching movie
+                        return anime; // Found a matching anime
                     }
                 }
                 if (normalizedDefaultTitle != null)
@@ -219,10 +220,10 @@ public static class JikanHandler
                     // Perform fuzzy matching using FuzzySharp's token set ratio
                     int similarity = Fuzz.TokenDifferenceRatio(normalizedTitle, normalizedDefaultTitle);
                     
-                    // Check if the similarity exceeds a certain threshold (e.g., 70%)
-                    if (similarity > 80)
+                    // Check if the similarity exceeds a certain threshold (e.g., 80%)
+                    if (similarity > similarityPercentage)
                     {
-                        return anime; // Found a matching movie
+                        return anime; // Found a matching anime
                     }
                 }
             }
