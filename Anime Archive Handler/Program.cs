@@ -1,12 +1,14 @@
 ﻿namespace Anime_Archive_Handler;
 
-using System.Text.RegularExpressions;
 using System.Security.Cryptography;
-using static JikanHandler;
-using static HelperClass;
-using JikanDotNet;
+using System.Text.RegularExpressions;
 using FFMpegCore;
 using Humanizer;
+using JikanDotNet;
+
+using static JsonFileUtility;
+using static JikanHandler;
+using static HelperClass;
 
 //i also need this to be able to handle movie folders inside the anime folder
 //i also need this to be able to handle multiple seasons (working on rn, still need to test)
@@ -27,7 +29,7 @@ using Humanizer;
 
 abstract class AnimeArchiveHandler
 {
-    private static readonly string AnimeOutputFolder = JsonFileUtility.GetValue<string>(GetFileInProgramFolder("UserSettings.json"), "AnimeOutputFolder");
+    private static readonly string AnimeOutputFolder = GetValue<string>(GetFileInProgramFolder("UserSettings.json"), "AnimeOutputFolder");
 
     private enum Languages
     {
@@ -41,23 +43,23 @@ abstract class AnimeArchiveHandler
     private static string? _sourceFolder;
 
     private static bool _hasSubFolder;
-    private static readonly bool HeadlessOperations = JsonFileUtility.GetValue<bool>(GetFileInProgramFolder("UserSettings.json"), "HeadlessOperations");
+    private static readonly bool HeadlessOperations = GetValue<bool>(GetFileInProgramFolder("UserSettings.json"), "HeadlessOperations");
 
     private static void Main(string[] args)
     {
         foreach (var arg in args)
         {
             //Task.Run(Start).Wait();
-            JikanHandler.LoadAnimeDb(); //loads the DB into the _animes list
+            LoadAnimeDb(); //loads the DB into the _animes list
 
             _sourceFolder = arg;
             _hasSubFolder = HasSubFolders(arg);
             ConsoleExt.WriteLineWithPretext("Has sub-folders: " + _hasSubFolder, ConsoleExt.OutputType.Info);
             _animeName = RemoveUnnecessaryNamePieces(new DirectoryInfo(arg).Name);
-            Anime? animeTitleInDb = JikanHandler.GetAnimeWithTitle(_animeName);
+            Anime? animeTitleInDb = GetAnimeWithTitle(_animeName);
             if (animeTitleInDb != null)
             {
-                ConsoleExt.WriteLineWithPretext(JikanHandler.GetAnimeTitleWithAnime(animeTitleInDb) + ", " + animeTitleInDb.MalId,
+                ConsoleExt.WriteLineWithPretext(GetAnimeTitleWithAnime(animeTitleInDb) + ", " + animeTitleInDb.MalId,
                     ConsoleExt.OutputType.Info);
             }
             ExtractingSeasonNumber(new DirectoryInfo(arg).Name);
@@ -80,10 +82,7 @@ abstract class AnimeArchiveHandler
                             //ConsoleExt.WriteLineWithPretext("Moving All the Season Episodes!", ConsoleExt.OutputType.Info);
                             //ConsoleExt.WriteLineWithPretext("Copied all Episodes from that Season to the Anime Folder.", ConsoleExt.OutputType.Info);
                         }
-                        else
-                        {
-                            //need to see whats wrong and correct it
-                        }
+                        //need to see whats wrong and correct it
                     }
                 }
                 else
@@ -91,7 +90,7 @@ abstract class AnimeArchiveHandler
                     ConsoleExt.WriteLineWithPretext("Moving on to next...", ConsoleExt.OutputType.Warning);
                 }
             }
-            ConsoleExt.WriteLineWithPretext("Database Last Entre was on Line: " + JsonFileUtility.FindLastNonNullLine(JsonPath), ConsoleExt.OutputType.Info);
+            ConsoleExt.WriteLineWithPretext("Database Last Entre was on Line: " + FindLastNonNullLine(JsonPath), ConsoleExt.OutputType.Info);
         }
         
         ConsoleExt.WriteLineWithPretext("Program has finished running!", ConsoleExt.OutputType.Info);
@@ -258,10 +257,8 @@ abstract class AnimeArchiveHandler
             {
                 _seasonNumbers = new[] {1};
             }
-            else
-            {
-                //ask the user what season the anime is.
-            }
+
+            //ask the user what season the anime is.
             return;
         }
 

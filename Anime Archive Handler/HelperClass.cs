@@ -1,5 +1,7 @@
 ﻿namespace Anime_Archive_Handler;
 
+using System.Reflection;
+
 public static class HelperClass
 {
     //converts input number into ordinal number
@@ -29,7 +31,7 @@ public static class HelperClass
     
     public static int ConvertRomanToNumber(string roman)
     {
-        Dictionary<char, int> romanValues = new Dictionary<char, int>()
+        Dictionary<char, int> romanValues = new Dictionary<char, int>
         {
             { 'I', 1 },
             { 'V', 5 },
@@ -64,7 +66,7 @@ public static class HelperClass
     
     public static int ConvertMixedStringToNumber(string input)
     {
-        Dictionary<char, int> romanValues = new Dictionary<char, int>()
+        Dictionary<char, int> romanValues = new Dictionary<char, int>
         {
             { 'I', 1 },
             { 'V', 5 },
@@ -102,7 +104,7 @@ public static class HelperClass
 
     public static string GetFileInProgramFolder(string fileNameWithExtension)
     {
-        return Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)!,
+        return Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!,
             fileNameWithExtension);
     }
 
@@ -118,10 +120,8 @@ public static class HelperClass
         {
             return false;
         }
-        else
-        {
-            ConsoleExt.WriteLineWithPretext("Answer Provided is either null or not Determinable!", ConsoleExt.OutputType.Error);
-        }
+
+        ConsoleExt.WriteLineWithPretext("Answer Provided is either null or not Determinable!", ConsoleExt.OutputType.Error);
 
         throw new InvalidOperationException();
     }

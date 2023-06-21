@@ -1,5 +1,4 @@
 ﻿namespace Anime_Archive_Handler;
-using System;
 
 public static class ConsoleExt
 {

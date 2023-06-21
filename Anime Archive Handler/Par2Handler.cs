@@ -1,7 +1,6 @@
 ﻿namespace Anime_Archive_Handler;
-using System;
+
 using System.Diagnostics;
-using System.IO;
 
 public static class Par2Handler
 {

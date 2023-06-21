@@ -1,9 +1,8 @@
 ﻿namespace Anime_Archive_Handler;
 
-using FuzzySharp;
-using JikanDotNet;
 using JikanDotNet.Config;
-
+using JikanDotNet;
+using FuzzySharp;
 
 public static class JikanHandler
 {
@@ -103,12 +102,10 @@ public static class JikanHandler
             //await Task.Delay(1000);
             return anime;
         }
-        else
-        {
-            Console.Write(", Anime not found!");
-            Console.WriteLine();
-            return null;
-        }
+
+        Console.Write(", Anime not found!");
+        Console.WriteLine();
+        return null;
     }
 
     public static void LoadAnimeDb()
@@ -140,10 +137,8 @@ public static class JikanHandler
         {
             return englishTitle;
         }
-        else
-        {
-            return defaultTitle ?? "";
-        }
+
+        return defaultTitle ?? "";
     }
     
     public static string GetAnimeTitleWithAnime(Anime? anime)
@@ -172,14 +167,13 @@ public static class JikanHandler
         {
             return englishTitle;
         }
-        else if (defaultTitle != null)
+
+        if (defaultTitle != null)
         {
             return defaultTitle;
         }
-        else
-        {
-            return "";
-        }
+
+        return "";
     }
 
     public static Anime? GetAnimeWithTitle(string title)
@@ -247,9 +241,9 @@ class RateLimiter
 
     public RateLimiter(int limit, int interval)
     {
-        this._limit = limit;
-        this._interval = interval;
-        this._timer = new Timer(ResetCounter!, null, interval, interval);
+        _limit = limit;
+        _interval = interval;
+        _timer = new Timer(ResetCounter!, null, interval, interval);
     }
 
     private void ResetCounter(object state)
