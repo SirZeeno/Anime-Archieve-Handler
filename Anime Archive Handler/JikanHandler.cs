@@ -23,7 +23,7 @@ public static class JikanHandler
         {
             await using (FileStream unused = File.Create(JsonPath)) { }
         }
-        _animes = JsonFileUtility.ReadFromJsonFile(JsonPath);
+        LoadAnimeDb();
         var rateLimiter = new RateLimiter(40, 60000);
 
         while (true)
@@ -32,6 +32,7 @@ public static class JikanHandler
             {
                 //need to check if the specific malId is not contained in the json file, if it is, it will skip it, if it isn't but there is a null on the line,
                 //it will overwrite it, if there is no null and it actually doesnt exist it will add it, if it exists but some of the information changed it will overwrite it
+                
                 _anime = await GetAnime(_id);
                 JsonFileUtility.WriteToJsonFile(JsonPath, _anime);
                 _id++;
@@ -53,7 +54,7 @@ public static class JikanHandler
                 ConsoleExt.WriteLineWithPretext("Function skipped", ConsoleExt.OutputType.Warning);
             }
 
-            _animes = JsonFileUtility.ReadFromJsonFile(JsonPath);
+            LoadAnimeDb();
 
             await Task.Delay(1000);
         }
@@ -180,13 +181,16 @@ public static class JikanHandler
     {
         string? englishTitle = null;
         string? defaultTitle = null;
+        List<string> synonymTitles;
         int similarityPercentage = JsonFileUtility.GetValue<int>(HelperClass.GetFileInProgramFolder("UserSettings.json"), "SimilarityPercentage");
+        
+        //it adds both languages to a list looks for the highest similarity on both languages and checks if they have the same malId
 
         foreach (var anime in _animes!)
         {
+            synonymTitles = new List<string>();
             foreach (var animeTitle in anime!.Titles)
             {
-                //need to figure out how to implement partial search that gets executed when it cant find anything under the full input title 
                 switch (animeTitle.Type.ToLower())
                 {
                     case "english":
@@ -196,6 +200,9 @@ public static class JikanHandler
                     case "default":
                         defaultTitle = animeTitle.Title;
                         break;
+                    case "synonym":
+                        synonymTitles.Add(animeTitle.Title);
+                        break;
                 }
             }
 
@@ -203,12 +210,18 @@ public static class JikanHandler
             {
                 string? normalizedEnglishTitle = englishTitle?.ToLower().Trim();
                 string? normalizedDefaultTitle = defaultTitle?.ToLower().Trim();
+                List<string> normalizedSynonymTitles = new List<string>();
+                foreach (var synonymTitle in synonymTitles)
+                {
+                    normalizedSynonymTitles?.Add(synonymTitle.ToLower().Trim());
+                }
                 string normalizedTitle = title.ToLower().Trim();
+
                 if (normalizedEnglishTitle != null)
                 {
                     // Perform fuzzy matching using FuzzySharp's token set ratio
                     int similarity = Fuzz.TokenDifferenceRatio(normalizedTitle, normalizedEnglishTitle);
-                    
+
                     // Check if the similarity exceeds a certain threshold (e.g., 80%)
                     if (similarity > similarityPercentage)
                     {
@@ -226,10 +239,42 @@ public static class JikanHandler
                         return anime; // Found a matching anime
                     }
                 }
+                if (normalizedSynonymTitles != null)
+                {
+                    foreach (var normalizedSynonymTitle in normalizedSynonymTitles)
+                    {
+                        // Perform fuzzy matching using FuzzySharp's token set ratio
+                        int similarity = Fuzz.TokenDifferenceRatio(normalizedTitle, normalizedSynonymTitle);
+                    
+                        // Check if the similarity exceeds a certain threshold (e.g., 80%)
+                        if (similarity > similarityPercentage)
+                        {
+                            return anime; // Found a matching anime
+                        }
+                    }
+                }
             }
         }
         
         return null; //need to ask the user if it comes to this point
+    }
+
+    private static void UpdateNullDbPlaces()
+    {
+        //need to rework this to find each null place in order, request with jikan to see if there is new information and then input that information to that line where the null was
+        using var stream = File.OpenRead(JsonPath);
+        using var reader = new StreamReader(stream);
+    
+        var lineCount = 1;
+
+        while (reader.ReadLine() is { } line)
+        {
+            if (!string.IsNullOrWhiteSpace(line) && line.ToLower() != "null")
+            {
+                _id = lineCount;
+            }
+            lineCount++;
+        }
     }
 }
 
