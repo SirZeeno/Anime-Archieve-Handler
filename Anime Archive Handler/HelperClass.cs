@@ -110,7 +110,7 @@ public static class HelperClass
 
     public static bool ManualInformationChecking()
     {
-        ConsoleExt.WriteLineWithPretext("Is this Information Correct? (y/n)", ConsoleExt.OutputType.Warning);
+        ConsoleExt.WriteLineWithPretext("Is this Information Correct? (y/n)", ConsoleExt.OutputType.Question);
         string? answer = Console.ReadLine()?.ToLower();
         if (answer?.ToLower() == "y")
         {
@@ -121,8 +121,16 @@ public static class HelperClass
             return false;
         }
 
-        ConsoleExt.WriteLineWithPretext("Answer Provided is either null or not Determinable!", ConsoleExt.OutputType.Error);
+        ConsoleExt.WriteLineWithPretext("Answer Provided is either null or Indeterminable!", ConsoleExt.OutputType.Error);
 
         throw new InvalidOperationException();
+    }
+
+    public static void UrlNameExtractor(string inputUrl)
+    {
+        if (inputUrl.Contains("gogoanime"))
+        {
+            
+        }
     }
 }

@@ -41,6 +41,44 @@ public static class JsonFileUtility
         sw.WriteLine(json);
     }
     
+    public static Anime? ReadFromJsonFileAt(string filePath, int lineNumber)
+    {
+        using StreamReader sr = new StreamReader(filePath);
+        int currentLineNumber = 1;
+
+        while (currentLineNumber < lineNumber && sr.ReadLine() is { })
+        {
+            currentLineNumber++;
+        }
+
+        if (currentLineNumber != lineNumber) return null;
+        string? line = sr.ReadLine();
+        if (line is null) return null;
+        JsonSerializer serializer = new JsonSerializer();
+        using JsonReader reader = new JsonTextReader(new StringReader(line));
+        return serializer.Deserialize<Anime>(reader);
+
+    }
+    
+    public static void WriteToJsonFileAt(string filePath, Anime? jsonData, int lineNumber)
+    {
+        // Read the existing content of the file
+        string[] lines = File.ReadAllLines(filePath);
+
+        // Check if the line number is within the valid range
+        if (lineNumber < 0 || lineNumber >= lines.Length)
+        {
+            throw new ArgumentOutOfRangeException(nameof(lineNumber), "Invalid line number.");
+        }
+
+        // Update the specified line with the new JSON data
+        lines[lineNumber] = JsonConvert.SerializeObject(jsonData);
+
+        // Write the modified content back to the file
+        File.WriteAllLines(filePath, lines);
+    }
+
+
     public static int FindLastNonNullLine(string filePath)
     {
         using var stream = File.OpenRead(filePath);
@@ -71,14 +109,15 @@ public static class JsonFileUtility
             JToken? valueToken = jsonObject[variableName];
             if (valueToken != null)
             {
-                return valueToken.Value<T>()!; //if this throws a null at one point then i need to revisit this to solve this
+                return valueToken.Value<T>()!;
             }
 
-            throw new ArgumentException($"Variable '{variableName}' not found in the JSON file.");
+            ConsoleExt.WriteLineWithPretext($"Variable '{variableName}' not found in the JSON file.", ConsoleExt.OutputType.Warning);
+            return default!;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            throw new Exception($"Error reading JSON file: {ex.Message}");
+            throw new Exception($"Variable '{variableName}' not found in the JSON file.");
         }
     }
 }

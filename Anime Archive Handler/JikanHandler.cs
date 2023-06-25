@@ -181,14 +181,13 @@ public static class JikanHandler
     {
         string? englishTitle = null;
         string? defaultTitle = null;
-        List<string> synonymTitles;
         int similarityPercentage = JsonFileUtility.GetValue<int>(HelperClass.GetFileInProgramFolder("UserSettings.json"), "SimilarityPercentage");
         
         //it adds both languages to a list looks for the highest similarity on both languages and checks if they have the same malId
 
         foreach (var anime in _animes!)
         {
-            synonymTitles = new List<string>();
+            List<string> synonymTitles = new List<string>();
             foreach (var animeTitle in anime!.Titles)
             {
                 switch (animeTitle.Type.ToLower())

@@ -1,5 +1,6 @@
 {
   "HeadlessOperations": true,
   "AnimeOutputFolder": "Z:\\Anime\\Test",
-  "SimilarityPercentage": 80
+  "SimilarityPercentage": 80,
+  "AnimeListOutput": "Z:\\Anime\\Test\\TestAnimeList.json"
 }

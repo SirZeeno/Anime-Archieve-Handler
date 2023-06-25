@@ -6,7 +6,8 @@ public static class ConsoleExt
     {
         Error,
         Info,
-        Warning
+        Warning,
+        Question
     }
     
     public static int WriteLineWithPretext<T>(T output, OutputType outputType)
@@ -27,19 +28,14 @@ public static class ConsoleExt
 
     private static int DetermineOutputType(OutputType outputType)
     {
-        if (outputType == OutputType.Error)
+        return outputType switch
         {
-            return ErrorType();
-        }
-        if (outputType == OutputType.Info)
-        {
-            return InfoType();
-        }
-        if (outputType == OutputType.Warning)
-        {
-            return WarningType();
-        }
-        return 0;
+            OutputType.Error => ErrorType(),
+            OutputType.Info => InfoType(),
+            OutputType.Warning => WarningType(),
+            OutputType.Question => QuestionType(),
+            _ => 0
+        };
     }
 
     private static int CurrentTime()
@@ -77,5 +73,14 @@ public static class ConsoleExt
         Console.Write("[Warning] ");
         Console.ForegroundColor = oldColor;
         return 10;
+    }
+    
+    private static int QuestionType()
+    {
+        var oldColor = Console.ForegroundColor;
+        Console.ForegroundColor = ConsoleColor.DarkGreen;
+        Console.Write("[Question] ");
+        Console.ForegroundColor = oldColor;
+        return 11;
     }
 }
