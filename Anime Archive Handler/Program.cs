@@ -55,12 +55,12 @@ abstract class AnimeArchiveHandler
 
                 _sourceFolder = arg;
                 _hasSubFolder = HasSubFolders(arg);
-                ConsoleExt.WriteLineWithPretext("Has sub-folders: " + _hasSubFolder, ConsoleExt.OutputType.Info);
+                ConsoleExt.WriteLineWithPretext($"Has sub-folders: {_hasSubFolder}", ConsoleExt.OutputType.Info);
                 _animeName = RemoveUnnecessaryNamePieces(new DirectoryInfo(arg).Name);
                 Anime? animeTitleInDb = GetAnimeWithTitle(_animeName);
                 if (animeTitleInDb != null)
                 {
-                    ConsoleExt.WriteLineWithPretext(GetAnimeTitleWithAnime(animeTitleInDb) + ", " + animeTitleInDb.MalId,
+                    ConsoleExt.WriteLineWithPretext($"{GetAnimeTitleWithAnime(animeTitleInDb)}, {animeTitleInDb.MalId}",
                         ConsoleExt.OutputType.Info);
                 }
                 ExtractingSeasonNumber(new DirectoryInfo(arg).Name);
@@ -91,7 +91,7 @@ abstract class AnimeArchiveHandler
                         ConsoleExt.WriteLineWithPretext("Moving on to next...", ConsoleExt.OutputType.Warning);
                     }
                 }
-                ConsoleExt.WriteLineWithPretext("Database Last Entre was on Line: " + FindLastNonNullLine(JsonPath), ConsoleExt.OutputType.Info);
+                ConsoleExt.WriteLineWithPretext($"Database Last Entre was on Line: {FindLastNonNullLine(JsonPath)}", ConsoleExt.OutputType.Info);
             }
         }
         else if (args.Length == 0)
@@ -129,7 +129,7 @@ abstract class AnimeArchiveHandler
         }
         catch (Exception)
         {
-            ConsoleExt.WriteLineWithPretext("Anime Episode " + episodeNumber + " is Corrupted!", ConsoleExt.OutputType.Error);
+            ConsoleExt.WriteLineWithPretext($"Anime Episode {episodeNumber} is Corrupted!", ConsoleExt.OutputType.Error);
             nothingCorrupt = false;
         }
 
@@ -220,7 +220,7 @@ abstract class AnimeArchiveHandler
                     break;
                 default:
                     ConsoleExt.WriteLineWithPretext("No Language defining argument found.", ConsoleExt.OutputType.Warning);
-                    Console.WriteLine("Please enter the language of the anime (Sub or Dub)");
+                    ConsoleExt.WriteLineWithPretext("Please enter the language of the anime (Sub or Dub)", ConsoleExt.OutputType.Question);
                     Console.WriteLine("1. Sub");
                     Console.WriteLine("2. Dub");
                     int index = int.Parse(Console.ReadLine() ?? string.Empty);
@@ -261,7 +261,7 @@ abstract class AnimeArchiveHandler
             if (HeadlessOperations)
             {
                 _seasonNumbers = new[] {1};
-                ConsoleExt.WriteLineWithPretext("Season Number: " + _seasonNumbers[0], ConsoleExt.OutputType.Info);
+                ConsoleExt.WriteLineWithPretext($"Season Number: {_seasonNumbers[0]}", ConsoleExt.OutputType.Info);
             }
 
             //ask the user what season the anime is.
@@ -287,7 +287,7 @@ abstract class AnimeArchiveHandler
                     }
                 }
             }
-            ConsoleExt.WriteLineWithPretext("Season Number: " + _seasonNumbers[0], ConsoleExt.OutputType.Info);
+            ConsoleExt.WriteLineWithPretext($"Season Number: {_seasonNumbers[0]}", ConsoleExt.OutputType.Info);
             return;
         }
 
@@ -300,7 +300,7 @@ abstract class AnimeArchiveHandler
         {
             _seasonNumbers = new int[seasonNumbers.Count];
             _seasonNumbers = seasonNumbers.ToArray();
-            ConsoleExt.WriteWithPretext("Season Numbers: " + _seasonNumbers[0], ConsoleExt.OutputType.Info);
+            ConsoleExt.WriteWithPretext($"Season Numbers: {_seasonNumbers[0]}", ConsoleExt.OutputType.Info);
             foreach (var number in _seasonNumbers)
             {
                 if (number != _seasonNumbers[0])
@@ -316,13 +316,13 @@ abstract class AnimeArchiveHandler
             int highestNumber = seasonNumbers.Max();
             _seasonNumbers = new int[highestNumber];
             int index = 0;
-            ConsoleExt.WriteWithPretext("Season Numbers: " + lowestNumber, ConsoleExt.OutputType.Info);
+            ConsoleExt.WriteWithPretext($"Season Numbers: {lowestNumber}", ConsoleExt.OutputType.Info);
             for (int i = lowestNumber; i <= highestNumber; i++)
             {
                 _seasonNumbers[index] = i;
                 if (index != 0)
                 {
-                    Console.Write(", " + _seasonNumbers[index]);
+                    Console.Write($", {_seasonNumbers[index]}");
                 }
                 index++;
             }

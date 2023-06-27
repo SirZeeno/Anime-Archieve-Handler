@@ -43,7 +43,7 @@ public static class ConsoleExt
         var dateTime = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss");
         var oldColor = Console.ForegroundColor;
         Console.ForegroundColor = ConsoleColor.White;
-        Console.Write("[" + dateTime + "] ");
+        Console.Write($"[{dateTime}] ");
         Console.ForegroundColor = oldColor;
         return dateTime.Length + 3;
     }

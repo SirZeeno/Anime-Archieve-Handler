@@ -12,7 +12,6 @@ public static class AnimeListHandler
 
     public static void StartAnimeListEditing()
     {
-        string inputString = String.Empty;
         if (string.IsNullOrEmpty(_animeList))
         {
             _animeList = AnimeListBackup;
@@ -21,10 +20,22 @@ public static class AnimeListHandler
         ConsoleExt.WriteLineWithPretext($"Anime List is Stored at: {_animeList}", ConsoleExt.OutputType.Info);
 
         CheckFileExistence();
-        if (inputString.Contains("https://") || inputString.Contains("http://"))
+        string? animeName;
+
+        string? inputString = Console.ReadLine();
+        if (inputString != null && (inputString.Contains("https://") || inputString.Contains("http://")))
         {
-            HelperClass.UrlNameExtractor(Console.ReadLine());
+            animeName = HelperClass.UrlNameExtractor(inputString);
         }
+        else
+        {
+            animeName = inputString;
+        }
+
+        if (animeName == null) return;
+        var animeToAdd = JikanHandler.GetAnimeWithTitle(animeName);
+        
+        JsonFileUtility.WriteToJsonFile(_animeList, animeToAdd);
     }
     
     private static void CheckFileExistence()
