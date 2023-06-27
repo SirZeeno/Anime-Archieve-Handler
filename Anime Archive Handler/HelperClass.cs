@@ -126,11 +126,11 @@ public static class HelperClass
         throw new InvalidOperationException();
     }
 
-    public static void UrlNameExtractor(string inputUrl)
+    public static void UrlNameExtractor(string? inputUrl)
     {
-        if (inputUrl.Contains("gogoanime"))
+        if (inputUrl != null && inputUrl.Contains("gogoanime"))
         {
-            
+            string trimmedUrl = AnimeArchiveHandler.RemoveUnnecessaryNamePieces(inputUrl);
         }
     }
 }

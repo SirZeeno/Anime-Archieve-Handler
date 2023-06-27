@@ -335,7 +335,7 @@ abstract class AnimeArchiveHandler
     }
 
     //removes all unnecessary pieces from the anime name
-    private static string RemoveUnnecessaryNamePieces(string fileName)
+    public static string RemoveUnnecessaryNamePieces(string fileName)
     {
         string pattern1 = @"\[.*?\]|\(.*?\)";
         string pattern2 = @"_";

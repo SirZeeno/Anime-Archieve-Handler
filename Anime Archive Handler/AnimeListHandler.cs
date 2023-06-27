@@ -12,6 +12,7 @@ public static class AnimeListHandler
 
     public static void StartAnimeListEditing()
     {
+        string inputString = String.Empty;
         if (string.IsNullOrEmpty(_animeList))
         {
             _animeList = AnimeListBackup;
@@ -20,6 +21,10 @@ public static class AnimeListHandler
         ConsoleExt.WriteLineWithPretext($"Anime List is Stored at: {_animeList}", ConsoleExt.OutputType.Info);
 
         CheckFileExistence();
+        if (inputString.Contains("https://") || inputString.Contains("http://"))
+        {
+            HelperClass.UrlNameExtractor(Console.ReadLine());
+        }
     }
     
     private static void CheckFileExistence()
