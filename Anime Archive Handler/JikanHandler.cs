@@ -169,12 +169,7 @@ public static class JikanHandler
             return englishTitle;
         }
 
-        if (defaultTitle != null)
-        {
-            return defaultTitle;
-        }
-
-        return "";
+        return defaultTitle ?? "";
     }
 
     public static Anime? GetAnimeWithTitle(string title)
@@ -205,53 +200,38 @@ public static class JikanHandler
                 }
             }
 
-            if (englishTitle != null || defaultTitle != null)
+            if (englishTitle == null && defaultTitle == null) continue;
+            string? normalizedEnglishTitle = englishTitle?.ToLower().Trim();
+            string? normalizedDefaultTitle = defaultTitle?.ToLower().Trim();
+            List<string> normalizedSynonymTitles = synonymTitles.Select(synonymTitle => synonymTitle.ToLower().Trim()).ToList();
+            string normalizedTitle = title.ToLower().Trim();
+
+            if (normalizedEnglishTitle != null)
             {
-                string? normalizedEnglishTitle = englishTitle?.ToLower().Trim();
-                string? normalizedDefaultTitle = defaultTitle?.ToLower().Trim();
-                List<string> normalizedSynonymTitles = new List<string>();
-                foreach (var synonymTitle in synonymTitles)
-                {
-                    normalizedSynonymTitles?.Add(synonymTitle.ToLower().Trim());
-                }
-                string normalizedTitle = title.ToLower().Trim();
+                // Perform fuzzy matching using FuzzySharp's token set ratio
+                int similarity = Fuzz.TokenDifferenceRatio(normalizedTitle, normalizedEnglishTitle);
 
-                if (normalizedEnglishTitle != null)
+                // Check if the similarity exceeds a certain threshold (e.g., 80%)
+                if (similarity > similarityPercentage)
                 {
-                    // Perform fuzzy matching using FuzzySharp's token set ratio
-                    int similarity = Fuzz.TokenDifferenceRatio(normalizedTitle, normalizedEnglishTitle);
+                    return anime; // Found a matching anime
+                }
+            }
+            if (normalizedDefaultTitle != null)
+            {
+                // Perform fuzzy matching using FuzzySharp's token set ratio
+                int similarity = Fuzz.TokenDifferenceRatio(normalizedTitle, normalizedDefaultTitle);
+                    
+                // Check if the similarity exceeds a certain threshold (e.g., 80%)
+                if (similarity > similarityPercentage)
+                {
+                    return anime; // Found a matching anime
+                }
+            }
 
-                    // Check if the similarity exceeds a certain threshold (e.g., 80%)
-                    if (similarity > similarityPercentage)
-                    {
-                        return anime; // Found a matching anime
-                    }
-                }
-                if (normalizedDefaultTitle != null)
-                {
-                    // Perform fuzzy matching using FuzzySharp's token set ratio
-                    int similarity = Fuzz.TokenDifferenceRatio(normalizedTitle, normalizedDefaultTitle);
-                    
-                    // Check if the similarity exceeds a certain threshold (e.g., 80%)
-                    if (similarity > similarityPercentage)
-                    {
-                        return anime; // Found a matching anime
-                    }
-                }
-                if (normalizedSynonymTitles != null)
-                {
-                    foreach (var normalizedSynonymTitle in normalizedSynonymTitles)
-                    {
-                        // Perform fuzzy matching using FuzzySharp's token set ratio
-                        int similarity = Fuzz.TokenDifferenceRatio(normalizedTitle, normalizedSynonymTitle);
-                    
-                        // Check if the similarity exceeds a certain threshold (e.g., 80%)
-                        if (similarity > similarityPercentage)
-                        {
-                            return anime; // Found a matching anime
-                        }
-                    }
-                }
+            if (normalizedSynonymTitles.Select(normalizedSynonymTitle => Fuzz.TokenDifferenceRatio(normalizedTitle, normalizedSynonymTitle)).Any(similarity => similarity > similarityPercentage))
+            {
+                return anime; // Found a matching anime
             }
         }
         

@@ -1,14 +1,18 @@
 ﻿namespace Anime_Archive_Handler;
 
+using static JikanHandler;
+using static JsonFileUtility;
+using JikanDotNet;
+
+
 public static class AnimeListHandler
 {
-    //i need an input system that takes an input from the user and compares the anime name with the database via partial search, looking if the anime has an
-    //english name, if it does, use that name for the entry.
     //if the anime already exists in the list, dont add it, if it doesnt, add it
     //need to also add a season feature to the list that allows for the anime list to also have the season information that tells what season the user wants
 
-    private static string _animeList = JsonFileUtility.GetValue<string>(HelperClass.GetFileInProgramFolder("UserSettings.json"), "AnimeListOutput");
+    private static string _animeList = GetValue<string>(HelperClass.GetFileInProgramFolder("UserSettings.json"), "AnimeListOutput");
     private static readonly string AnimeListBackup = HelperClass.GetFileInProgramFolder("AnimeList.json");
+    private static List<Anime?>? _anime;
 
     public static void StartAnimeListEditing()
     {
@@ -16,10 +20,11 @@ public static class AnimeListHandler
         {
             _animeList = AnimeListBackup;
         }
-
+        
         ConsoleExt.WriteLineWithPretext($"Anime List is Stored at: {_animeList}", ConsoleExt.OutputType.Info);
-
         CheckFileExistence();
+        UpdateList();
+
         string? animeName;
 
         string? inputString = Console.ReadLine();
@@ -33,9 +38,27 @@ public static class AnimeListHandler
         }
 
         if (animeName == null) return;
-        var animeToAdd = JikanHandler.GetAnimeWithTitle(animeName);
-        
-        JsonFileUtility.WriteToJsonFile(_animeList, animeToAdd);
+        var animeToAdd = GetAnimeWithTitle(animeName);
+
+        bool nonExistent = true;
+        if (_anime != null)
+        {
+            foreach (var unused in _anime.Where(anime => GetAnimeTitleWithAnime(animeToAdd) == GetAnimeTitleWithAnime(anime)))
+            {
+                nonExistent = false;
+            }
+        }
+
+        if (nonExistent)
+        {
+            WriteToJsonFile(_animeList, animeToAdd);
+        }
+    }
+
+    private static void UpdateList()
+    {
+        _anime = ReadFromJsonFile(_animeList);
+        ConsoleExt.WriteLineWithPretext("Loaded/Updated Anime List", ConsoleExt.OutputType.Info);
     }
     
     private static void CheckFileExistence()

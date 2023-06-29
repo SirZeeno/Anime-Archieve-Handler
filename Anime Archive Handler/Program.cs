@@ -45,58 +45,62 @@ abstract class AnimeArchiveHandler
 
     private static void Main(string[] args)
     {
-        if (args.Length >= 1)
+        switch (args.Length)
         {
-            foreach (var arg in args)
+            case >= 1:
             {
-                //Task.Run(Start).Wait();
-                LoadAnimeDb(); //loads the DB into the _animes list
-                AnimeListHandler.StartAnimeListEditing();
+                foreach (var arg in args)
+                {
+                    //Task.Run(Start).Wait();
+                    LoadAnimeDb(); //loads the DB into the _animes list
+                    AnimeListHandler.StartAnimeListEditing();
 
-                _sourceFolder = arg;
-                _hasSubFolder = HasSubFolders(arg);
-                ConsoleExt.WriteLineWithPretext($"Has sub-folders: {_hasSubFolder}", ConsoleExt.OutputType.Info);
-                _animeName = RemoveUnnecessaryNamePieces(new DirectoryInfo(arg).Name);
-                Anime? animeTitleInDb = GetAnimeWithTitle(_animeName);
-                if (animeTitleInDb != null)
-                {
-                    ConsoleExt.WriteLineWithPretext($"{GetAnimeTitleWithAnime(animeTitleInDb)}, {animeTitleInDb.MalId}",
-                        ConsoleExt.OutputType.Info);
-                }
-                ExtractingSeasonNumber(new DirectoryInfo(arg).Name);
-                string[] folders = _hasSubFolder ? GetSeasonDirectories() : new [] {arg};
-                foreach (var folder in folders)
-                {
-                    string[] directoryFiles = Directory.GetFiles(folder); //for further use when moving the episodes
-                    if (FileIntegrityCheck(directoryFiles))
+                    _sourceFolder = arg;
+                    _hasSubFolder = HasSubFolders(arg);
+                    ConsoleExt.WriteLineWithPretext($"Has sub-folders: {_hasSubFolder}", ConsoleExt.OutputType.Info);
+                    _animeName = RemoveUnnecessaryNamePieces(new DirectoryInfo(arg).Name);
+                    Anime? animeTitleInDb = GetAnimeWithTitle(_animeName);
+                    if (animeTitleInDb != null)
                     {
-                        ExtractingLanguage(folder);
-                        if (HeadlessOperations)
+                        ConsoleExt.WriteLineWithPretext($"{GetAnimeTitleWithAnime(animeTitleInDb)}, {animeTitleInDb.MalId}",
+                            ConsoleExt.OutputType.Info);
+                    }
+                    ExtractingSeasonNumber(new DirectoryInfo(arg).Name);
+                    string[] folders = _hasSubFolder ? GetSeasonDirectories() : new [] {arg};
+                    foreach (var folder in folders)
+                    {
+                        string[] directoryFiles = Directory.GetFiles(folder); //for further use when moving the episodes
+                        if (FileIntegrityCheck(directoryFiles))
                         {
-                            //ConsoleExt.WriteLineWithPretext("Moving All the Season Episodes!", ConsoleExt.OutputType.Info);
-                            //ConsoleExt.WriteLineWithPretext("Copied all Episodes from that Season to the Anime Folder.", ConsoleExt.OutputType.Info);
-                        }
-                        else
-                        {
-                            if (ManualInformationChecking())
+                            ExtractingLanguage(folder);
+                            if (HeadlessOperations)
                             {
                                 //ConsoleExt.WriteLineWithPretext("Moving All the Season Episodes!", ConsoleExt.OutputType.Info);
                                 //ConsoleExt.WriteLineWithPretext("Copied all Episodes from that Season to the Anime Folder.", ConsoleExt.OutputType.Info);
                             }
-                            //need to see whats wrong and correct it
+                            else
+                            {
+                                if (ManualInformationChecking())
+                                {
+                                    //ConsoleExt.WriteLineWithPretext("Moving All the Season Episodes!", ConsoleExt.OutputType.Info);
+                                    //ConsoleExt.WriteLineWithPretext("Copied all Episodes from that Season to the Anime Folder.", ConsoleExt.OutputType.Info);
+                                }
+                                //need to see whats wrong and correct it
+                            }
+                        }
+                        else
+                        {
+                            ConsoleExt.WriteLineWithPretext("Moving on to next...", ConsoleExt.OutputType.Warning);
                         }
                     }
-                    else
-                    {
-                        ConsoleExt.WriteLineWithPretext("Moving on to next...", ConsoleExt.OutputType.Warning);
-                    }
+                    ConsoleExt.WriteLineWithPretext($"Database Last Entre was on Line: {FindLastNonNullLine(JsonPath)}", ConsoleExt.OutputType.Info);
                 }
-                ConsoleExt.WriteLineWithPretext($"Database Last Entre was on Line: {FindLastNonNullLine(JsonPath)}", ConsoleExt.OutputType.Info);
+
+                break;
             }
-        }
-        else if (args.Length == 0)
-        {
-            AnimeListHandler.StartAnimeListEditing();
+            case 0:
+                AnimeListHandler.StartAnimeListEditing();
+                break;
         }
         ConsoleExt.WriteLineWithPretext("Program has finished running!", ConsoleExt.OutputType.Info);
         Thread.Sleep(1000000);
@@ -106,11 +110,7 @@ abstract class AnimeArchiveHandler
     private static bool HasSubFolders(string inputDirectory)
     {
         string[] folderNames = Directory.GetDirectories(inputDirectory);
-        if (folderNames.Length > 0)
-        {
-            return true;
-        }
-        return false;
+        return folderNames.Length > 0;
     }
 
     //File integrity check that returns false if the file is corrupt
@@ -155,18 +155,11 @@ abstract class AnimeArchiveHandler
     }
 
     //Extracts the Audio Track Language by reading the Metadata
-    private static List<string> TrackLanguageFromMetadata(string videoFilePath)
+    private static List<string?> TrackLanguageFromMetadata(string videoFilePath)
     {
-        var audioTrackLanguages = new List<string>();
         var mediaInfo = FFProbe.Analyse(videoFilePath);
 
-        foreach (var audioStreamLanguage in mediaInfo.AudioStreams.Select(audioStream => audioStream.Language).Where(audioStreamLanguage => audioStreamLanguage != null))
-        {
-            if (audioStreamLanguage == null) continue;
-            audioTrackLanguages.Add(audioStreamLanguage);
-        }
-
-        return audioTrackLanguages;
+        return mediaInfo.AudioStreams.Select(audioStream => audioStream.Language).Where(audioStreamLanguage => audioStreamLanguage != null).Where(audioStreamLanguage => audioStreamLanguage != null).ToList();
     }
 
     //extracts the language from the folder name
@@ -184,7 +177,7 @@ abstract class AnimeArchiveHandler
         }
 
         string[] files = Directory.GetFiles(inputFolderPath);
-        List<string> languages = TrackLanguageFromMetadata(files[1]);
+        List<string?> languages = TrackLanguageFromMetadata(files[1]);
 
         if (languages.Contains("eng", StringComparer.OrdinalIgnoreCase) || languages.Contains("ger", StringComparer.OrdinalIgnoreCase))
         {
@@ -258,11 +251,9 @@ abstract class AnimeArchiveHandler
         if (!match1.Success && !match2.Success && !match4.Success && !match5.Success)
         {
             ConsoleExt.WriteLineWithPretext("No Anime Season number Found!", ConsoleExt.OutputType.Warning);
-            if (HeadlessOperations)
-            {
-                _seasonNumbers = new[] {1};
-                ConsoleExt.WriteLineWithPretext($"Season Number: {_seasonNumbers[0]}", ConsoleExt.OutputType.Info);
-            }
+            if (!HeadlessOperations) return;
+            _seasonNumbers = new[] {1};
+            ConsoleExt.WriteLineWithPretext($"Season Number: {_seasonNumbers[0]}", ConsoleExt.OutputType.Info);
 
             //ask the user what season the anime is.
             return;
