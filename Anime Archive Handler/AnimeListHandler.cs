@@ -26,17 +26,20 @@ public static class AnimeListHandler
         UpdateList();
 
         string? animeName;
+        ConsoleExt.WriteLineWithPretext("What Anime would you like to add to the List?", ConsoleExt.OutputType.Question);
 
         string? inputString = Console.ReadLine();
         if (inputString != null && (inputString.Contains("https://") || inputString.Contains("http://")))
         {
             animeName = HelperClass.UrlNameExtractor(inputString);
+            ConsoleExt.WriteLineWithPretext($"Anime Name: {animeName}", ConsoleExt.OutputType.Info);
         }
         else
         {
             animeName = inputString;
         }
 
+        /*
         if (animeName == null) return;
         var animeToAdd = GetAnimeWithTitle(animeName);
 
@@ -51,8 +54,9 @@ public static class AnimeListHandler
 
         if (nonExistent)
         {
-            WriteToJsonFile(_animeList, animeToAdd);
+            //WriteToJsonFile(_animeList, animeToAdd);
         }
+        */
     }
 
     private static void UpdateList()

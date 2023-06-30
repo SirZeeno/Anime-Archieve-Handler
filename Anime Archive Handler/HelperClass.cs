@@ -1,4 +1,6 @@
-﻿namespace Anime_Archive_Handler;
+﻿using System.Text.RegularExpressions;
+
+namespace Anime_Archive_Handler;
 
 using System.Reflection;
 
@@ -128,22 +130,18 @@ public static class HelperClass
 
     public static string UrlNameExtractor(string? inputUrl)
     {
-        if (inputUrl != null && inputUrl.Contains("gogoanime"))
-        {
-            string trimmedUrl = AnimeArchiveHandler.RemoveUnnecessaryNamePieces(inputUrl);
-            string[] splitName = trimmedUrl.Split();
-            string output = String.Empty;
-            foreach (var word in splitName)
-            {
-                if (word != splitName[^1])
-                {
-                    output += word;
-                }
-            }
+        if (inputUrl == null || !inputUrl.Contains("gogoanime")) return String.Empty;
+        string pattern = @"https:\/\/gogoanime\.\w+\/watch\/";
+        string pattern2 = @"\/ep-\d+";
+        string pattern3 = "-";
+        string pattern4 = @"\b\w+\s*$";
 
-            return output;
-        }
-        
-        return String.Empty;
+        string removedWebsite = Regex.Replace(inputUrl, pattern, "");
+        string removedEpisode = Regex.Replace(removedWebsite, pattern2, "");
+        string removedDashes = Regex.Replace(removedEpisode, pattern3, " ");
+        string removedLastWord = Regex.Replace(removedDashes, pattern4, "");
+        ConsoleExt.WriteLineWithPretext(removedLastWord.Trim(), ConsoleExt.OutputType.Info);
+
+        return removedLastWord.Trim();
     }
 }
