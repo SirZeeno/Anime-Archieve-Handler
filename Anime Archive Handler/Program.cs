@@ -236,7 +236,7 @@ abstract class AnimeArchiveHandler
     }
 
     //extracts the season number from the folder name
-    private static void ExtractingSeasonNumber(string fileName)
+    public static void ExtractingSeasonNumber(string fileName)
     {
         string pattern = @"(?i)(Season|Seasons|S)\s*(\d+)\s*[+\-]+\s*(\d+)";
         string pattern4 = @"(?i)(Season|Seasons|S)\s*(\d+)";

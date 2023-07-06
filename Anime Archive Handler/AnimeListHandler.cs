@@ -23,10 +23,12 @@ public static class AnimeListHandler
         
         ConsoleExt.WriteLineWithPretext($"Anime List is Stored at: {_animeList}", ConsoleExt.OutputType.Info);
         CheckFileExistence();
-        UpdateList();
+        LoadAnimeList();
+        LoadAnimeDb();
 
         string? animeName;
         ConsoleExt.WriteLineWithPretext("What Anime would you like to add to the List?", ConsoleExt.OutputType.Question);
+        Console.Write("Anime Name or URL: ");
 
         string? inputString = Console.ReadLine();
         if (inputString != null && (inputString.Contains("https://") || inputString.Contains("http://")))
@@ -38,10 +40,10 @@ public static class AnimeListHandler
         {
             animeName = inputString;
         }
-
-        /*
+        
         if (animeName == null) return;
-        var animeToAdd = GetAnimeWithTitle(animeName);
+        AnimeArchiveHandler.ExtractingSeasonNumber(animeName);
+        var animeToAdd = GetAnimeWithTitle(AnimeArchiveHandler.RemoveUnnecessaryNamePieces(animeName));
 
         bool nonExistent = true;
         if (_anime != null)
@@ -56,13 +58,19 @@ public static class AnimeListHandler
         {
             //WriteToJsonFile(_animeList, animeToAdd);
         }
-        */
+        
     }
 
-    private static void UpdateList()
+    private static void LoadAnimeList()
     {
         _anime = ReadFromJsonFile(_animeList);
-        ConsoleExt.WriteLineWithPretext("Loaded/Updated Anime List", ConsoleExt.OutputType.Info);
+        ConsoleExt.WriteLineWithPretext("Loaded Anime List", ConsoleExt.OutputType.Info);
+    }
+    
+    private static void UpdateAnimeList()
+    {
+        _anime = ReadFromJsonFile(_animeList);
+        ConsoleExt.WriteLineWithPretext("Updated Anime List", ConsoleExt.OutputType.Info);
     }
     
     private static void CheckFileExistence()

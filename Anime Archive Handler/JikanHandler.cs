@@ -112,7 +112,7 @@ public static class JikanHandler
     public static void LoadAnimeDb()
     {
         _animes = JsonFileUtility.ReadFromJsonFile(JsonPath);
-        ConsoleExt.WriteLineWithPretext("Done Reading Json", ConsoleExt.OutputType.Info);
+        ConsoleExt.WriteLineWithPretext("Done Reading Database", ConsoleExt.OutputType.Info);
     }
     
     public static string GetAnimeTitleWithMalId(long? id)

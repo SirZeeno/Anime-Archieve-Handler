@@ -144,4 +144,15 @@ public static class HelperClass
 
         return removedLastWord.Trim();
     }
+    
+    public static string ManualStringRemoval(string? userInputString, string inputString)
+    {
+        string pattern = @""; //this pattern needs to consist of the userInputString and any empty spaces that come before or after
+
+        string removedWord = Regex.Replace(inputString, pattern, "");
+        
+        ConsoleExt.WriteLineWithPretext(removedWord.Trim(), ConsoleExt.OutputType.Info);
+
+        return removedWord.Trim();
+    }
 }
