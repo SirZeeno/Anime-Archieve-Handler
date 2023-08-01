@@ -12,11 +12,13 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="AutoMapper" Version="12.0.1" />
       <PackageReference Include="FFMpegCore" Version="5.1.0" />
       <PackageReference Include="FuzzySharp" Version="2.0.2" />
       <PackageReference Include="Humanizer" Version="2.14.1" />
       <PackageReference Include="JikanDotNet" Version="2.6.0" />
       <PackageReference Include="MediaInfo.Wrapper" Version="21.9.3" />
+      <PackageReference Include="MessagePack" Version="2.6.100-alpha" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
       <PackageReference Include="NReco.VideoInfo" Version="1.2.0" />
     </ItemGroup>
@@ -31,6 +33,15 @@
       <None Update="AnimeList.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+      <None Update="DataBase.bin">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="..\..\..\..\My Programs\Anime Archive Handler\net7.0\DataBase.bin">
+        <Link>DataBase.bin</Link>
+      </Content>
     </ItemGroup>
 
 </Project>

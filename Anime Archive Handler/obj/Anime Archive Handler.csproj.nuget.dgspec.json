@@ -1,25 +1,27 @@
 {
   "format": 1,
   "restore": {
-    "/Users/leonklewer/Documents/Console Apps/Anime-Archieve-Handler/Anime Archive Handler/Anime Archive Handler.csproj": {}
+    "F:\\Rider Projects\\Anime Archieve Handler\\Anime Archieve Handler\\Anime Archive Handler\\Anime Archive Handler.csproj": {}
   },
   "projects": {
-    "/Users/leonklewer/Documents/Console Apps/Anime-Archieve-Handler/Anime Archive Handler/Anime Archive Handler.csproj": {
+    "F:\\Rider Projects\\Anime Archieve Handler\\Anime Archieve Handler\\Anime Archive Handler\\Anime Archive Handler.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/leonklewer/Documents/Console Apps/Anime-Archieve-Handler/Anime Archive Handler/Anime Archive Handler.csproj",
+        "projectUniqueName": "F:\\Rider Projects\\Anime Archieve Handler\\Anime Archieve Handler\\Anime Archive Handler\\Anime Archive Handler.csproj",
         "projectName": "Anime Archive Handler",
-        "projectPath": "/Users/leonklewer/Documents/Console Apps/Anime-Archieve-Handler/Anime Archive Handler/Anime Archive Handler.csproj",
-        "packagesPath": "/Users/leonklewer/.nuget/packages/",
-        "outputPath": "/Users/leonklewer/Documents/Console Apps/Anime-Archieve-Handler/Anime Archive Handler/obj/",
+        "projectPath": "F:\\Rider Projects\\Anime Archieve Handler\\Anime Archieve Handler\\Anime Archive Handler\\Anime Archive Handler.csproj",
+        "packagesPath": "C:\\Users\\leon\\.nuget\\packages\\",
+        "outputPath": "F:\\Rider Projects\\Anime Archieve Handler\\Anime Archieve Handler\\Anime Archive Handler\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/Users/leonklewer/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\leon\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net7.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -38,6 +40,10 @@
         "net7.0": {
           "targetAlias": "net7.0",
           "dependencies": {
+            "AutoMapper": {
+              "target": "Package",
+              "version": "[12.0.1, )"
+            },
             "FFMpegCore": {
               "target": "Package",
               "version": "[5.1.0, )"
@@ -57,6 +63,10 @@
             "MediaInfo.Wrapper": {
               "target": "Package",
               "version": "[21.9.3, )"
+            },
+            "MessagePack": {
+              "target": "Package",
+              "version": "[2.6.100-alpha, )"
             },
             "NReco.VideoInfo": {
               "target": "Package",
@@ -83,7 +93,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/7.0.304/RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "c:\\program files\\dotnet\\sdk\\7.0.305\\RuntimeIdentifierGraph.json"
         }
       }
     }

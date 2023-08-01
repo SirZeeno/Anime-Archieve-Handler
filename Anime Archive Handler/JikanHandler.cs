@@ -1,8 +1,23 @@
-﻿namespace Anime_Archive_Handler;
+﻿using System.Text;
+
+namespace Anime_Archive_Handler;
 
 using JikanDotNet.Config;
 using JikanDotNet;
+using MessagePack;
 using FuzzySharp;
+using AutoMapper;
+
+public class AutoMapperProfile : Profile
+{
+    public AutoMapperProfile()
+    {
+        CreateMap<Anime, AnimeDto>();
+        CreateMap<TitleEntry, TitleEntryDto>();
+        CreateMap<MalUrl, MalUrlDto>();
+        // Add more mappings if needed
+    }
+}
 
 public static class JikanHandler
 {
@@ -113,6 +128,41 @@ public static class JikanHandler
     {
         _animes = JsonFileUtility.ReadFromJsonFile(JsonPath);
         ConsoleExt.WriteLineWithPretext("Done Reading Database", ConsoleExt.OutputType.Info);
+    }
+    
+    public static void ConvertAnimeDb()
+    {
+        // Configuration to map properties from Anime to AnimeDto
+        MapperConfiguration config = new MapperConfiguration(cfg =>
+        {
+            cfg.AddProfile(new AutoMapperProfile());
+        });
+
+        // Create a mapper instance
+        IMapper mapper = config.CreateMapper();
+
+        List<Anime?> animeData = JsonFileUtility.ReadFromJsonFile(JsonPath);
+
+        List<byte[]> serializedDataList = new List<byte[]>();
+
+        foreach (var anime in animeData)
+        {
+            AnimeDto animeDto = mapper.Map<AnimeDto>(anime);
+            byte[] binaryData = MessagePackSerializer.Serialize(animeDto);
+            
+            // Debug statements to check the 'synopsis' property and its serialization output
+            Console.WriteLine($"Synopsis: {animeDto.Synopsis}");
+
+            serializedDataList.Add(binaryData);
+        }
+
+        // Concatenate all serialized data into a single byte array
+        byte[] concatenatedData = serializedDataList.SelectMany(data => data).ToArray();
+
+        // Write the concatenated binary data to the binary file
+        File.WriteAllBytes(HelperClass.GetFileInProgramFolder("DataBase.bin"), concatenatedData);
+
+        ConsoleExt.WriteLineWithPretext("Done Converting Database", ConsoleExt.OutputType.Info);
     }
     
     public static string GetAnimeTitleWithMalId(long? id)

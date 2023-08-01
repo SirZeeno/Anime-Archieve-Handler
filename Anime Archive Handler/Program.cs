@@ -15,6 +15,7 @@ using static HelperClass;
 //need to rework the execution
 //need to add a par2 backup system that creates a 25% or lower par2 backup file for the entire anime folder
 //need to add a want to watch list to this program, and a (already watched/in anime folder) list that i can easily search and that is more user readable then the json database
+//apply a tag to each episode video file that is the genre tags of the anime so it can be found under those as well
 
 
 /// <summary>

@@ -1,5 +1,7 @@
 {
   "AnimeListOutput": "Z:\\Anime\\Test\\TestAnimeList.json",
+  "AnimeListOutputBin": "Z:\\Anime\\Test\\TestAnimeList.bin",
+  "AnimeDataBaseBin": "Z:\\Anime\\Test\\TestAnimeDataBase.bin",
   "AnimeOutputFolder": "Z:\\Anime\\Test",
   "HeadlessOperations": true,
   "SimilarityPercentage": 80

@@ -1,4 +1,6 @@
-﻿namespace Anime_Archive_Handler;
+﻿using System.Text.RegularExpressions;
+
+namespace Anime_Archive_Handler;
 
 using static JikanHandler;
 using static JsonFileUtility;
@@ -23,6 +25,8 @@ public static class AnimeListHandler
         
         ConsoleExt.WriteLineWithPretext($"Anime List is Stored at: {_animeList}", ConsoleExt.OutputType.Info);
         CheckFileExistence();
+        ConvertAnimeDb();
+        /*
         LoadAnimeList();
         LoadAnimeDb();
 
@@ -31,20 +35,22 @@ public static class AnimeListHandler
         Console.Write("Anime Name or URL: ");
 
         string? inputString = Console.ReadLine();
-        if (inputString != null && (inputString.Contains("https://") || inputString.Contains("http://")))
+        string pattern = Regex.Escape("Anime Name or URL: ");
+        if (inputString == null) return;
+        string cutInputString = Regex.Replace(inputString, pattern, "");
+        if (cutInputString.Contains("https://") || cutInputString.Contains("http://"))
         {
-            animeName = HelperClass.UrlNameExtractor(inputString);
+            animeName = HelperClass.UrlNameExtractor(cutInputString);
             ConsoleExt.WriteLineWithPretext($"Anime Name: {animeName}", ConsoleExt.OutputType.Info);
         }
         else
         {
-            animeName = inputString;
+            animeName = cutInputString;
         }
-        
-        if (animeName == null) return;
+
         AnimeArchiveHandler.ExtractingSeasonNumber(animeName);
         var animeToAdd = GetAnimeWithTitle(AnimeArchiveHandler.RemoveUnnecessaryNamePieces(animeName));
-
+            
         bool nonExistent = true;
         if (_anime != null)
         {
@@ -58,7 +64,7 @@ public static class AnimeListHandler
         {
             //WriteToJsonFile(_animeList, animeToAdd);
         }
-        
+        */
     }
 
     private static void LoadAnimeList()

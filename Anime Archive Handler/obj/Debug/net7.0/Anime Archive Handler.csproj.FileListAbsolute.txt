@@ -22,3 +22,4 @@ F:\My Programs\Anime Archive Handler\net7.0\Anime Archive Handler.pdb
 F:\My Programs\Anime Archive Handler\net7.0\DataBase.json
 F:\My Programs\Anime Archive Handler\net7.0\UserSettings.json
 F:\My Programs\Anime Archive Handler\net7.0\AnimeList.json
+F:\My Programs\Anime Archive Handler\net7.0\DataBase.bin
