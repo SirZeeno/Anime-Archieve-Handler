@@ -1,10 +1,8 @@
 ﻿using AutoMapper;
 using FuzzySharp;
-using Utf8Json;
 using JikanDotNet;
 using JikanDotNet.Config;
-using MessagePack;
-using MessagePack.Resolvers;
+using LiteDB;
 
 namespace Anime_Archive_Handler;
 
@@ -125,38 +123,16 @@ public static class JikanHandler
 
     public static void ConvertAnimeDb()
     {
-        // Configuration to map properties from Anime to AnimeDto
-        var config = new MapperConfiguration(cfg => { cfg.AddProfile(new AutoMapperProfile()); });
-
-        // Create a mapper instance
-        var mapper = config.CreateMapper();
-
         var animeData = JsonFileUtility.ReadFromJsonFile(JsonPath);
-
-        //MessagePackSerializer.ConvertFromJson(JsonPath);
-
-        var serializedDataList = new List<byte[]>();
-
-        foreach (var anime in animeData)
+        using (var db = new LiteDatabase(HelperClass.GetFileInProgramFolder("DataBase.db")))
         {
-            var animeDto = mapper.Map<AnimeDto>(anime);
-            
-            // Serialize the AnimeDto object to binary
-            var binaryData =
-                MessagePackSerializer.Serialize(animeDto.Synopsis, ContractlessStandardResolverAllowPrivate.Options);
-            var result = JsonSerializer.Serialize(animeDto);
+            var col = db.GetCollection<Anime>("Anime");
 
-            // Add to the list of serialized data
-            serializedDataList.Add(binaryData);
+            foreach (var anime in animeData.Where(anime => anime != null))
+            {
+                if (anime != null) col.Insert(anime);
+            }
         }
-
-        // Concatenate all serialized data into a single byte array
-        var concatenatedData = serializedDataList.SelectMany(data => data).ToArray();
-
-        // Write the concatenated binary data to the binary file
-        File.WriteAllBytes(HelperClass.GetFileInProgramFolder("DataBase.bin"), concatenatedData);
-        //JsonFileUtility.WriteToJsonFile(HelperClass.GetFileInProgramFolder("DataBase.bin"), animeDtos);
-
 
         ConsoleExt.WriteLineWithPretext("Done Converting Database", ConsoleExt.OutputType.Info);
     }

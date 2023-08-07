@@ -1,9 +1,11 @@
 ﻿using JikanDotNet;
-using MessagePack;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Anime_Archive_Handler;
+
+//find the specified anime and remove it in the database, or add it if its not there in the right position
+//need to maybe convert using self hosted sql for future use and efficiency
 
 public static class JsonFileUtility
 {
@@ -30,34 +32,17 @@ public static class JsonFileUtility
         return animes;
     }
 
-    public static List<Anime?> ReadFromBinaryFile(string filePath)
-    {
-        var animes = new List<Anime?>();
-
-        // Open the binary file using FileStream
-        using var fileStream = File.OpenRead(filePath);
-
-        // Read the entire binary data into a byte array
-        var binaryData = new byte[fileStream.Length];
-        fileStream.Read(binaryData, 0, binaryData.Length);
-
-        // Deserialize the binary data using MessagePack
-        animes = MessagePackSerializer.Deserialize<List<Anime?>>(binaryData);
-
-        return animes;
-    }
-
     public static void WriteToJsonFile(string filePath, Anime? jsonData)
     {
-        // Serialize the object to binary data using MessagePack
-        var binaryData = MessagePackSerializer.Serialize(jsonData);
+        // Serialize the object to a JSON string
+        string json = JsonConvert.SerializeObject(jsonData);
 
-        // Open the binary file using FileStream
-        // FileMode.Create creates a new file or overwrites an existing one
-        using var fileStream = new FileStream(filePath, FileMode.Create);
-
-        // Write the binary data to the file
-        fileStream.Write(binaryData, 0, binaryData.Length);
+        // Open the JSON file using a FileStream
+        using FileStream fs = new FileStream(filePath, FileMode.Append);
+        
+        // Write the JSON string to the file
+        using StreamWriter sw = new StreamWriter(fs);
+        sw.WriteLine(json);
     }
 
     public static Anime? ReadFromJsonFileAt(string filePath, int lineNumber)
@@ -127,28 +112,5 @@ public static class JsonFileUtility
         {
             throw new Exception($"Variable '{variableName}' not found in the JSON file.");
         }
-    }
-
-    public static void ConvertJsonToBinary(string jsonFilePath, string binaryFilePath)
-    {
-        // Read JSON data from the input file
-        var jsonData = File.ReadAllText(jsonFilePath);
-
-        // Convert JSON to byte array using MessagePack
-        var binaryData = MessagePackSerializer.Serialize(jsonData);
-
-        // Write the binary data to the output file
-        File.WriteAllBytes(binaryFilePath, binaryData);
-    }
-
-    public static string ConvertBinaryToJson(string binaryFilePath)
-    {
-        // Read binary data from the input file
-        var binaryData = File.ReadAllBytes(binaryFilePath);
-
-        // Convert byte array back to JSON using MessagePack
-        var jsonData = MessagePackSerializer.Deserialize<string>(binaryData);
-
-        return jsonData;
     }
 }

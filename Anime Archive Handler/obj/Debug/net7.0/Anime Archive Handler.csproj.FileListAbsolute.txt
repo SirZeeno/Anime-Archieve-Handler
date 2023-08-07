@@ -18,8 +18,8 @@ F:\My Programs\Anime Archive Handler\net7.0\Anime Archive Handler.pdb
 F:\My Programs\Anime Archive Handler\net7.0\DataBase.json
 F:\My Programs\Anime Archive Handler\net7.0\UserSettings.json
 F:\My Programs\Anime Archive Handler\net7.0\AnimeList.json
-F:\My Programs\Anime Archive Handler\net7.0\DataBase.bin
 F:\My Programs\Anime Archive Handler\net7.0\Anime Archive Handler.exe
 F:\My Programs\Anime Archive Handler\net7.0\Anime Archive Handler.runtimeconfig.json
 F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\obj\Debug\net7.0\Anime Archive Handler.csproj.CopyComplete
 F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\obj\Debug\net7.0\Anime Archive Handler.genruntimeconfig.cache
+F:\My Programs\Anime Archive Handler\net7.0\DataBase.db

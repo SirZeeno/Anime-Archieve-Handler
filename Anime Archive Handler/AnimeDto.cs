@@ -1,8 +1,6 @@
-﻿using MessagePack;
-
+﻿
 namespace Anime_Archive_Handler;
 
-[MessagePackObject(true)]
 public class AnimeDto
 {
     /// <summary>ID associated with MyAnimeList.</summary>
@@ -113,7 +111,6 @@ public class AnimeDto
     public bool Approved { get; set; }
 }
 
-[MessagePackObject(true)]
 public class TitleEntryDto
 {
     /// <summary>Type of title (usually the language).</summary>
@@ -123,7 +120,6 @@ public class TitleEntryDto
     public string? Title { get; set; }
 }
 
-[MessagePackObject(true)]
 public class MalUrlDto
 {
     /// <summary>ID associated with MyAnimeList.</summary>

@@ -1,4 +1,5 @@
 ﻿using JikanDotNet;
+using LiteDB;
 
 namespace Anime_Archive_Handler;
 
@@ -22,7 +23,13 @@ public static class AnimeListHandler
 
         ConsoleExt.WriteLineWithPretext($"Anime List is Stored at: {_animeList}", ConsoleExt.OutputType.Info);
         CheckFileExistence();
-        ConvertAnimeDb();
+
+        using var db = new LiteDatabase(HelperClass.GetFileInProgramFolder("DataBase.db"));
+        var col = db.GetCollection<Anime>("Anime");
+        var query = col.FindOne(x => x.MalId == 6); //can be null
+        ConsoleExt.WriteLineWithPretext($"{query.MalId}, {query.Title}", ConsoleExt.OutputType.Info);
+
+        //ConvertAnimeDb();
         /*
         LoadAnimeList();
         LoadAnimeDb();
@@ -47,7 +54,7 @@ public static class AnimeListHandler
 
         AnimeArchiveHandler.ExtractingSeasonNumber(animeName);
         var animeToAdd = GetAnimeWithTitle(AnimeArchiveHandler.RemoveUnnecessaryNamePieces(animeName));
-            
+
         bool nonExistent = true;
         if (_anime != null)
         {
