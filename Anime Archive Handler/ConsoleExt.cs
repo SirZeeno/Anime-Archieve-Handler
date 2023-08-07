@@ -9,19 +9,19 @@ public static class ConsoleExt
         Warning,
         Question
     }
-    
+
     public static int WriteLineWithPretext<T>(T output, OutputType outputType)
     {
-        int length1 = CurrentTime();
-        int length2 = DetermineOutputType(outputType);
+        var length1 = CurrentTime();
+        var length2 = DetermineOutputType(outputType);
         Console.WriteLine(output);
         return length1 + length2;
     }
-    
+
     public static int WriteWithPretext<T>(T output, OutputType outputType)
     {
-        int length1 = CurrentTime();
-        int length2 = DetermineOutputType(outputType);
+        var length1 = CurrentTime();
+        var length2 = DetermineOutputType(outputType);
         Console.Write(output);
         return length1 + length2;
     }
@@ -47,7 +47,7 @@ public static class ConsoleExt
         Console.ForegroundColor = oldColor;
         return dateTime.Length + 3;
     }
-    
+
     private static int InfoType()
     {
         var oldColor = Console.ForegroundColor;
@@ -56,7 +56,7 @@ public static class ConsoleExt
         Console.ForegroundColor = oldColor;
         return 7;
     }
-    
+
     private static int ErrorType()
     {
         var oldColor = Console.ForegroundColor;
@@ -65,7 +65,7 @@ public static class ConsoleExt
         Console.ForegroundColor = oldColor;
         return 8;
     }
-    
+
     private static int WarningType()
     {
         var oldColor = Console.ForegroundColor;
@@ -74,7 +74,7 @@ public static class ConsoleExt
         Console.ForegroundColor = oldColor;
         return 10;
     }
-    
+
     private static int QuestionType()
     {
         var oldColor = Console.ForegroundColor;

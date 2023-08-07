@@ -1,19 +1,19 @@
-﻿namespace Anime_Archive_Handler;
-
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
-using JikanDotNet;
+﻿using JikanDotNet;
 using MessagePack;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
+namespace Anime_Archive_Handler;
 
 public static class JsonFileUtility
 {
     public static List<Anime?> ReadFromJsonFile(string filePath)
-    { 
-        List<Anime?> animes = new List<Anime?>();
+    {
+        var animes = new List<Anime?>();
         // Open the JSON file
-        using StreamReader sr = new StreamReader(filePath);
+        using var sr = new StreamReader(filePath);
         // Create a JSON serializer
-        JsonSerializer serializer = new JsonSerializer();
+        var serializer = new JsonSerializer();
 
         // Read the file line by line
         while (sr.ReadLine() is { } line)
@@ -21,7 +21,7 @@ public static class JsonFileUtility
             // Create a JsonReader object using the line
             using JsonReader reader = new JsonTextReader(new StringReader(line));
             // Deserialize the JSON data into an object of the specified type
-            Anime? anime = serializer.Deserialize<Anime>(reader);
+            var anime = serializer.Deserialize<Anime>(reader);
             // Add the anime to the list
             if (anime != null) animes.Add(anime);
         }
@@ -29,16 +29,16 @@ public static class JsonFileUtility
         // Return the list of animes
         return animes;
     }
-    
+
     public static List<Anime?> ReadFromBinaryFile(string filePath)
     {
-        List<Anime?> animes = new List<Anime?>();
+        var animes = new List<Anime?>();
 
         // Open the binary file using FileStream
-        using FileStream fileStream = File.OpenRead(filePath);
+        using var fileStream = File.OpenRead(filePath);
 
         // Read the entire binary data into a byte array
-        byte[] binaryData = new byte[fileStream.Length];
+        var binaryData = new byte[fileStream.Length];
         fileStream.Read(binaryData, 0, binaryData.Length);
 
         // Deserialize the binary data using MessagePack
@@ -46,49 +46,43 @@ public static class JsonFileUtility
 
         return animes;
     }
-    
+
     public static void WriteToJsonFile(string filePath, Anime? jsonData)
     {
         // Serialize the object to binary data using MessagePack
-        byte[] binaryData = MessagePackSerializer.Serialize(jsonData);
+        var binaryData = MessagePackSerializer.Serialize(jsonData);
 
         // Open the binary file using FileStream
         // FileMode.Create creates a new file or overwrites an existing one
-        using FileStream fileStream = new FileStream(filePath, FileMode.Create);
+        using var fileStream = new FileStream(filePath, FileMode.Create);
 
         // Write the binary data to the file
         fileStream.Write(binaryData, 0, binaryData.Length);
     }
-    
+
     public static Anime? ReadFromJsonFileAt(string filePath, int lineNumber)
     {
-        using StreamReader sr = new StreamReader(filePath);
-        int currentLineNumber = 1;
+        using var sr = new StreamReader(filePath);
+        var currentLineNumber = 1;
 
-        while (currentLineNumber < lineNumber && sr.ReadLine() is { })
-        {
-            currentLineNumber++;
-        }
+        while (currentLineNumber < lineNumber && sr.ReadLine() is not null) currentLineNumber++;
 
         if (currentLineNumber != lineNumber) return null;
-        string? line = sr.ReadLine();
+        var line = sr.ReadLine();
         if (line is null) return null;
-        JsonSerializer serializer = new JsonSerializer();
+        var serializer = new JsonSerializer();
         using JsonReader reader = new JsonTextReader(new StringReader(line));
         return serializer.Deserialize<Anime>(reader);
-
     }
-    
+
     public static void WriteToJsonFileAt(string filePath, Anime? jsonData, int lineNumber)
     {
         // Read the existing content of the file
-        string[] lines = File.ReadAllLines(filePath);
+        var lines = File.ReadAllLines(filePath);
 
         // Check if the line number is within the valid range
         if (lineNumber < 0 || lineNumber >= lines.Length)
-        {
             throw new ArgumentOutOfRangeException(nameof(lineNumber), "Invalid line number.");
-        }
 
         // Update the specified line with the new JSON data
         lines[lineNumber] = JsonConvert.SerializeObject(jsonData);
@@ -102,19 +96,16 @@ public static class JsonFileUtility
     {
         using var stream = File.OpenRead(filePath);
         using var reader = new StreamReader(stream);
-    
+
         var lineCount = 1;
         var lastNonNullLine = -1;
 
         while (reader.ReadLine() is { } line)
         {
-            if (!string.IsNullOrWhiteSpace(line) && line.ToLower() != "null")
-            {
-                lastNonNullLine = lineCount;
-            }
+            if (!string.IsNullOrWhiteSpace(line) && line.ToLower() != "null") lastNonNullLine = lineCount;
             lineCount++;
         }
-    
+
         return lastNonNullLine;
     }
 
@@ -122,16 +113,14 @@ public static class JsonFileUtility
     {
         try
         {
-            string jsonContent = File.ReadAllText(filePath);
-            JObject jsonObject = JObject.Parse(jsonContent);
+            var jsonContent = File.ReadAllText(filePath);
+            var jsonObject = JObject.Parse(jsonContent);
 
-            JToken? valueToken = jsonObject[variableName];
-            if (valueToken != null)
-            {
-                return valueToken.Value<T>()!;
-            }
+            var valueToken = jsonObject[variableName];
+            if (valueToken != null) return valueToken.Value<T>()!;
 
-            ConsoleExt.WriteLineWithPretext($"Variable '{variableName}' not found in the JSON file.", ConsoleExt.OutputType.Warning);
+            ConsoleExt.WriteLineWithPretext($"Variable '{variableName}' not found in the JSON file.",
+                ConsoleExt.OutputType.Warning);
             return default!;
         }
         catch (Exception)
@@ -139,14 +128,14 @@ public static class JsonFileUtility
             throw new Exception($"Variable '{variableName}' not found in the JSON file.");
         }
     }
-    
+
     public static void ConvertJsonToBinary(string jsonFilePath, string binaryFilePath)
     {
         // Read JSON data from the input file
-        string jsonData = File.ReadAllText(jsonFilePath);
+        var jsonData = File.ReadAllText(jsonFilePath);
 
         // Convert JSON to byte array using MessagePack
-        byte[] binaryData = MessagePackSerializer.Serialize(jsonData);
+        var binaryData = MessagePackSerializer.Serialize(jsonData);
 
         // Write the binary data to the output file
         File.WriteAllBytes(binaryFilePath, binaryData);
@@ -155,10 +144,10 @@ public static class JsonFileUtility
     public static string ConvertBinaryToJson(string binaryFilePath)
     {
         // Read binary data from the input file
-        byte[] binaryData = File.ReadAllBytes(binaryFilePath);
+        var binaryData = File.ReadAllBytes(binaryFilePath);
 
         // Convert byte array back to JSON using MessagePack
-        string jsonData = MessagePackSerializer.Deserialize<string>(binaryData);
+        var jsonData = MessagePackSerializer.Deserialize<string>(binaryData);
 
         return jsonData;
     }

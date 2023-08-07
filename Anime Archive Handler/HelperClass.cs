@@ -1,8 +1,7 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace Anime_Archive_Handler;
-
-using System.Reflection;
 
 public static class HelperClass
 {
@@ -10,9 +9,7 @@ public static class HelperClass
     public static string ToOrdinal(int number)
     {
         if (number <= 0)
-        {
             throw new ArgumentOutOfRangeException(nameof(number), "The number must be a positive integer.");
-        }
 
         switch (number % 100)
         {
@@ -30,10 +27,10 @@ public static class HelperClass
             _ => number + "th"
         };
     }
-    
+
     public static int ConvertRomanToNumber(string roman)
     {
-        Dictionary<char, int> romanValues = new Dictionary<char, int>
+        var romanValues = new Dictionary<char, int>
         {
             { 'I', 1 },
             { 'V', 5 },
@@ -44,31 +41,27 @@ public static class HelperClass
             { 'M', 1000 }
         };
 
-        int result = 0;
-        int previousValue = 0;
+        var result = 0;
+        var previousValue = 0;
 
-        for (int i = roman.Length - 1; i >= 0; i--)
+        for (var i = roman.Length - 1; i >= 0; i--)
         {
-            int currentValue = romanValues[roman[i]];
+            var currentValue = romanValues[roman[i]];
 
             if (currentValue < previousValue)
-            {
                 result -= currentValue;
-            }
             else
-            {
                 result += currentValue;
-            }
 
             previousValue = currentValue;
         }
 
         return result;
     }
-    
+
     public static int ConvertMixedStringToNumber(string input)
     {
-        Dictionary<char, int> romanValues = new Dictionary<char, int>
+        var romanValues = new Dictionary<char, int>
         {
             { 'I', 1 },
             { 'V', 5 },
@@ -79,11 +72,10 @@ public static class HelperClass
             { 'M', 1000 }
         };
 
-        int result = 0;
-        string currentRoman = string.Empty;
+        var result = 0;
+        var currentRoman = string.Empty;
 
-        foreach (char c in input)
-        {
+        foreach (var c in input)
             if (romanValues.ContainsKey(c))
             {
                 currentRoman += c;
@@ -93,13 +85,9 @@ public static class HelperClass
                 result += ConvertRomanToNumber(currentRoman);
                 currentRoman = string.Empty;
             }
-        }
 
         // Convert the last extracted Roman numeral if any
-        if (currentRoman != string.Empty)
-        {
-            result += ConvertRomanToNumber(currentRoman);
-        }
+        if (currentRoman != string.Empty) result += ConvertRomanToNumber(currentRoman);
 
         return result;
     }
@@ -113,44 +101,40 @@ public static class HelperClass
     public static bool ManualInformationChecking()
     {
         ConsoleExt.WriteLineWithPretext("Is this Information Correct? (y/n)", ConsoleExt.OutputType.Question);
-        string? answer = Console.ReadLine()?.ToLower();
-        if (answer?.ToLower() == "y")
-        {
-            return true;
-        }
-        if (answer?.ToLower() == "n")
-        {
-            return false;
-        }
+        var answer = Console.ReadLine()?.ToLower();
+        if (answer?.ToLower() == "y") return true;
+        if (answer?.ToLower() == "n") return false;
 
-        ConsoleExt.WriteLineWithPretext("Answer Provided is either null or Indeterminable!", ConsoleExt.OutputType.Error);
+        ConsoleExt.WriteLineWithPretext("Answer Provided is either null or Indeterminable!",
+            ConsoleExt.OutputType.Error);
 
         throw new InvalidOperationException();
     }
 
     public static string UrlNameExtractor(string? inputUrl)
     {
-        if (inputUrl == null || !inputUrl.Contains("gogoanime")) return String.Empty;
-        string pattern = @"https:\/\/gogoanime\.\w+\/watch\/";
-        string pattern2 = @"\/ep-\d+";
-        string pattern3 = "-";
-        string pattern4 = @"\b\w+\s*$";
+        if (inputUrl == null || !inputUrl.Contains("gogoanime")) return string.Empty;
+        var pattern = @"https:\/\/gogoanime\.\w+\/watch\/";
+        var pattern2 = @"\/ep-\d+";
+        var pattern3 = "-";
+        var pattern4 = @"\b\w+\s*$";
 
-        string removedWebsite = Regex.Replace(inputUrl, pattern, "");
-        string removedEpisode = Regex.Replace(removedWebsite, pattern2, "");
-        string removedDashes = Regex.Replace(removedEpisode, pattern3, " ");
-        string removedLastWord = Regex.Replace(removedDashes, pattern4, "");
+        var removedWebsite = Regex.Replace(inputUrl, pattern, "");
+        var removedEpisode = Regex.Replace(removedWebsite, pattern2, "");
+        var removedDashes = Regex.Replace(removedEpisode, pattern3, " ");
+        var removedLastWord = Regex.Replace(removedDashes, pattern4, "");
         ConsoleExt.WriteLineWithPretext(removedLastWord.Trim(), ConsoleExt.OutputType.Info);
 
         return removedLastWord.Trim();
     }
-    
+
     public static string ManualStringRemoval(string? userInputString, string inputString)
     {
-        string pattern = @""; //this pattern needs to consist of the userInputString and any empty spaces that come before or after
+        var pattern =
+            @""; //this pattern needs to consist of the userInputString and any empty spaces that come before or after
 
-        string removedWord = Regex.Replace(inputString, pattern, "");
-        
+        var removedWord = Regex.Replace(inputString, pattern, "");
+
         ConsoleExt.WriteLineWithPretext(removedWord.Trim(), ConsoleExt.OutputType.Info);
 
         return removedWord.Trim();

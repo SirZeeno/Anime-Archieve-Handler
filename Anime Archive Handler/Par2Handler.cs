@@ -1,6 +1,6 @@
-﻿namespace Anime_Archive_Handler;
+﻿using System.Diagnostics;
 
-using System.Diagnostics;
+namespace Anime_Archive_Handler;
 
 public static class Par2Handler
 {
@@ -23,10 +23,10 @@ public static class Par2Handler
         }
 
         // Create a list of files in the folder
-        string[] files = Directory.GetFiles(folderPath);
+        var files = Directory.GetFiles(folderPath);
 
         // Set the path for the PAR2 file
-        string par2FilePath = Path.Combine(folderPath, "folder.par2");
+        var par2FilePath = Path.Combine(folderPath, "folder.par2");
 
         // Check if the PAR2 file already exists
         if (File.Exists(par2FilePath))
@@ -36,31 +36,28 @@ public static class Par2Handler
         }
 
         // Set the command to create the PAR2 file for the entire folder
-        string command = $"\"{Par2JPath}\" c /sm2048 /rr20 /rd1 /rf3 \"{par2FilePath}\"";
+        var command = $"\"{Par2JPath}\" c /sm2048 /rr20 /rd1 /rf3 \"{par2FilePath}\"";
 
         // Append each file to the command
-        foreach (string file in files)
-        {
-            command += $" \"{file}\"";
-        }
+        foreach (var file in files) command += $" \"{file}\"";
 
         // Execute the command
-        int exitCode = ExecuteCommand(command);
+        var exitCode = ExecuteCommand(command);
 
         Console.WriteLine(exitCode == 0 ? "PAR2 file created successfully." : "Error creating PAR2 file.");
     }
 
     private static bool IsFolderEmpty(string folderPath)
     {
-        string[] files = Directory.GetFiles(folderPath);
-        string[] subFolders = Directory.GetDirectories(folderPath);
+        var files = Directory.GetFiles(folderPath);
+        var subFolders = Directory.GetDirectories(folderPath);
 
         return files.Length == 0 && subFolders.Length == 0;
     }
 
     private static int ExecuteCommand(string command)
     {
-        ProcessStartInfo startInfo = new ProcessStartInfo
+        var startInfo = new ProcessStartInfo
         {
             FileName = "cmd.exe",
             RedirectStandardInput = true,
@@ -68,7 +65,7 @@ public static class Par2Handler
             CreateNoWindow = true
         };
 
-        Process process = new Process
+        var process = new Process
         {
             StartInfo = startInfo
         };

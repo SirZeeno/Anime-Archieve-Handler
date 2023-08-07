@@ -1,28 +1,25 @@
-﻿using System.Text.RegularExpressions;
+﻿using JikanDotNet;
 
 namespace Anime_Archive_Handler;
 
 using static JikanHandler;
 using static JsonFileUtility;
-using JikanDotNet;
-
 
 public static class AnimeListHandler
 {
     //if the anime already exists in the list, dont add it, if it doesnt, add it
     //need to also add a season feature to the list that allows for the anime list to also have the season information that tells what season the user wants
 
-    private static string _animeList = GetValue<string>(HelperClass.GetFileInProgramFolder("UserSettings.json"), "AnimeListOutput");
+    private static string _animeList =
+        GetValue<string>(HelperClass.GetFileInProgramFolder("UserSettings.json"), "AnimeListOutput");
+
     private static readonly string AnimeListBackup = HelperClass.GetFileInProgramFolder("AnimeList.json");
     private static List<Anime?>? _anime;
 
     public static void StartAnimeListEditing()
     {
-        if (string.IsNullOrEmpty(_animeList))
-        {
-            _animeList = AnimeListBackup;
-        }
-        
+        if (string.IsNullOrEmpty(_animeList)) _animeList = AnimeListBackup;
+
         ConsoleExt.WriteLineWithPretext($"Anime List is Stored at: {_animeList}", ConsoleExt.OutputType.Info);
         CheckFileExistence();
         ConvertAnimeDb();
@@ -72,20 +69,15 @@ public static class AnimeListHandler
         _anime = ReadFromJsonFile(_animeList);
         ConsoleExt.WriteLineWithPretext("Loaded Anime List", ConsoleExt.OutputType.Info);
     }
-    
+
     private static void UpdateAnimeList()
     {
         _anime = ReadFromJsonFile(_animeList);
         ConsoleExt.WriteLineWithPretext("Updated Anime List", ConsoleExt.OutputType.Info);
     }
-    
+
     private static void CheckFileExistence()
     {
-        if (!File.Exists(_animeList))
-        {
-            File.Create(_animeList);
-        }
+        if (!File.Exists(_animeList)) File.Create(_animeList);
     }
-    
-    
 }
