@@ -5,7 +5,6 @@ using Newtonsoft.Json.Linq;
 namespace Anime_Archive_Handler;
 
 //find the specified anime and remove it in the database, or add it if its not there in the right position
-//need to maybe convert using self hosted sql for future use and efficiency
 
 public static class JsonFileUtility
 {

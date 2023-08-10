@@ -7,6 +7,7 @@ namespace Anime_Archive_Handler;
 
 using static JsonFileUtility;
 using static JikanHandler;
+using static DbHandler;
 using static HelperClass;
 
 //i also need this to be able to handle movie folders inside the anime folder
@@ -51,7 +52,6 @@ internal abstract class AnimeArchiveHandler
                 foreach (var arg in args)
                 {
                     //Task.Run(Start).Wait();
-                    LoadAnimeDb(); //loads the DB into the _animes list
                     AnimeListHandler.StartAnimeListEditing();
 
                     _sourceFolder = arg;

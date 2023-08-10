@@ -6,17 +6,6 @@ using LiteDB;
 
 namespace Anime_Archive_Handler;
 
-public class AutoMapperProfile : Profile
-{
-    public AutoMapperProfile()
-    {
-        CreateMap<Anime, AnimeDto>();
-        CreateMap<TitleEntry, TitleEntryDto>();
-        CreateMap<MalUrl, MalUrlDto>();
-        // Add more mappings if needed
-    }
-}
-
 public static class JikanHandler
 {
     public static readonly string JsonPath = HelperClass.GetFileInProgramFolder("DataBase.json");
@@ -36,8 +25,6 @@ public static class JikanHandler
             await using (var unused = File.Create(JsonPath))
             {
             }
-
-        LoadAnimeDb();
         var rateLimiter = new RateLimiter(40, 60000);
 
         while (true)
@@ -60,8 +47,6 @@ public static class JikanHandler
             {
                 ConsoleExt.WriteLineWithPretext("Function skipped", ConsoleExt.OutputType.Warning);
             }
-
-            LoadAnimeDb();
 
             await Task.Delay(1000);
         }
@@ -115,12 +100,6 @@ public static class JikanHandler
         return null;
     }
 
-    public static void LoadAnimeDb()
-    {
-        _animes = JsonFileUtility.ReadFromJsonFile(JsonPath);
-        ConsoleExt.WriteLineWithPretext("Done Reading Database", ConsoleExt.OutputType.Info);
-    }
-
     public static void ConvertAnimeDb()
     {
         var animeData = JsonFileUtility.ReadFromJsonFile(JsonPath);
@@ -135,126 +114,6 @@ public static class JikanHandler
         }
 
         ConsoleExt.WriteLineWithPretext("Done Converting Database", ConsoleExt.OutputType.Info);
-    }
-
-    public static string GetAnimeTitleWithMalId(long? id)
-    {
-        string? englishTitle = null;
-        string? defaultTitle = null;
-
-        foreach (var title in _animes!.Where(anime => anime!.MalId == id).SelectMany(anime => anime!.Titles))
-            switch (title.Type.ToLower())
-            {
-                case "english":
-                    englishTitle = title.Title;
-                    break;
-                //default is mostly japanese in english characters
-                case "default":
-                    defaultTitle = title.Title;
-                    break;
-            }
-
-        if (englishTitle != null) return englishTitle;
-
-        return defaultTitle ?? "";
-    }
-
-    public static string GetAnimeTitleWithAnime(Anime? anime)
-    {
-        string? englishTitle = null;
-        string? defaultTitle = null;
-
-        if (anime != null)
-            foreach (var title in anime.Titles)
-                switch (title.Type.ToLower())
-                {
-                    case "english":
-                        englishTitle = title.Title;
-                        break;
-                    //default is mostly japanese in english characters
-                    case "default":
-                        defaultTitle = title.Title;
-                        break;
-                }
-
-        if (englishTitle != null) return englishTitle;
-
-        return defaultTitle ?? "";
-    }
-
-    public static Anime? GetAnimeWithTitle(string title)
-    {
-        string? englishTitle = null;
-        string? defaultTitle = null;
-        var similarityPercentage =
-            JsonFileUtility.GetValue<int>(HelperClass.GetFileInProgramFolder("UserSettings.json"),
-                "SimilarityPercentage");
-
-        //it adds both languages to a list looks for the highest similarity on both languages and checks if they have the same malId
-
-        foreach (var anime in _animes!)
-        {
-            var synonymTitles = new List<string>();
-            foreach (var animeTitle in anime!.Titles)
-                switch (animeTitle.Type.ToLower())
-                {
-                    case "english":
-                        englishTitle = animeTitle.Title;
-                        break;
-                    //default is mostly japanese in english characters
-                    case "default":
-                        defaultTitle = animeTitle.Title;
-                        break;
-                    case "synonym":
-                        synonymTitles.Add(animeTitle.Title);
-                        break;
-                }
-
-            if (englishTitle == null && defaultTitle == null) continue;
-            var normalizedEnglishTitle = englishTitle?.ToLower().Trim();
-            var normalizedDefaultTitle = defaultTitle?.ToLower().Trim();
-            var normalizedSynonymTitles = synonymTitles.Select(synonymTitle => synonymTitle.ToLower().Trim()).ToList();
-            var normalizedTitle = title.ToLower().Trim();
-
-            if (normalizedEnglishTitle != null)
-            {
-                // Perform fuzzy matching using FuzzySharp's token set ratio
-                var similarity = Fuzz.TokenDifferenceRatio(normalizedTitle, normalizedEnglishTitle);
-
-                // Check if the similarity exceeds a certain threshold (e.g., 80%)
-                if (similarity > similarityPercentage) return anime; // Found a matching anime
-            }
-
-            if (normalizedDefaultTitle != null)
-            {
-                // Perform fuzzy matching using FuzzySharp's token set ratio
-                var similarity = Fuzz.TokenDifferenceRatio(normalizedTitle, normalizedDefaultTitle);
-
-                // Check if the similarity exceeds a certain threshold (e.g., 80%)
-                if (similarity > similarityPercentage) return anime; // Found a matching anime
-            }
-
-            if (normalizedSynonymTitles
-                .Select(normalizedSynonymTitle => Fuzz.TokenDifferenceRatio(normalizedTitle, normalizedSynonymTitle))
-                .Any(similarity => similarity > similarityPercentage)) return anime; // Found a matching anime
-        }
-
-        return null; //need to ask the user if it comes to this point
-    }
-
-    private static void UpdateNullDbPlaces()
-    {
-        //need to rework this to find each null place in order, request with jikan to see if there is new information and then input that information to that line where the null was
-        using var stream = File.OpenRead(JsonPath);
-        using var reader = new StreamReader(stream);
-
-        var lineCount = 1;
-
-        while (reader.ReadLine() is { } line)
-        {
-            if (!string.IsNullOrWhiteSpace(line) && line.ToLower() != "null") _id = lineCount;
-            lineCount++;
-        }
     }
 }
 
