@@ -1,9 +1,8 @@
 ﻿using JikanDotNet;
-using LiteDB;
 
 namespace Anime_Archive_Handler;
 
-using static JikanHandler;
+using static DbHandler;
 using static JsonFileUtility;
 
 public static class AnimeListHandler
@@ -23,12 +22,9 @@ public static class AnimeListHandler
 
         ConsoleExt.WriteLineWithPretext($"Anime List is Stored at: {_animeList}", ConsoleExt.OutputType.Info);
         CheckFileExistence();
-
-        using var db = new LiteDatabase(HelperClass.GetFileInProgramFolder("DataBase.db"));
-        var col = db.GetCollection<Anime>("Anime");
-        var query = col.FindOne(x => x.MalId == 6); //can be null
-        ConsoleExt.WriteLineWithPretext($"{query.MalId}, {query.Title}", ConsoleExt.OutputType.Info);
-
+        
+        var query = AnimeList.FindOne(x => x.MalId == 6); //can be null
+        //TestNestedPropertyLimitation();
         //ConvertAnimeDb();
         /*
         LoadAnimeList();

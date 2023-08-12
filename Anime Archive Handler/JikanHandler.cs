@@ -1,14 +1,11 @@
-﻿using AutoMapper;
-using FuzzySharp;
-using JikanDotNet;
+﻿using JikanDotNet;
 using JikanDotNet.Config;
-using LiteDB;
+using static Anime_Archive_Handler.DbHandler;
 
 namespace Anime_Archive_Handler;
 
 public static class JikanHandler
 {
-    public static readonly string JsonPath = HelperClass.GetFileInProgramFolder("DataBase.json");
     private static int _id = 1;
     private static Anime? _anime;
     private static int _consecutiveNulls;
@@ -16,15 +13,10 @@ public static class JikanHandler
 
     //need to look into making the json database update every so often
     //need to look into hosting my own jikan API server
-    //when updating i only need to check the line number of the json file, and then check if it says null, and if it doesnt, then it doesnt need to update but just skip it
-    //but if i want to update information i need to check the line number and then update the information
+    //need to rework this class to utilize the SQL database
 
     public static async Task Start()
     {
-        if (!File.Exists(JsonPath))
-            await using (var unused = File.Create(JsonPath))
-            {
-            }
         var rateLimiter = new RateLimiter(40, 60000);
 
         while (true)
@@ -35,7 +27,10 @@ public static class JikanHandler
                 //it will overwrite it, if there is no null and it actually doesnt exist it will add it, if it exists but some of the information changed it will overwrite it
 
                 _anime = await GetAnime(_id);
-                JsonFileUtility.WriteToJsonFile(JsonPath, _anime);
+                if (_anime != null)
+                {
+                    AnimeList.Upsert(_anime);
+                }
                 _id++;
                 if (_anime == null)
                     _consecutiveNulls++;
@@ -98,22 +93,6 @@ public static class JikanHandler
         Console.Write(", Anime not found!");
         Console.WriteLine();
         return null;
-    }
-
-    public static void ConvertAnimeDb()
-    {
-        var animeData = JsonFileUtility.ReadFromJsonFile(JsonPath);
-        using (var db = new LiteDatabase(HelperClass.GetFileInProgramFolder("DataBase.db")))
-        {
-            var col = db.GetCollection<Anime>("Anime");
-
-            foreach (var anime in animeData.Where(anime => anime != null))
-            {
-                if (anime != null) col.Insert(anime);
-            }
-        }
-
-        ConsoleExt.WriteLineWithPretext("Done Converting Database", ConsoleExt.OutputType.Info);
     }
 }
 

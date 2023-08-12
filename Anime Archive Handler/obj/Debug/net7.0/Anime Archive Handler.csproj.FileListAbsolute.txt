@@ -23,3 +23,5 @@ F:\My Programs\Anime Archive Handler\net7.0\Anime Archive Handler.runtimeconfig.
 F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\obj\Debug\net7.0\Anime Archive Handler.csproj.CopyComplete
 F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\obj\Debug\net7.0\Anime Archive Handler.genruntimeconfig.cache
 F:\My Programs\Anime Archive Handler\net7.0\DataBase.db
+F:\My Programs\Anime Archive Handler\net7.0\ffmpeg.exe
+F:\My Programs\Anime Archive Handler\net7.0\ffprobe.exe

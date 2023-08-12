@@ -1,4 +1,5 @@
 ﻿using FuzzySharp;
+using FuzzySharp.Extractor;
 using JikanDotNet;
 using LiteDB;
 
@@ -9,69 +10,68 @@ public static class DbHandler
     private static readonly LiteDatabase Db = new(HelperClass.GetFileInProgramFolder("DataBase.db"));
     public static ILiteCollection<Anime> AnimeList = Db.GetCollection<Anime>("Anime"); //loads anime database
 
+    public static void EnsureIndexDb()
+    {
+        // Ensure index on Titles.Title
+        AnimeList.EnsureIndex("Titles.$.Title");
+        
+        // Ensure index on MalId
+        AnimeList.EnsureIndex(x => x.MalId);
+    }
+
     public static Anime? FindAnimeById(int malId)
     {
         return AnimeList.FindOne(x => x != null && x.MalId == malId);
     }
-
+    
     public static Anime? GetAnimeWithTitle(string title)
     {
-        string? englishTitle = null;
-        string? defaultTitle = null;
-        var similarityPercentage =
-            JsonFileUtility.GetValue<int>(HelperClass.GetFileInProgramFolder("UserSettings.json"),
-                "SimilarityPercentage");
-        
-        //it adds both languages to a list looks for the highest similarity on both languages and checks if they have the same malId
+        var similarityPercentage = JsonFileUtility.GetValue<int>(HelperClass.GetFileInProgramFolder("UserSettings.json"), "SimilarityPercentage");
+        var normalizedTitle = NormalizeTitle(title);
+    
+        // Fetch potential matches from the database 
+        var potentialMatches = FetchPotentialMatchesFromDatabase(normalizedTitle);
 
-        foreach (var anime in AnimeList.FindAll())
+        // Use Process.ExtractTop() to get the best match
+        var matches = Process.ExtractTop(normalizedTitle, potentialMatches.Keys.ToList());
+
+        var extractedResults = matches as ExtractedResult<string>[] ?? matches.ToArray();
+        if (extractedResults.Any() && extractedResults.First().Score > similarityPercentage)
         {
-            var synonymTitles = new List<string>();
-            foreach (var animeTitle in anime!.Titles)
-                switch (animeTitle.Type.ToLower())
-                {
-                    case "english":
-                        englishTitle = animeTitle.Title;
-                        break;
-                    //default is mostly japanese in english characters
-                    case "default":
-                        defaultTitle = animeTitle.Title;
-                        break;
-                    case "synonym":
-                        synonymTitles.Add(animeTitle.Title);
-                        break;
-                }
-
-            if (englishTitle == null && defaultTitle == null) continue;
-            var normalizedEnglishTitle = englishTitle?.ToLower().Trim();
-            var normalizedDefaultTitle = defaultTitle?.ToLower().Trim();
-            var normalizedSynonymTitles = synonymTitles.Select(synonymTitle => synonymTitle.ToLower().Trim()).ToList();
-            var normalizedTitle = title.ToLower().Trim();
-
-            if (normalizedEnglishTitle != null)
-            {
-                // Perform fuzzy matching using FuzzySharp's token set ratio
-                var similarity = Fuzz.TokenDifferenceRatio(normalizedTitle, normalizedEnglishTitle);
-
-                // Check if the similarity exceeds a certain threshold (e.g., 80%)
-                if (similarity > similarityPercentage) return anime; // Found a matching anime
-            }
-
-            if (normalizedDefaultTitle != null)
-            {
-                // Perform fuzzy matching using FuzzySharp's token set ratio
-                var similarity = Fuzz.TokenDifferenceRatio(normalizedTitle, normalizedDefaultTitle);
-
-                // Check if the similarity exceeds a certain threshold (e.g., 80%)
-                if (similarity > similarityPercentage) return anime; // Found a matching anime
-            }
-
-            if (normalizedSynonymTitles
-                .Select(normalizedSynonymTitle => Fuzz.TokenDifferenceRatio(normalizedTitle, normalizedSynonymTitle))
-                .Any(similarity => similarity > similarityPercentage)) return anime; // Found a matching anime
+            return potentialMatches[extractedResults.First().Value];
         }
 
-        return null; //need to ask the user if it comes to this point
+        return null;
+    }
+
+    private static string NormalizeTitle(string title)
+    {
+        return title.ToLower().Trim();
+    }
+
+    private static Dictionary<string, Anime> FetchPotentialMatchesFromDatabase(string normalizedTitle)
+    {
+        var titlesWithAnime = new Dictionary<string, Anime>();
+        
+        // Fetch a broader subset of animes. Adjust this based on your dataset's size and distribution.
+        var potentialAnimes = AnimeList.FindAll().ToList();
+
+        foreach (var anime in potentialAnimes)
+        {
+            if (anime.Titles != null)
+            {
+                foreach (var titleEntry in anime.Titles)
+                {
+                    if (!string.IsNullOrEmpty(titleEntry.Title) && 
+                        NormalizeTitle(titleEntry.Title).StartsWith(normalizedTitle.Substring(0, 1)))
+                    {
+                        titlesWithAnime[NormalizeTitle(titleEntry.Title)] = anime;
+                    }
+                }
+            }
+        }
+
+        return titlesWithAnime;
     }
     
     public static string GetAnimeTitleWithAnime(Anime? anime)
@@ -97,6 +97,7 @@ public static class DbHandler
         return defaultTitle ?? "";
     }
     
+    [Obsolete("UpdateNullDbPlaces is not being used anymore and will be replaced soon")]
     private static void UpdateNullDbPlaces()
     {
         //need to rework this to find each null place in order, request with jikan to see if there is new information and then input that information to that line where the null was
@@ -112,4 +113,51 @@ public static class DbHandler
             lineCount++;
         }
     }
+    
+    [Obsolete("ConvertAnimeDb is not being used anymore and will be removed soon")]
+    public static void ConvertAnimeDb()
+    {
+        var animeData = JsonFileUtility.ReadFromJsonFile("JsonPath");
+        using (var db = new LiteDatabase(HelperClass.GetFileInProgramFolder("DataBase.db")))
+        {
+            var col = db.GetCollection<Anime>("Anime");
+
+            foreach (var anime in animeData.Where(anime => anime != null))
+            {
+                if (anime != null) col.Insert(anime);
+            }
+        }
+
+        ConsoleExt.WriteLineWithPretext("Done Converting Database", ConsoleExt.OutputType.Info);
+    }
+    
+    /*
+    public static void TestNestedPropertyLimitation()
+    {
+        var db = new LiteDatabase(@HelperClass.GetFileInProgramFolder("TestDatabase.db"));
+        var col = db.GetCollection<TestData>("testData");
+
+        // Insert some sample data
+        col.Insert(new TestData { Titles = new List<TitleEntry> { new TitleEntry { Type = "english", Title = "SampleTitle1" } } });
+        col.Insert(new TestData { Titles = new List<TitleEntry> { new TitleEntry { Type = "japanese", Title = "SampleTitle2" } } });
+
+        // Direct query
+        var directResults = col.Find(Query.EQ("Titles.Title", "SampleTitle1")).ToList();
+        Console.WriteLine($"Direct Query Results Count: {directResults.Count}");
+
+        // Wildcard query
+        var wildcardResults = col.Find(Query.EQ("Titles.$.Title", "SampleTitle1")).ToList();
+        Console.WriteLine($"Wildcard Query Results Count: {wildcardResults.Count}");
+
+        // List item query (e.g., query the first item in the Titles list)
+        var listItemResults = col.Find(Query.EQ("Titles[0].Title", "SampleTitle1")).ToList();
+        Console.WriteLine($"List Item Query Results Count: {listItemResults.Count}");
+    }
+
+    private class TestData
+    {
+        public int Id { get; set; }
+        public List<TitleEntry> Titles { get; set; }
+    }
+    */
 }

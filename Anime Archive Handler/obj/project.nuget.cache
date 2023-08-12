@@ -1,10 +1,9 @@
 {
   "version": 2,
-  "dgSpecHash": "MHORHmaLuF7YVR5xQPamm+4TSOoOqLjNV34w6N92BSjuVUC41myrPB6iMzYkO/ZZWc3/lRaI8HLDoBSmFkFSPg==",
+  "dgSpecHash": "bSa/uZ+jpee0tmQfqlO1+3sAGRIr+Hoy7FjdDYRwBD0FLCD0OWJvvI9bVn14pwB1ykezXZnsz80VkXnTRUBIEQ==",
   "success": true,
   "projectFilePath": "F:\\Rider Projects\\Anime Archieve Handler\\Anime Archieve Handler\\Anime Archive Handler\\Anime Archive Handler.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\leon\\.nuget\\packages\\automapper\\12.0.1\\automapper.12.0.1.nupkg.sha512",
     "C:\\Users\\leon\\.nuget\\packages\\ffmpegcore\\5.1.0\\ffmpegcore.5.1.0.nupkg.sha512",
     "C:\\Users\\leon\\.nuget\\packages\\fuzzysharp\\2.0.2\\fuzzysharp.2.0.2.nupkg.sha512",
     "C:\\Users\\leon\\.nuget\\packages\\humanizer\\2.14.1\\humanizer.2.14.1.nupkg.sha512",
@@ -62,7 +61,6 @@
     "C:\\Users\\leon\\.nuget\\packages\\litedb\\5.0.17\\litedb.5.0.17.nupkg.sha512",
     "C:\\Users\\leon\\.nuget\\packages\\mediainfo.native\\21.9.1\\mediainfo.native.21.9.1.nupkg.sha512",
     "C:\\Users\\leon\\.nuget\\packages\\mediainfo.wrapper\\21.9.3\\mediainfo.wrapper.21.9.3.nupkg.sha512",
-    "C:\\Users\\leon\\.nuget\\packages\\microsoft.csharp\\4.7.0\\microsoft.csharp.4.7.0.nupkg.sha512",
     "C:\\Users\\leon\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512",
     "C:\\Users\\leon\\.nuget\\packages\\nreco.videoinfo\\1.2.0\\nreco.videoinfo.1.2.0.nupkg.sha512",
     "C:\\Users\\leon\\.nuget\\packages\\system.memory\\4.5.4\\system.memory.4.5.4.nupkg.sha512",
