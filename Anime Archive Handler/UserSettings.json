@@ -3,6 +3,8 @@
   "AnimeListOutputBin": "Z:\\Anime\\Test\\TestAnimeList.bin",
   "AnimeDataBaseBin": "Z:\\Anime\\Test\\TestAnimeDataBase.bin",
   "AnimeOutputFolder": "Z:\\Anime\\Test",
+  "MultiplePartsInOneFolder": true,
   "HeadlessOperations": true,
-  "SimilarityPercentage": 80
+  "SimilarityPercentage": 80,
+  "CharacterSearchRange": 3
 }

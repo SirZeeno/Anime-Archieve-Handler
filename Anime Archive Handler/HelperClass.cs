@@ -102,13 +102,40 @@ public static class HelperClass
     {
         ConsoleExt.WriteLineWithPretext("Is this Information Correct? (y/n)", ConsoleExt.OutputType.Question);
         var answer = Console.ReadLine()?.ToLower();
-        if (answer?.ToLower() == "y") return true;
-        if (answer?.ToLower() == "n") return false;
+        switch (answer?.ToLower())
+        {
+            case "y":
+            case "yes":
+                return true;
+            case "n":
+            case "no":
+                return false;
+            default:
+                ConsoleExt.WriteLineWithPretext("Answer Provided is either null or Indeterminable!",
+                    ConsoleExt.OutputType.Error);
 
-        ConsoleExt.WriteLineWithPretext("Answer Provided is either null or Indeterminable!",
-            ConsoleExt.OutputType.Error);
+                throw new InvalidOperationException();
+        }
+    }
+    
+    public static bool ManualInformationChecking(string message)
+    {
+        ConsoleExt.WriteLineWithPretext($"{message} (y/n)", ConsoleExt.OutputType.Question);
+        var answer = Console.ReadLine()?.ToLower();
+        switch (answer?.ToLower())
+        {
+            case "y":
+            case "yes":
+                return true;
+            case "n":
+            case "no":
+                return false;
+            default:
+                ConsoleExt.WriteLineWithPretext("Answer Provided is either null or Indeterminable!",
+                    ConsoleExt.OutputType.Error);
 
-        throw new InvalidOperationException();
+                throw new InvalidOperationException();
+        }
     }
 
     public static string UrlNameExtractor(string? inputUrl)

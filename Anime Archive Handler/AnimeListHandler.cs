@@ -2,6 +2,7 @@
 
 namespace Anime_Archive_Handler;
 
+using static AnimeArchiveHandler;
 using static DbHandler;
 using static JsonFileUtility;
 
@@ -11,7 +12,7 @@ public static class AnimeListHandler
     //need to also add a season feature to the list that allows for the anime list to also have the season information that tells what season the user wants
 
     private static string _animeList =
-        GetValue<string>(HelperClass.GetFileInProgramFolder("UserSettings.json"), "AnimeListOutput");
+        GetValue<string>(UserSettingsFile, "AnimeListOutput");
 
     private static readonly string AnimeListBackup = HelperClass.GetFileInProgramFolder("AnimeList.json");
     private static List<Anime?>? _anime;

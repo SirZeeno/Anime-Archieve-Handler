@@ -5,18 +5,36 @@ using LiteDB;
 
 namespace Anime_Archive_Handler;
 
+using static AnimeArchiveHandler;
+
 public static class DbHandler
 {
     private static readonly LiteDatabase Db = new(HelperClass.GetFileInProgramFolder("DataBase.db"));
-    public static ILiteCollection<Anime> AnimeList = Db.GetCollection<Anime>("Anime"); //loads anime database
+    public static readonly ILiteCollection<Anime> AnimeList = Db.GetCollection<Anime>("Anime"); //loads anime database
+    private static readonly ILiteCollection<TitleEntryDb> TitleEntryList = Db.GetCollection<TitleEntryDb>("TitleEntry");
 
     public static void EnsureIndexDb()
     {
-        // Ensure index on Titles.Title
-        AnimeList.EnsureIndex("Titles.$.Title");
-        
         // Ensure index on MalId
         AnimeList.EnsureIndex(x => x.MalId);
+    }
+
+    public static void PopulateTitleEntryDb()
+    {
+        var animes = AnimeList.FindAll();
+        foreach (var anime in animes)
+        {
+            foreach (var titleEntry in anime.Titles)
+            {
+                var titleEntryDb = new TitleEntryDb()
+                {
+                    MalId = anime.MalId,
+                    Title = titleEntry.Title,
+                    Type = titleEntry.Type
+                };
+                TitleEntryList.Upsert(titleEntryDb);
+            }
+        }
     }
 
     public static Anime? FindAnimeById(int malId)
@@ -26,19 +44,28 @@ public static class DbHandler
     
     public static Anime? GetAnimeWithTitle(string title)
     {
-        var similarityPercentage = JsonFileUtility.GetValue<int>(HelperClass.GetFileInProgramFolder("UserSettings.json"), "SimilarityPercentage");
+        var similarityPercentage = JsonFileUtility.GetValue<int>(UserSettingsFile, "SimilarityPercentage");
         var normalizedTitle = NormalizeTitle(title);
-    
+
         // Fetch potential matches from the database 
         var potentialMatches = FetchPotentialMatchesFromDatabase(normalizedTitle);
 
+        var enumerable = potentialMatches.ToList();
+
         // Use Process.ExtractTop() to get the best match
-        var matches = Process.ExtractTop(normalizedTitle, potentialMatches.Keys.ToList());
+        var matches = Process.ExtractTop(normalizedTitle, enumerable);
 
         var extractedResults = matches as ExtractedResult<string>[] ?? matches.ToArray();
         if (extractedResults.Any() && extractedResults.First().Score > similarityPercentage)
         {
-            return potentialMatches[extractedResults.First().Value];
+            // Use LiteDB's Query syntax to find the first matching record based on the title
+            var titleEntryDb = TitleEntryList.Find(Query.EQ("Title", extractedResults.First().Value)).FirstOrDefault();
+
+            if (titleEntryDb != null)
+            {
+                var malId = titleEntryDb.MalId;
+                return AnimeList.FindOne(Query.EQ("MalId", malId));
+            }
         }
 
         return null;
@@ -48,32 +75,24 @@ public static class DbHandler
     {
         return title.ToLower().Trim();
     }
-
-    private static Dictionary<string, Anime> FetchPotentialMatchesFromDatabase(string normalizedTitle)
+    
+    private static IEnumerable<string> FetchPotentialMatchesFromDatabase(string normalizedTitle)
     {
-        var titlesWithAnime = new Dictionary<string, Anime>();
-        
-        // Fetch a broader subset of animes. Adjust this based on your dataset's size and distribution.
-        var potentialAnimes = AnimeList.FindAll().ToList();
+        var potentialTitles = new HashSet<string>();
+        var characterSearchRange = JsonFileUtility.GetValue<int>(UserSettingsFile, "CharacterSearchRange");
+    
+        // Fetch all potential TitleEntryDb from the database
+        var allTitleEntries = TitleEntryList.FindAll().ToHashSet();
 
-        foreach (var anime in potentialAnimes)
+        // Filter titles based on the first N characters
+        foreach (var titleEntry in from titleEntry in allTitleEntries where titleEntry.Title != null let firstNCharacters = titleEntry.Title[..Math.Min(characterSearchRange, titleEntry.Title.Length)] where firstNCharacters.ToCharArray().Any(normalizedTitle.Contains) select titleEntry)
         {
-            if (anime.Titles != null)
-            {
-                foreach (var titleEntry in anime.Titles)
-                {
-                    if (!string.IsNullOrEmpty(titleEntry.Title) && 
-                        NormalizeTitle(titleEntry.Title).StartsWith(normalizedTitle.Substring(0, 1)))
-                    {
-                        titlesWithAnime[NormalizeTitle(titleEntry.Title)] = anime;
-                    }
-                }
-            }
+            potentialTitles.Add(titleEntry.Title);
         }
 
-        return titlesWithAnime;
+        return potentialTitles;
     }
-    
+        
     public static string GetAnimeTitleWithAnime(Anime? anime)
     {
         string? englishTitle = null;
@@ -86,7 +105,7 @@ public static class DbHandler
                     case "english":
                         englishTitle = title.Title;
                         break;
-                    //default is mostly japanese in english characters
+                    //default is mostly japanese in English characters
                     case "default":
                         defaultTitle = title.Title;
                         break;
@@ -96,6 +115,7 @@ public static class DbHandler
 
         return defaultTitle ?? "";
     }
+
     
     [Obsolete("UpdateNullDbPlaces is not being used anymore and will be replaced soon")]
     private static void UpdateNullDbPlaces()
@@ -160,4 +180,9 @@ public static class DbHandler
         public List<TitleEntry> Titles { get; set; }
     }
     */
+}
+
+public class TitleEntryDb : TitleEntry
+{
+    public long? MalId { get; init; }
 }

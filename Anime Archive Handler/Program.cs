@@ -8,20 +8,13 @@ using static DbHandler;
 using static HelperClass;
 using static FileHandler;
 
-//i also need this to be able to handle movie folders inside the anime folder
-//need to handle if a anime has multiple parts of a season
-//need to rework the execution
-//need to add a par2 backup system that creates a 25% or lower par2 backup file for the entire anime folder
-//need to add a want to watch list to this program, and a (already watched/in anime folder) list that i can easily search and that is more user readable then the json database
-//apply a tag to each episode video file that is the genre tags of the anime so it can be found under those as well
 //before doing the integrity check on each episode in the folder i need to make sure the files that i am checking are actual video files and not checksum files or any other files like in the Akashic Records of Bastard Magic Instructor folder
 //if the selected anime from the database is not the correct anime, create a selection of all the high similarity matches and let the user choose the correct one. But if they are still not correct, the user can choose to use a custom Name or anime
 
 /// <summary>
 /// The following animes are having issues in the database search process and are returning an incorrect anime or version of the anime
 ///
-/// Overlord is returning Overlord Movie 3: Sei Oukoku-hen
-/// ReZero is returning He Wei Dao x Re:ZERO
+/// Yamada's First Time returns Time: Toki no Shiori
 /// 
 /// </summary>
 
@@ -37,18 +30,22 @@ using static FileHandler;
 /// </summary>
 internal abstract class AnimeArchiveHandler
 {
+    internal static readonly string UserSettingsFile = GetFileInProgramFolder("UserSettings.json");
     private static readonly string AnimeOutputFolder =
-        GetValue<string>(GetFileInProgramFolder("UserSettings.json"), "AnimeOutputFolder");
+        GetValue<string>(UserSettingsFile, "AnimeOutputFolder");
+    internal static readonly bool HeadlessOperations =
+        GetValue<bool>(UserSettingsFile, "HeadlessOperations");
+    private static readonly bool MultiplePartsInOneFolder =
+        GetValue<bool>(UserSettingsFile, "MultiplePartsInOneFolder");
 
-    internal static Languages? _subOrDub;
+    internal static Languages? SubOrDub;
     private static string? _animeName;
-    internal static int[]? _seasonNumbers;
+    internal static int[]? SeasonNumbers;
     private static string? _sourceFolder;
 
     private static bool _hasSubFolder;
+    private static bool _hasMultipleParts;
 
-    internal static readonly bool HeadlessOperations =
-        GetValue<bool>(GetFileInProgramFolder("UserSettings.json"), "HeadlessOperations");
     private static void Main(string[] args)
     {
         EnsureIndexDb();
@@ -149,7 +146,7 @@ internal abstract class AnimeArchiveHandler
     //Creates all the folders if they dont already exist
     private static void DirectoryCreator()
     {
-        if (_subOrDub == null || _animeName == null || _seasonNumbers == null)
+        if (SubOrDub == null || _animeName == null || SeasonNumbers == null)
         {
             ConsoleExt.WriteLineWithPretext("Anime Name, Sub or Dub, or Season Number is null",
                 ConsoleExt.OutputType.Error);
@@ -157,30 +154,30 @@ internal abstract class AnimeArchiveHandler
         }
 
         if (!Directory.Exists(AnimeOutputFolder)) Directory.CreateDirectory(AnimeOutputFolder);
-        if (!Directory.Exists(Path.Combine(AnimeOutputFolder, _subOrDub.ToString()!)))
-            Directory.CreateDirectory(Path.Combine(AnimeOutputFolder, _subOrDub.ToString()!));
-        if (!Directory.Exists(Path.Combine(AnimeOutputFolder, _subOrDub.ToString()!, _animeName)))
-            Directory.CreateDirectory(Path.Combine(AnimeOutputFolder, _subOrDub.ToString()!, _animeName));
+        if (!Directory.Exists(Path.Combine(AnimeOutputFolder, SubOrDub.ToString()!)))
+            Directory.CreateDirectory(Path.Combine(AnimeOutputFolder, SubOrDub.ToString()!));
+        if (!Directory.Exists(Path.Combine(AnimeOutputFolder, SubOrDub.ToString()!, _animeName)))
+            Directory.CreateDirectory(Path.Combine(AnimeOutputFolder, SubOrDub.ToString()!, _animeName));
 
-        if (Directory.Exists(Path.Combine(AnimeOutputFolder, _subOrDub.ToString()!, _animeName, @"\Season ",
-                _seasonNumbers[0].ToString()))) //this is only applicable for one season
+        if (Directory.Exists(Path.Combine(AnimeOutputFolder, SubOrDub.ToString()!, _animeName, @"\Season ",
+                SeasonNumbers[0].ToString()))) //this is only applicable for one season
             return;
-        Directory.CreateDirectory(Path.Combine(AnimeOutputFolder, _subOrDub.ToString()!, _animeName, @"\Season ",
-            _seasonNumbers[0].ToString()));
+        Directory.CreateDirectory(Path.Combine(AnimeOutputFolder, SubOrDub.ToString()!, _animeName, @"\Season ",
+            SeasonNumbers[0].ToString()));
     }
 
 
     // Moves all the episodes to the destination folder
     private static void MoveEpisodes(string[] files)
     {
-        if (_seasonNumbers == null) return;
-        foreach (var season in _seasonNumbers)
+        if (SeasonNumbers == null) return;
+        foreach (var season in SeasonNumbers)
         {
             var episodeNumber = 1;
             foreach (var file in files)
             {
                 var fileExtension = new FileInfo(file).Extension;
-                var destinationFile = AnimeOutputFolder + @"\" + _subOrDub + @"\" + _animeName + @"\Season " +
+                var destinationFile = AnimeOutputFolder + @"\" + SubOrDub + @"\" + _animeName + @"\Season " +
                                       season + @"\" + _animeName + " #" + episodeNumber + fileExtension;
                 if (!CheckForExistence(file,
                         File.Exists(destinationFile) ? destinationFile : GetFileInProgramFolder("UserSettings.json")) &&
