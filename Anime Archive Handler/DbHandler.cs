@@ -10,8 +10,10 @@ using static AnimeArchiveHandler;
 public static class DbHandler
 {
     private static readonly LiteDatabase Db = new(HelperClass.GetFileInProgramFolder("DataBase.db"));
+    private static readonly LiteDatabase Al = new(HelperClass.GetFileInProgramFolder("AnimeList.db"));
     public static readonly ILiteCollection<Anime> AnimeList = Db.GetCollection<Anime>("Anime"); //loads anime database
     private static readonly ILiteCollection<TitleEntryDb> TitleEntryList = Db.GetCollection<TitleEntryDb>("TitleEntry");
+    internal static readonly ILiteCollection<Anime> AnimeSaveList = Al.GetCollection<Anime>("AnimeList");
 
     public static void EnsureIndexDb()
     {
@@ -56,19 +58,15 @@ public static class DbHandler
         var matches = Process.ExtractTop(normalizedTitle, enumerable);
 
         var extractedResults = matches as ExtractedResult<string>[] ?? matches.ToArray();
-        if (extractedResults.Any() && extractedResults.First().Score > similarityPercentage)
-        {
-            // Use LiteDB's Query syntax to find the first matching record based on the title
-            var titleEntryDb = TitleEntryList.Find(Query.EQ("Title", extractedResults.First().Value)).FirstOrDefault();
+        if (!extractedResults.Any() || extractedResults.First().Score <= similarityPercentage) return null;
+        
+        // Use LiteDB's Query syntax to find the first matching record based on the title
+        var titleEntryDb = TitleEntryList.Find(Query.EQ("Title", extractedResults.First().Value)).FirstOrDefault();
 
-            if (titleEntryDb != null)
-            {
-                var malId = titleEntryDb.MalId;
-                return AnimeList.FindOne(Query.EQ("MalId", malId));
-            }
-        }
+        if (titleEntryDb == null) return null;
+        var malId = titleEntryDb.MalId;
+        return AnimeList.FindOne(Query.EQ("MalId", malId));
 
-        return null;
     }
 
     private static string NormalizeTitle(string title)

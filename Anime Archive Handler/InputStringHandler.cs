@@ -1,6 +1,6 @@
-﻿using static System.Text.RegularExpressions.Regex;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using Humanizer;
+using static System.Text.RegularExpressions.Regex;
 
 namespace Anime_Archive_Handler;
 using static AnimeArchiveHandler;
@@ -30,6 +30,73 @@ public static class InputStringHandler
         var output = withoutAfterSpaces.ApplyCase(LetterCasing.Title).TrimStart().TrimEnd();
         ConsoleExt.WriteLineWithPretext(output, ConsoleExt.OutputType.Info);
         return output;
+    }
+    
+    public static string UrlNameExtractor(string? inputUrl)
+    {
+        if (inputUrl == null)
+        {
+            ConsoleExt.WriteLineWithPretext("Tried to extract Url but input was null!", ConsoleExt.OutputType.Error);
+            return string.Empty;
+        }
+        
+        const string pattern2 = @"\/ep-\d+";
+        const string pattern3 = "-";
+        const string pattern4 = @"\b\w+\s*$";
+
+        if (inputUrl.Contains("gogoanime"))
+        {
+            const string pattern = @"https:\/\/gogoanime\.\w+\/watch\/";
+
+            var removedWebsite = Replace(inputUrl, pattern, "");
+            var removedEpisode = Replace(removedWebsite, pattern2, "");
+            var removedDashes = Replace(removedEpisode, pattern3, " ");
+            var removedLastWord = Replace(removedDashes, pattern4, "");
+            ConsoleExt.WriteLineWithPretext(removedLastWord.Trim(), ConsoleExt.OutputType.Info);
+
+            return removedLastWord.Trim();
+        }
+
+        if (inputUrl.Contains("anix"))
+        {
+            const string pattern = @"https:\/\/anix\.\w+\/anime\/";
+
+            var removedWebsite = Replace(inputUrl, pattern, "");
+            var removedEpisode = Replace(removedWebsite, pattern2, "");
+            var removedDashes = Replace(removedEpisode, pattern3, " ");
+            var removedLastWord = Replace(removedDashes, pattern4, "");
+            ConsoleExt.WriteLineWithPretext(removedLastWord.Trim(), ConsoleExt.OutputType.Info);
+
+            return removedLastWord.Trim();
+        }
+        return string.Empty;
+    }
+
+    //Checks if the Folder Name indicates if the anime has and OVA
+    internal static bool HasOva(string fileName)
+    {
+        
+        return false;
+    }
+
+    //Checks if the Folder Name indicates if the anime has multiple parts
+    internal static bool HasMultipleParts(string fileName)
+    {
+        const string pattern = @"(?i)(Part|Parts|P)\s*(\d+)\s*[+\-]+\s*(\d+)";
+        const string pattern2 = @"(?i)(Part|Parts|P)\s*(\d+)";
+
+        var match1 = Match(fileName, pattern);
+        var match2 = Match(fileName, pattern2);
+
+        if (!match1.Success && !match2.Success)
+        {
+            ConsoleExt.WriteLineWithPretext("No Anime Season Part Found!", ConsoleExt.OutputType.Info);
+            return false;
+        }
+        
+        
+        
+        return true;
     }
     
     //extracts the season number from the folder name

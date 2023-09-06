@@ -1,8 +1,10 @@
-﻿using JikanDotNet;
+﻿using System.Text.RegularExpressions;
+using JikanDotNet;
 
 namespace Anime_Archive_Handler;
 
 using static AnimeArchiveHandler;
+using static InputStringHandler;
 using static DbHandler;
 using static JsonFileUtility;
 
@@ -14,7 +16,7 @@ public static class AnimeListHandler
     private static string _animeList =
         GetValue<string>(UserSettingsFile, "AnimeListOutput");
 
-    private static readonly string AnimeListBackup = HelperClass.GetFileInProgramFolder("AnimeList.json");
+    private static readonly string AnimeListBackup = HelperClass.GetFileInProgramFolder("AnimeList.db");
     private static List<Anime?>? _anime;
 
     public static void StartAnimeListEditing()
@@ -23,13 +25,6 @@ public static class AnimeListHandler
 
         ConsoleExt.WriteLineWithPretext($"Anime List is Stored at: {_animeList}", ConsoleExt.OutputType.Info);
         CheckFileExistence();
-        
-        var query = AnimeList.FindOne(x => x.MalId == 6); //can be null
-        //TestNestedPropertyLimitation();
-        //ConvertAnimeDb();
-        /*
-        LoadAnimeList();
-        LoadAnimeDb();
 
         string? animeName;
         ConsoleExt.WriteLineWithPretext("What Anime would you like to add to the List?", ConsoleExt.OutputType.Question);
@@ -41,7 +36,7 @@ public static class AnimeListHandler
         string cutInputString = Regex.Replace(inputString, pattern, "");
         if (cutInputString.Contains("https://") || cutInputString.Contains("http://"))
         {
-            animeName = HelperClass.UrlNameExtractor(cutInputString);
+            animeName = UrlNameExtractor(cutInputString);
             ConsoleExt.WriteLineWithPretext($"Anime Name: {animeName}", ConsoleExt.OutputType.Info);
         }
         else
@@ -49,8 +44,8 @@ public static class AnimeListHandler
             animeName = cutInputString;
         }
 
-        AnimeArchiveHandler.ExtractingSeasonNumber(animeName);
-        var animeToAdd = GetAnimeWithTitle(AnimeArchiveHandler.RemoveUnnecessaryNamePieces(animeName));
+        ExtractingSeasonNumber(animeName);
+        var animeToAdd = GetAnimeWithTitle(RemoveUnnecessaryNamePieces(animeName));
 
         bool nonExistent = true;
         if (_anime != null)
@@ -65,13 +60,13 @@ public static class AnimeListHandler
         {
             //WriteToJsonFile(_animeList, animeToAdd);
         }
-        */
     }
 
-    private static void LoadAnimeList()
+    private static bool ExistsWithinList(string animeTitle)
     {
-        _anime = ReadFromJsonFile(_animeList);
-        ConsoleExt.WriteLineWithPretext("Loaded Anime List", ConsoleExt.OutputType.Info);
+        var anime = GetAnimeWithTitle(animeTitle);
+        
+        return false;
     }
 
     private static void UpdateAnimeList()

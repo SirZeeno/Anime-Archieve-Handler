@@ -41,6 +41,7 @@ internal abstract class AnimeArchiveHandler
     internal static Languages? SubOrDub;
     private static string? _animeName;
     internal static int[]? SeasonNumbers;
+    internal static int[]? PartNumbers;
     private static string? _sourceFolder;
 
     private static bool _hasSubFolder;
@@ -72,6 +73,7 @@ internal abstract class AnimeArchiveHandler
                     {
                         ConsoleExt.WriteLineWithPretext("No Anime found in DataBase!", ConsoleExt.OutputType.Error);
                     }
+                    _hasMultipleParts = HasMultipleParts(new DirectoryInfo(arg).Name);
                     ExtractingSeasonNumber(new DirectoryInfo(arg).Name);
                     var folders = _hasSubFolder ? GetSeasonDirectories() : new[] { arg };
                     foreach (var folder in folders)

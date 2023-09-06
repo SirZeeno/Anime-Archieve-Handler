@@ -138,23 +138,6 @@ public static class HelperClass
         }
     }
 
-    public static string UrlNameExtractor(string? inputUrl)
-    {
-        if (inputUrl == null || !inputUrl.Contains("gogoanime")) return string.Empty;
-        var pattern = @"https:\/\/gogoanime\.\w+\/watch\/";
-        var pattern2 = @"\/ep-\d+";
-        var pattern3 = "-";
-        var pattern4 = @"\b\w+\s*$";
-
-        var removedWebsite = Regex.Replace(inputUrl, pattern, "");
-        var removedEpisode = Regex.Replace(removedWebsite, pattern2, "");
-        var removedDashes = Regex.Replace(removedEpisode, pattern3, " ");
-        var removedLastWord = Regex.Replace(removedDashes, pattern4, "");
-        ConsoleExt.WriteLineWithPretext(removedLastWord.Trim(), ConsoleExt.OutputType.Info);
-
-        return removedLastWord.Trim();
-    }
-
     public static string ManualStringRemoval(string? userInputString, string inputString)
     {
         var pattern =

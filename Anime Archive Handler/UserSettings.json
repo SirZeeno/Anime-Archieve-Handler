@@ -4,6 +4,8 @@
   "AnimeDataBaseBin": "Z:\\Anime\\Test\\TestAnimeDataBase.bin",
   "AnimeOutputFolder": "Z:\\Anime\\Test",
   "MultiplePartsInOneFolder": true,
+  "MoviesInAnimeFolder": false,
+  "OvaInAnimeFolder": false,
   "HeadlessOperations": true,
   "SimilarityPercentage": 80,
   "CharacterSearchRange": 3
