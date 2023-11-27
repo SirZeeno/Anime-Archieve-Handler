@@ -1,7 +1,7 @@
 {
   "version": 3,
   "targets": {
-    "net7.0": {
+    "net8.0": {
       "FFMpegCore/5.1.0": {
         "type": "package",
         "dependencies": {
@@ -634,15 +634,15 @@
           }
         }
       },
-      "JikanDotNet/2.6.3": {
+      "JikanDotNet/2.7.0": {
         "type": "package",
         "compile": {
-          "lib/net6.0/JikanDotNet.dll": {
+          "lib/net8.0/JikanDotNet.dll": {
             "related": ".xml"
           }
         },
         "runtime": {
-          "lib/net6.0/JikanDotNet.dll": {
+          "lib/net8.0/JikanDotNet.dll": {
             "related": ".xml"
           }
         }
@@ -682,6 +682,13 @@
           "lib/net45/MediaInfo.Wrapper.dll": {
             "related": ".xml"
           }
+        }
+      },
+      "Microsoft.NET.Build.Containers/8.0.100": {
+        "type": "package",
+        "build": {
+          "build/Microsoft.NET.Build.Containers.props": {},
+          "build/Microsoft.NET.Build.Containers.targets": {}
         }
       },
       "Newtonsoft.Json/13.0.3": {
@@ -1565,18 +1572,20 @@
         "lib/netstandard2.0/Instances.dll"
       ]
     },
-    "JikanDotNet/2.6.3": {
-      "sha512": "c74nRkTcpBFPujjdZjCAID+Y9BPFhjkxCPOmcghrSp0O/Ikd/m2dwZrMFhzdq/PqCxnHnD4KOzBrweM652Zpkg==",
+    "JikanDotNet/2.7.0": {
+      "sha512": "smYS5CBKvbq8zfGQZW7R9yPuG9wkYKV/kqk9iHcNH1AhyEq4j7JfgXiHQLEE3ePpQDEwGBDAuZXjLp2OPiHE6g==",
       "type": "package",
-      "path": "jikandotnet/2.6.3",
+      "path": "jikandotnet/2.7.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "jikan-logo.png",
-        "jikandotnet.2.6.3.nupkg.sha512",
+        "jikandotnet.2.7.0.nupkg.sha512",
         "jikandotnet.nuspec",
         "lib/net6.0/JikanDotNet.dll",
         "lib/net6.0/JikanDotNet.xml",
+        "lib/net8.0/JikanDotNet.dll",
+        "lib/net8.0/JikanDotNet.xml",
         "lib/netcoreapp3.1/JikanDotNet.dll",
         "lib/netcoreapp3.1/JikanDotNet.xml",
         "lib/netstandard2.0/JikanDotNet.dll",
@@ -1641,6 +1650,91 @@
         "lib/net45/MediaInfo.Wrapper.xml",
         "mediainfo.wrapper.21.9.3.nupkg.sha512",
         "mediainfo.wrapper.nuspec"
+      ]
+    },
+    "Microsoft.NET.Build.Containers/8.0.100": {
+      "sha512": "Ow9/XknHKTy9SDMfkabuWh0EBRfFYFtKW+OU2xscYUIde3Tv3eGhUKxsiA6g729yrwQ1Hf3L9uRqlXBUJrBzkw==",
+      "type": "package",
+      "path": "microsoft.net.build.containers/8.0.100",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "Icon.png",
+        "README.md",
+        "build/Microsoft.NET.Build.Containers.props",
+        "build/Microsoft.NET.Build.Containers.targets",
+        "containerize/Microsoft.DotNet.Cli.Utils.dll",
+        "containerize/Microsoft.Extensions.Configuration.Abstractions.dll",
+        "containerize/Microsoft.Extensions.Configuration.Binder.dll",
+        "containerize/Microsoft.Extensions.Configuration.dll",
+        "containerize/Microsoft.Extensions.DependencyInjection.Abstractions.dll",
+        "containerize/Microsoft.Extensions.DependencyInjection.dll",
+        "containerize/Microsoft.Extensions.DependencyModel.dll",
+        "containerize/Microsoft.Extensions.Logging.Abstractions.dll",
+        "containerize/Microsoft.Extensions.Logging.Configuration.dll",
+        "containerize/Microsoft.Extensions.Logging.Console.dll",
+        "containerize/Microsoft.Extensions.Logging.dll",
+        "containerize/Microsoft.Extensions.Options.ConfigurationExtensions.dll",
+        "containerize/Microsoft.Extensions.Options.dll",
+        "containerize/Microsoft.Extensions.Primitives.dll",
+        "containerize/Microsoft.NET.Build.Containers.dll",
+        "containerize/Newtonsoft.Json.dll",
+        "containerize/NuGet.Common.dll",
+        "containerize/NuGet.Configuration.dll",
+        "containerize/NuGet.DependencyResolver.Core.dll",
+        "containerize/NuGet.Frameworks.dll",
+        "containerize/NuGet.LibraryModel.dll",
+        "containerize/NuGet.Packaging.dll",
+        "containerize/NuGet.ProjectModel.dll",
+        "containerize/NuGet.Protocol.dll",
+        "containerize/NuGet.Versioning.dll",
+        "containerize/System.CommandLine.dll",
+        "containerize/Valleysoft.DockerCredsProvider.dll",
+        "containerize/containerize.dll",
+        "containerize/containerize.runtimeconfig.json",
+        "microsoft.net.build.containers.8.0.100.nupkg.sha512",
+        "microsoft.net.build.containers.nuspec",
+        "tasks/net472/Microsoft.Extensions.DependencyInjection.Abstractions.dll",
+        "tasks/net472/Microsoft.Extensions.DependencyInjection.dll",
+        "tasks/net472/Microsoft.Extensions.DependencyModel.dll",
+        "tasks/net472/Microsoft.Extensions.Logging.Abstractions.dll",
+        "tasks/net472/Microsoft.Extensions.Logging.dll",
+        "tasks/net472/Microsoft.Extensions.Options.dll",
+        "tasks/net472/Microsoft.Extensions.Primitives.dll",
+        "tasks/net472/Microsoft.NET.Build.Containers.dll",
+        "tasks/net472/Newtonsoft.Json.dll",
+        "tasks/net472/NuGet.Common.dll",
+        "tasks/net472/NuGet.Configuration.dll",
+        "tasks/net472/NuGet.DependencyResolver.Core.dll",
+        "tasks/net472/NuGet.Frameworks.dll",
+        "tasks/net472/NuGet.LibraryModel.dll",
+        "tasks/net472/NuGet.Packaging.Core.dll",
+        "tasks/net472/NuGet.Packaging.dll",
+        "tasks/net472/NuGet.ProjectModel.dll",
+        "tasks/net472/NuGet.Protocol.dll",
+        "tasks/net472/NuGet.Versioning.dll",
+        "tasks/net8.0/Microsoft.DotNet.Cli.Utils.dll",
+        "tasks/net8.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll",
+        "tasks/net8.0/Microsoft.Extensions.DependencyInjection.dll",
+        "tasks/net8.0/Microsoft.Extensions.DependencyModel.dll",
+        "tasks/net8.0/Microsoft.Extensions.Logging.Abstractions.dll",
+        "tasks/net8.0/Microsoft.Extensions.Logging.dll",
+        "tasks/net8.0/Microsoft.Extensions.Options.dll",
+        "tasks/net8.0/Microsoft.Extensions.Primitives.dll",
+        "tasks/net8.0/Microsoft.NET.Build.Containers.deps.json",
+        "tasks/net8.0/Microsoft.NET.Build.Containers.dll",
+        "tasks/net8.0/Newtonsoft.Json.dll",
+        "tasks/net8.0/NuGet.Common.dll",
+        "tasks/net8.0/NuGet.Configuration.dll",
+        "tasks/net8.0/NuGet.DependencyResolver.Core.dll",
+        "tasks/net8.0/NuGet.Frameworks.dll",
+        "tasks/net8.0/NuGet.LibraryModel.dll",
+        "tasks/net8.0/NuGet.Packaging.Core.dll",
+        "tasks/net8.0/NuGet.Packaging.dll",
+        "tasks/net8.0/NuGet.ProjectModel.dll",
+        "tasks/net8.0/NuGet.Protocol.dll",
+        "tasks/net8.0/NuGet.Versioning.dll",
+        "tasks/net8.0/Valleysoft.DockerCredsProvider.dll"
       ]
     },
     "Newtonsoft.Json/13.0.3": {
@@ -1859,19 +1953,21 @@
     }
   },
   "projectFileDependencyGroups": {
-    "net7.0": [
+    "net8.0": [
       "FFMpegCore >= 5.1.0",
       "FuzzySharp >= 2.0.2",
       "Humanizer >= 2.14.1",
-      "JikanDotNet >= 2.6.3",
+      "JikanDotNet >= 2.7.0",
       "LiteDB >= 5.0.17",
       "MediaInfo.Wrapper >= 21.9.3",
+      "Microsoft.NET.Build.Containers >= 8.0.100",
       "NReco.VideoInfo >= 1.2.0",
       "Newtonsoft.Json >= 13.0.3"
     ]
   },
   "packageFolders": {
-    "C:\\Users\\leon\\.nuget\\packages\\": {}
+    "C:\\Users\\leon\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
@@ -1882,20 +1978,24 @@
       "packagesPath": "C:\\Users\\leon\\.nuget\\packages\\",
       "outputPath": "F:\\Rider Projects\\Anime Archieve Handler\\Anime Archieve Handler\\Anime Archive Handler\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
       "configFilePaths": [
         "C:\\Users\\leon\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
-        "net7.0"
+        "net8.0"
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
-        "net7.0": {
-          "targetAlias": "net7.0",
+        "net8.0": {
+          "targetAlias": "net8.0",
           "projectReferences": {}
         }
       },
@@ -1906,8 +2006,8 @@
       }
     },
     "frameworks": {
-      "net7.0": {
-        "targetAlias": "net7.0",
+      "net8.0": {
+        "targetAlias": "net8.0",
         "dependencies": {
           "FFMpegCore": {
             "target": "Package",
@@ -1923,7 +2023,7 @@
           },
           "JikanDotNet": {
             "target": "Package",
-            "version": "[2.6.3, )"
+            "version": "[2.7.0, )"
           },
           "LiteDB": {
             "target": "Package",
@@ -1932,6 +2032,10 @@
           "MediaInfo.Wrapper": {
             "target": "Package",
             "version": "[21.9.3, )"
+          },
+          "Microsoft.NET.Build.Containers": {
+            "target": "Package",
+            "version": "[8.0.100, )"
           },
           "NReco.VideoInfo": {
             "target": "Package",
@@ -1958,7 +2062,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files (x86)\\dotnet\\sdk\\7.0.306\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "c:\\program files\\dotnet\\sdk\\8.0.100/PortableRuntimeIdentifierGraph.json"
       }
     }
   },
@@ -1967,10 +2071,10 @@
       "code": "NU1701",
       "level": "Warning",
       "warningLevel": 1,
-      "message": "Package 'MediaInfo.Wrapper 21.9.3' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net7.0'. This package may not be fully compatible with your project.",
+      "message": "Package 'MediaInfo.Wrapper 21.9.3' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.",
       "libraryId": "MediaInfo.Wrapper",
       "targetGraphs": [
-        "net7.0"
+        "net8.0"
       ]
     }
   ]

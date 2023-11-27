@@ -4,10 +4,21 @@ using Newtonsoft.Json.Linq;
 
 namespace Anime_Archive_Handler;
 
-//find the specified anime and remove it in the database, or add it if its not there in the right position
-
 public static class JsonFileUtility
 {
+    public static List<Language>? GetLanguages(string filePath)
+    {
+        // Deserialize from JSON to C# Object
+        return JsonConvert.DeserializeObject<List<Language>>(filePath);
+    }
+
+    public static void WriteLanguages(string filePath, List<Language> root)
+    {
+        // Serialize back to JSON
+        var updatedJsonText = JsonConvert.SerializeObject(root, Formatting.Indented);
+        File.WriteAllText(filePath, updatedJsonText);
+    }
+    
     public static List<Anime?> ReadFromJsonFile(string filePath)
     {
         var animes = new List<Anime?>();
@@ -112,4 +123,11 @@ public static class JsonFileUtility
             throw new Exception($"Variable '{variableName}' not found in the JSON file.");
         }
     }
+}
+
+public class Language
+{
+    public string Name { get; set; }
+    public string ShortForm { get; set; }
+    public bool IsActive { get; set; }
 }

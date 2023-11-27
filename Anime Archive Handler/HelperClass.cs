@@ -126,16 +126,31 @@ public static class HelperClass
         {
             case "y":
             case "yes":
-                return true;
+                return true; // returns true if yes
             case "n":
             case "no":
-                return false;
+                return false; // returns false if no
             default:
                 ConsoleExt.WriteLineWithPretext("Answer Provided is either null or Indeterminable!",
                     ConsoleExt.OutputType.Error);
 
                 throw new InvalidOperationException();
         }
+    }
+
+    public static int[]? ManualSeasonNumber(string message)
+    {
+        ConsoleExt.WriteLineWithPretext($"{message} (Numbers/Symbols Only!)", ConsoleExt.OutputType.Question);
+        ConsoleExt.WriteLineWithPretext("Warning: numbers only in forms of 1,2,3 or 1+2+3 or 1-3", ConsoleExt.OutputType.Warning);
+        string question = Regex.Escape("Season Number(s): ");
+        var answer = Console.ReadLine();
+        if (answer != null)
+        {
+            string cutInputString = Regex.Replace(answer, question, "Season ");
+            InputStringHandler.ExtractingSeasonNumber(cutInputString);
+        }
+
+        return AnimeArchiveHandler.SeasonNumbers;
     }
 
     public static string ManualStringRemoval(string? userInputString, string inputString)

@@ -69,4 +69,10 @@ public static class FileHandler
         var hash = md5.ComputeHash(stream);
         return BitConverter.ToString(hash).Replace("-", "").ToLower();
     }
+    
+    // Checks the existence of a file, creates it if it doesnt exist
+    internal static void CheckFileExistence(string fileToCheck)
+    {
+        if (!File.Exists(fileToCheck)) File.Create(fileToCheck);
+    }
 }

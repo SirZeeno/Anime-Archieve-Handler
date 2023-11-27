@@ -115,7 +115,20 @@ public static class InputStringHandler
         if (!match1.Success && !match2.Success && !match4.Success && !match5.Success)
         {
             ConsoleExt.WriteLineWithPretext("No Anime Season number Found!", ConsoleExt.OutputType.Warning);
-            if (!HeadlessOperations) return;
+            if (!HeadlessOperations)
+            {
+                ConsoleExt.WriteLineWithPretext("What Anime Season is it?", ConsoleExt.OutputType.Question);
+                ConsoleExt.WriteLineWithPretext("Warning: numbers only in forms of 1,2,3 or 1+2+3 or 1-3", ConsoleExt.OutputType.Warning);
+                string question = Escape("Season Number(s): ");
+                Console.Write(question);
+                var answer = Console.ReadLine();
+                if (answer != null)
+                {
+                    string cutInputString = Replace(answer, question, "Season ");
+                    ExtractingSeasonNumber(cutInputString);
+                }
+                return;
+            }
             SeasonNumbers = new[] { 1 };
             ConsoleExt.WriteLineWithPretext($"Season Number: {SeasonNumbers[0]}", ConsoleExt.OutputType.Info);
 

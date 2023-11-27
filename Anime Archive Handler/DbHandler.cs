@@ -13,12 +13,21 @@ public static class DbHandler
     private static readonly LiteDatabase Al = new(HelperClass.GetFileInProgramFolder("AnimeList.db"));
     public static readonly ILiteCollection<Anime> AnimeList = Db.GetCollection<Anime>("Anime"); //loads anime database
     private static readonly ILiteCollection<TitleEntryDb> TitleEntryList = Db.GetCollection<TitleEntryDb>("TitleEntry");
-    internal static readonly ILiteCollection<Anime> AnimeSaveList = Al.GetCollection<Anime>("AnimeList");
+    internal static readonly ILiteCollection<Anime> ToWatchList = Al.GetCollection<Anime>("ToWatch");
+    internal static readonly ILiteCollection<TitleEntryDb> ToWatchListTitles = Al.GetCollection<TitleEntryDb>("ToWatchTitleEntry");
+    internal static readonly ILiteCollection<SeasonNumberDb> ToWatchListSeasons = Al.GetCollection<SeasonNumberDb>("ToWatchSeasons");
 
     public static void EnsureIndexDb()
     {
         // Ensure index on MalId
         AnimeList.EnsureIndex(x => x.MalId);
+        TitleEntryList.EnsureIndex(x => x.MalId);
+        ToWatchList.EnsureIndex(x => x.MalId);
+        ToWatchListTitles.EnsureIndex(x => x.MalId);
+        
+        // Ensure index on Title
+        TitleEntryList.EnsureIndex(x => x.Title);
+        ToWatchListTitles.EnsureIndex(x => x.Title);
     }
 
     public static void PopulateTitleEntryDb()
@@ -38,8 +47,50 @@ public static class DbHandler
             }
         }
     }
+    
+    public static void SaveToAnimeList(Anime anime)
+    {
+        if (CheckAnimeExistence(anime.MalId))
+        {
+            ConsoleExt.WriteLineWithPretext("Anime already exists in the Anime List! Skipped Anime...", ConsoleExt.OutputType.Warning);
+            return;
+        }
+        ToWatchList.Insert(anime);
+        foreach (var titleEntry in anime.Titles)
+        {
+            var titleEntryDb = new TitleEntryDb()
+            {
+                MalId = anime.MalId,
+                Title = titleEntry.Title,
+                Type = titleEntry.Type
+            };
+            ToWatchListTitles.Insert(titleEntryDb);
+        }
+        var seasonNumberDb = new SeasonNumberDb()
+        {
+            MalId = anime.MalId,
+            // need to figure out how to get the season number
+        };
+        ToWatchListSeasons.Insert(seasonNumberDb);
+        ConsoleExt.WriteLineWithPretext("Anime Successfully added to the Anime List!", ConsoleExt.OutputType.Info);
+    }
+    
+    public static void RemoveFromAnimeList(Anime anime)
+    {
+        ToWatchList.DeleteMany(x => x.MalId == anime.MalId);
+        ToWatchListTitles.DeleteMany(x => x.MalId == anime.MalId);
+        ToWatchListSeasons.DeleteMany(x => x.MalId == anime.MalId);
+        ConsoleExt.WriteLineWithPretext("Anime Successfully removed to the Anime List!", ConsoleExt.OutputType.Info);
+    }
 
-    public static Anime? FindAnimeById(int malId)
+    public static bool CheckAnimeExistence(long? malId)
+    {
+        var anime = ToWatchList.FindOne(x => x != null && x.MalId == malId);
+        var animeTitle = ToWatchListTitles.FindOne(x => x != null && x.MalId == malId);
+        return anime != null || animeTitle != null;
+    }
+
+    public static Anime? FindAnimeById(long malId)
     {
         return AnimeList.FindOne(x => x != null && x.MalId == malId);
     }
@@ -183,4 +234,10 @@ public static class DbHandler
 public class TitleEntryDb : TitleEntry
 {
     public long? MalId { get; init; }
+}
+
+public class SeasonNumberDb
+{
+    public long? MalId { get; init; }
+    public int[]? SeasonNumbers { get; init; }
 }

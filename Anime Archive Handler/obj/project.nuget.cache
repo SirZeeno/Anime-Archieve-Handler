@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "bSa/uZ+jpee0tmQfqlO1+3sAGRIr+Hoy7FjdDYRwBD0FLCD0OWJvvI9bVn14pwB1ykezXZnsz80VkXnTRUBIEQ==",
+  "dgSpecHash": "9QPvOwt3i5nsJYmx91ES24b7JbGPsk99tBv7vVs+Cn7l2WPdMxX0Wt7FOJYfe4NIh9gaykAS+ztqnmoVjV8f5A==",
   "success": true,
   "projectFilePath": "F:\\Rider Projects\\Anime Archieve Handler\\Anime Archieve Handler\\Anime Archive Handler\\Anime Archive Handler.csproj",
   "expectedPackageFiles": [
@@ -57,10 +57,11 @@
     "C:\\Users\\leon\\.nuget\\packages\\humanizer.core.zh-hans\\2.14.1\\humanizer.core.zh-hans.2.14.1.nupkg.sha512",
     "C:\\Users\\leon\\.nuget\\packages\\humanizer.core.zh-hant\\2.14.1\\humanizer.core.zh-hant.2.14.1.nupkg.sha512",
     "C:\\Users\\leon\\.nuget\\packages\\instances\\3.0.0\\instances.3.0.0.nupkg.sha512",
-    "C:\\Users\\leon\\.nuget\\packages\\jikandotnet\\2.6.3\\jikandotnet.2.6.3.nupkg.sha512",
+    "C:\\Users\\leon\\.nuget\\packages\\jikandotnet\\2.7.0\\jikandotnet.2.7.0.nupkg.sha512",
     "C:\\Users\\leon\\.nuget\\packages\\litedb\\5.0.17\\litedb.5.0.17.nupkg.sha512",
     "C:\\Users\\leon\\.nuget\\packages\\mediainfo.native\\21.9.1\\mediainfo.native.21.9.1.nupkg.sha512",
     "C:\\Users\\leon\\.nuget\\packages\\mediainfo.wrapper\\21.9.3\\mediainfo.wrapper.21.9.3.nupkg.sha512",
+    "C:\\Users\\leon\\.nuget\\packages\\microsoft.net.build.containers\\8.0.100\\microsoft.net.build.containers.8.0.100.nupkg.sha512",
     "C:\\Users\\leon\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512",
     "C:\\Users\\leon\\.nuget\\packages\\nreco.videoinfo\\1.2.0\\nreco.videoinfo.1.2.0.nupkg.sha512",
     "C:\\Users\\leon\\.nuget\\packages\\system.memory\\4.5.4\\system.memory.4.5.4.nupkg.sha512",
@@ -73,10 +74,10 @@
       "code": "NU1701",
       "level": "Warning",
       "warningLevel": 1,
-      "message": "Package 'MediaInfo.Wrapper 21.9.3' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net7.0'. This package may not be fully compatible with your project.",
+      "message": "Package 'MediaInfo.Wrapper 21.9.3' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.",
       "libraryId": "MediaInfo.Wrapper",
       "targetGraphs": [
-        "net7.0"
+        "net8.0"
       ]
     }
   ]

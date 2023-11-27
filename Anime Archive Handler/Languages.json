@@ -1,0 +1,124 @@
+﻿{
+  "languages": [
+    {
+      "name": "Arabic",
+      "short_form": "AR",
+      "is_active": false
+    },
+    {
+      "name": "Armenian",
+      "short_form": "HY",
+      "is_active": false
+    },
+    {
+      "name": "Bengali",
+      "short_form": "BN",
+      "is_active": false
+    },
+    {
+      "name": "Bulgarian",
+      "short_form": "BG",
+      "is_active": false
+    },
+    {
+      "name": "Chinese",
+      "short_form": "ZH",
+      "is_active": false
+    },
+    {
+      "name": "Danish",
+      "short_form": "DA",
+      "is_active": false
+    },
+    {
+      "name": "Dutch",
+      "short_form": "NL",
+      "is_active": false
+    },
+    {
+      "name": "English",
+      "short_form": "EN",
+      "is_active": true
+    },
+    {
+      "name": "Finnish",
+      "short_form": "FI",
+      "is_active": false
+    },
+    {
+      "name": "French",
+      "short_form": "FR",
+      "is_active": false
+    },
+    {
+      "name": "German",
+      "short_form": "DE",
+      "is_active": true
+    },
+    {
+      "name": "Greek",
+      "short_form": "EL",
+      "is_active": false
+    },
+    {
+      "name": "Hindi",
+      "short_form": "HI",
+      "is_active": false
+    },
+    {
+      "name": "Hungarian",
+      "short_form": "HU",
+      "is_active": false
+    },
+    {
+      "name": "Indonesian",
+      "short_form": "ID",
+      "is_active": false
+    },
+    {
+      "name": "Italian",
+      "short_form": "IT",
+      "is_active": false
+    },
+    {
+      "name": "Japanese",
+      "short_form": "JA",
+      "is_active": false
+    },
+    {
+      "name": "Korean",
+      "short_form": "KO",
+      "is_active": false
+    },
+    {
+      "name": "Polish",
+      "short_form": "PL",
+      "is_active": false
+    },
+    {
+      "name": "Portuguese",
+      "short_form": "PT",
+      "is_active": false
+    },
+    {
+      "name": "Russian",
+      "short_form": "RU",
+      "is_active": false
+    },
+    {
+      "name": "Spanish",
+      "short_form": "ES",
+      "is_active": false
+    },
+    {
+      "name": "Turkish",
+      "short_form": "TR",
+      "is_active": false
+    },
+    {
+      "name": "Vietnamese",
+      "short_form": "VI",
+      "is_active": false
+    }
+  ]
+}
