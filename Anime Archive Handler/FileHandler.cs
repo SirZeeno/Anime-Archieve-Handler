@@ -1,12 +1,18 @@
-﻿using System.Security.Cryptography;
+﻿using System.Globalization;
+using System.Reflection;
+using System.Security.Cryptography;
+using CsvHelper;
+using CsvHelper.Configuration;
 using FFMpegCore;
+using IniParser;
 
 namespace Anime_Archive_Handler;
 
 public static class FileHandler
 {
     
-    //File integrity check that returns false if the file is corrupt
+    //File integrity checks if all the files in a anime folder arent corrupted and returns false if the file is corrupt and is used to check if the downloaded anime is fully working
+    // and if one of the filed in the anime stored structure is corrupted
     internal static bool FileIntegrityCheck(IEnumerable<string> videoFilePaths)
     {
         var episodeNumber = 1;
@@ -42,7 +48,7 @@ public static class FileHandler
         return nothingCorrupt;
     }
     
-    //Extracts the Audio Track Language by reading the Metadata
+    //Extracts the Audio Track Language by reading the Metadata and is used for language detection of a downloaded anime
     internal static List<string?> TrackLanguageFromMetadata(string videoFilePath)
     {
         var mediaInfo = FFProbe.Analyse(videoFilePath);
@@ -52,7 +58,7 @@ public static class FileHandler
             .Where(audioStreamLanguage => audioStreamLanguage != null).ToList();
     }
     
-    // Checks for if the currently being transferred anime already existing 
+    // Checks if the currently transferring anime already existing in the output folder
     internal static bool CheckForExistence(string source, string destination)
     {
         var sourceHash = GetMd5Checksum(source);
@@ -61,7 +67,7 @@ public static class FileHandler
         return sourceHash == destinationHash;
     }
     
-    // Calculate MD5 checksum of a file
+    // Calculate MD5 checksum of a file and is used for checking if two of the same files are actually the same
     private static string GetMd5Checksum(string filePath)
     {
         using var md5 = MD5.Create();
@@ -74,5 +80,103 @@ public static class FileHandler
     internal static void CheckFileExistence(string fileToCheck)
     {
         if (!File.Exists(fileToCheck)) File.Create(fileToCheck);
+    }
+    
+    // need to start caching all those so it only has to read them from the cache and check if the exist and if they dont, search for them again
+    // returns the file path in the program folder and is used to find a file in the program directory when it isn't always gonna be in the same place
+    internal static string GetFileInProgramFolder(string fileNameWithExtension)
+    {
+        foreach (var file in Directory.GetFiles(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, fileNameWithExtension, SearchOption.AllDirectories))
+        {
+            return file;
+        }
+
+        var message = $"Couldn't find {fileNameWithExtension} file in program directory!";
+        ConsoleExt.WriteLineWithPretext(message, ConsoleExt.OutputType.Error, new InvalidOperationException());
+        throw new InvalidOperationException();
+    }
+
+    // returns the directory in the program folder and is used when the folder directory that i'm looking for isn't always in the same spot
+    internal static string GetDirectoryInProgramFolder(string directoryName)
+    {
+        foreach (var directory in Directory.GetDirectories(
+                     Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, directoryName,
+                     SearchOption.AllDirectories))
+        {
+            return directory;
+        }
+
+        var message = $"Couldn't find {directoryName} directory in program directory!";
+        ConsoleExt.WriteLineWithPretext(message, ConsoleExt.OutputType.Error, new InvalidOperationException());
+        throw new InvalidOperationException();
+    }
+    
+    //keeps a running log of all the errors that occured when the program was running and stores them in one file
+    //doesnt reuse the same file when the program is restarted
+    //has to keep a file directory record of the file when created when the first error occurs, and has to delete that record when the program is closed
+    // could use a uid that gets generated new everytime the program gets started, but this uid needs to get associated with the log file
+    internal static void ErrorLogger(string errorInfo, Exception ex)
+    {
+        // Log the error or handle it as needed
+        var errorMessage = $"Error, {errorInfo}: {ex.Message}";
+        ConsoleExt.WriteLineWithPretext(errorMessage, ConsoleExt.OutputType.Error);
+
+        // Write the error message to the log file
+        using var logWriter = new StreamWriter(Path.Combine(GetDirectoryInProgramFolder("Errors"), $"Error Log: {DateTime.Now:MM/dd/yyyy HH:mm:ss}.txt"), append: true);
+        logWriter.WriteLine($"{DateTime.Now:MM/dd/yyyy HH:mm:ss}: {errorMessage}");
+        // Optionally, write more details about the error or the problematic record
+    }
+    
+    // returns a specified setting which can be used to get user settings or stored settings
+    internal static string ReturnSettings(string filePath, string sectionName, string keyName)
+    {
+        var parser = new FileIniDataParser();
+        var data = parser.ReadFile(filePath);
+        
+        // Read the value
+        var someValue = data[sectionName][keyName];
+        return someValue;
+    }
+    
+    // is used to write or update settings in the user settings or in the stored settings
+    internal static void WriteSetting(string filePath, string sectionName, string keyName, string keyValue)
+    {
+        var parser = new FileIniDataParser();
+        
+        // Read the INI file
+        var data = parser.ReadFile(filePath);
+        
+        // Update a specific key
+        data[sectionName][keyName] = keyValue;
+        
+        // Write the updated data back to the file
+        parser.WriteFile(filePath, data);
+    }
+    
+    // Takes a input of a text file to convert into a csv file while is needed to create updated torrent database
+    internal static string TextToCsv(string inputFilePath)
+    {
+        inputFilePath = "path_to_your_text_file.txt"; // Path to your text file
+        var outputFilePath = Path.ChangeExtension(inputFilePath, ".csv"); // Path for the new CSV file
+
+        // Reading from the text file
+        using (var reader = new StreamReader(inputFilePath))
+        using (var csvReader = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture) 
+               {
+                   Delimiter = "\t", // Set the delimiter used in your text file to tabs
+                   HasHeaderRecord = true, // If your file has header row
+               }))
+        {
+            // Writing to the CSV file
+            using (var writer = new StreamWriter(outputFilePath))
+            using (var csvWriter = new CsvWriter(writer, CultureInfo.InvariantCulture))
+            {
+                var records = csvReader.GetRecords<Animetosho>();
+                csvWriter.WriteRecords(records);
+            }
+        }
+
+        Console.WriteLine("File converted successfully.");
+        return outputFilePath;
     }
 }

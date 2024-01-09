@@ -1,0 +1,54 @@
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Anime_Archive_Handler;
+
+[SuppressMessage("ReSharper", "InconsistentNaming")]
+[SuppressMessage("ReSharper", "IdentifierTypo")]
+[SuppressMessage("ReSharper", "UnusedMember.Global")]
+#nullable disable
+public abstract class Animetosho
+{
+    public int? id { get; set; }
+    public int? tosho_id { get; set; }
+    public int? nyaa_id { get; set; }
+    public int? anidex_id { get; set; }
+    public string name { get; set; }
+    public string link { get; set; }
+    public string magnet { get; set; }
+    public int? cat { get; set; }
+    public string website { get; set; }
+    public double? totalsize { get; set; }
+    public int? date_posted { get; set; }
+    public string comment { get; set; }
+    public int? date_added { get; set; }
+    public int? date_completed { get; set; }
+    public string torrentname { get; set; }
+    public int? torrentfiles { get; set; }
+    public int? stored_nzb { get; set; }
+    public int? stored_torrent { get; set; }
+    public string tosho_uhash { get; set; }
+    public int? tosho_uauth { get; set; }
+    public string tosho_uname { get; set; }
+    public string nyaa_info { get; set; }
+    public int? nyaa_class { get; set; }
+    public string nyaa_cat { get; set; }
+    public string anidex_info { get; set; }
+    public int? anidex_cat { get; set; }
+    public int? anidex_lang { get; set; }
+    public int? anidex_labels { get; set; }
+    public string btih { get; set; }
+    public string btih_sha256 { get; set; }
+    public bool? isdupe { get; set; }
+    public int? deleted { get; set; }
+    public int? date_updated { get; set; }
+    public int? aid { get; set; }
+    public int? eid { get; set; }
+    public int? fid { get; set; }
+    public string gids { get; set; }
+    public int? resolveapproved { get; set; }
+    public int? main_fileid { get; set; }
+    public string srcurl { get; set; }
+    public string srcurltype { get; set; }
+    public string srctitle { get; set; }
+    public int? status { get; set; }
+}

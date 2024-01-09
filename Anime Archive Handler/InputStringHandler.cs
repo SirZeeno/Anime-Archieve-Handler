@@ -88,19 +88,13 @@ public static class InputStringHandler
         var match1 = Match(fileName, pattern);
         var match2 = Match(fileName, pattern2);
 
-        if (!match1.Success && !match2.Success)
-        {
-            ConsoleExt.WriteLineWithPretext("No Anime Season Part Found!", ConsoleExt.OutputType.Info);
-            return false;
-        }
-        
-        
-        
-        return true;
+        if (match1.Success || match2.Success) return true;
+        ConsoleExt.WriteLineWithPretext("No Anime Season Part Found!", ConsoleExt.OutputType.Info);
+        return false;
     }
     
     //extracts the season number from the folder name
-    internal static void ExtractingSeasonNumber(string fileName)
+    internal static int[] ExtractingSeasonNumber(string fileName)
     {
         const string pattern = @"(?i)(Season|Seasons|S)\s*(\d+)\s*[+\-]+\s*(\d+)";
         const string pattern4 = @"(?i)(Season|Seasons|S)\s*(\d+)";
@@ -114,26 +108,15 @@ public static class InputStringHandler
 
         if (!match1.Success && !match2.Success && !match4.Success && !match5.Success)
         {
+            SeasonNumbers = [1];
             ConsoleExt.WriteLineWithPretext("No Anime Season number Found!", ConsoleExt.OutputType.Warning);
             if (!HeadlessOperations)
             {
-                ConsoleExt.WriteLineWithPretext("What Anime Season is it?", ConsoleExt.OutputType.Question);
-                ConsoleExt.WriteLineWithPretext("Warning: numbers only in forms of 1,2,3 or 1+2+3 or 1-3", ConsoleExt.OutputType.Warning);
-                string question = Escape("Season Number(s): ");
-                Console.Write(question);
-                var answer = Console.ReadLine();
-                if (answer != null)
-                {
-                    string cutInputString = Replace(answer, question, "Season ");
-                    ExtractingSeasonNumber(cutInputString);
-                }
-                return;
+                ManualSeasonNumber("What Anime Season is it?");
+                return SeasonNumbers;
             }
-            SeasonNumbers = new[] { 1 };
             ConsoleExt.WriteLineWithPretext($"Season Number: {SeasonNumbers[0]}", ConsoleExt.OutputType.Info);
-
-            //ask the user what season the anime is.
-            return;
+            return SeasonNumbers;
         }
 
         const string pattern3 = @"[+-]";
@@ -165,43 +148,50 @@ public static class InputStringHandler
             }
 
             ConsoleExt.WriteLineWithPretext($"Season Number: {SeasonNumbers[0]}", ConsoleExt.OutputType.Info);
-            return;
+            return SeasonNumbers;
         }
 
         var seasonNumbers = new List<int>();
         foreach (Match match in Matches(match1.ToString(), @"\d+"))
             seasonNumbers.Add(Convert.ToInt32(match.Value));
-        if (match3.ToString() == "+")
+        switch (match3.ToString())
         {
-            SeasonNumbers = new int[seasonNumbers.Count];
-            SeasonNumbers = seasonNumbers.ToArray();
-            ConsoleExt.WriteWithPretext($"Season Numbers: {SeasonNumbers[0]}", ConsoleExt.OutputType.Info);
-            foreach (var number in SeasonNumbers)
-                if (number != SeasonNumbers[0])
-                    Console.Write(", " + number);
-            Console.WriteLine();
-        }
-
-        if (match3.ToString() == "-")
-        {
-            var lowestNumber = seasonNumbers.Min();
-            var highestNumber = seasonNumbers.Max();
-            SeasonNumbers = new int[highestNumber];
-            var index = 0;
-            ConsoleExt.WriteWithPretext($"Season Numbers: {lowestNumber}", ConsoleExt.OutputType.Info);
-            for (var i = lowestNumber; i <= highestNumber; i++)
+            case "+":
             {
-                SeasonNumbers[index] = i;
-                if (index != 0) Console.Write($", {SeasonNumbers[index]}");
-                index++;
+                SeasonNumbers = new int[seasonNumbers.Count];
+                SeasonNumbers = seasonNumbers.ToArray();
+                ConsoleExt.WriteWithPretext($"Season Numbers: {SeasonNumbers[0]}", ConsoleExt.OutputType.Info);
+                foreach (var number in SeasonNumbers)
+                    if (number != SeasonNumbers[0])
+                        Console.Write(", " + number);
+                Console.WriteLine();
+                return seasonNumbers.ToArray();
             }
+            case "-":
+            {
+                var lowestNumber = seasonNumbers.Min();
+                var highestNumber = seasonNumbers.Max();
+                SeasonNumbers = new int[highestNumber];
+                var index = 0;
+                ConsoleExt.WriteWithPretext($"Season Numbers: {lowestNumber}", ConsoleExt.OutputType.Info);
+                for (var i = lowestNumber; i <= highestNumber; i++)
+                {
+                    SeasonNumbers[index] = i;
+                    if (index != 0) Console.Write($", {SeasonNumbers[index]}");
+                    index++;
+                }
 
-            Console.WriteLine();
+                Console.WriteLine();
+                return seasonNumbers.ToArray();
+            }
         }
-        else if (SeasonNumbers == null)
+
+        if (SeasonNumbers == null)
         {
             ConsoleExt.WriteLineWithPretext("Invalid symbol", ConsoleExt.OutputType.Error);
         }
+
+        return [1];
     }
 
     //extracts the language from the folder name

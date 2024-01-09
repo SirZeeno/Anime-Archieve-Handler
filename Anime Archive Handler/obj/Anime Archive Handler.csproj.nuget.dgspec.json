@@ -44,6 +44,10 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "CsvHelper": {
+              "target": "Package",
+              "version": "[30.0.1, )"
+            },
             "FFMpegCore": {
               "target": "Package",
               "version": "[5.1.0, )"
@@ -51,6 +55,10 @@
             "FuzzySharp": {
               "target": "Package",
               "version": "[2.0.2, )"
+            },
+            "HtmlAgilityPack": {
+              "target": "Package",
+              "version": "[1.11.54, )"
             },
             "Humanizer": {
               "target": "Package",
@@ -79,6 +87,22 @@
             "Newtonsoft.Json": {
               "target": "Package",
               "version": "[13.0.3, )"
+            },
+            "PuppeteerSharp": {
+              "target": "Package",
+              "version": "[13.0.2, )"
+            },
+            "Riok.Mapperly": {
+              "target": "Package",
+              "version": "[3.3.0, )"
+            },
+            "ScrapySharp": {
+              "target": "Package",
+              "version": "[3.0.0, )"
+            },
+            "ini-parser": {
+              "target": "Package",
+              "version": "[3.4.0, )"
             }
           },
           "imports": [

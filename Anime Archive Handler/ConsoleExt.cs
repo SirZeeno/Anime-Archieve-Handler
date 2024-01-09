@@ -10,19 +10,27 @@ public static class ConsoleExt
         Question
     }
 
-    public static int WriteLineWithPretext<T>(T output, OutputType outputType)
+    internal static int WriteLineWithPretext<T>(T output, OutputType outputType, Exception? exception = null)
     {
         var length1 = CurrentTime();
         var length2 = DetermineOutputType(outputType);
         Console.WriteLine(output);
+        if (exception != null && outputType == OutputType.Error)
+        {
+            FileHandler.ErrorLogger(output!.ToString()!, exception);
+        }
         return length1 + length2;
     }
 
-    public static int WriteWithPretext<T>(T output, OutputType outputType)
+    internal static int WriteWithPretext<T>(T output, OutputType outputType, Exception? exception = null)
     {
         var length1 = CurrentTime();
         var length2 = DetermineOutputType(outputType);
         Console.Write(output);
+        if (exception != null && outputType == OutputType.Error)
+        {
+            FileHandler.ErrorLogger(output!.ToString()!, exception);
+        }
         return length1 + length2;
     }
 

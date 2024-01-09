@@ -9,11 +9,9 @@ public static class JikanHandler
     private static int _id = 1;
     private static Anime? _anime;
     private static int _consecutiveNulls;
-    private static List<Anime?>? _animes;
 
     //need to look into making the json database update every so often
     //need to look into hosting my own jikan API server
-    //need to rework this class to utilize the SQL database
 
     public static async Task Start()
     {
@@ -23,13 +21,13 @@ public static class JikanHandler
         {
             if (rateLimiter.Check())
             {
-                //need to check if the specific malId is not contained in the json file, if it is, it will skip it, if it isn't but there is a null on the line,
+                //need to check if the specific malId is not contained in the database, if it is, it will skip it, if it isn't but there is a null on the line,
                 //it will overwrite it, if there is no null and it actually doesnt exist it will add it, if it exists but some of the information changed it will overwrite it
 
                 _anime = await GetAnime(_id);
                 if (_anime != null)
                 {
-                    AnimeList.Upsert(_anime);
+                    AnimeDb.Upsert(RemapToAnimeDto(_anime));
                 }
                 _id++;
                 if (_anime == null)
@@ -98,16 +96,13 @@ public static class JikanHandler
 
 internal class RateLimiter
 {
-    private readonly int _interval;
     private readonly int _limit;
-    private readonly Timer _timer;
     private int _count;
 
     public RateLimiter(int limit, int interval)
     {
         _limit = limit;
-        _interval = interval;
-        _timer = new Timer(ResetCounter!, null, interval, interval);
+        new Timer(ResetCounter!, null, interval, interval);
     }
 
     private void ResetCounter(object state)

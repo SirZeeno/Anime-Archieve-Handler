@@ -1,10 +1,12 @@
 ﻿using System.Reflection;
 using System.Text.RegularExpressions;
+using static Anime_Archive_Handler.AnimeArchiveHandler;
+using static Anime_Archive_Handler.InputStringHandler;
 
 namespace Anime_Archive_Handler;
 
 public static class HelperClass
-{
+{ 
     //converts input number into ordinal number
     public static string ToOrdinal(int number)
     {
@@ -92,12 +94,6 @@ public static class HelperClass
         return result;
     }
 
-    public static string GetFileInProgramFolder(string fileNameWithExtension)
-    {
-        return Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!,
-            fileNameWithExtension);
-    }
-
     public static bool ManualInformationChecking()
     {
         ConsoleExt.WriteLineWithPretext("Is this Information Correct? (y/n)", ConsoleExt.OutputType.Question);
@@ -142,17 +138,17 @@ public static class HelperClass
     {
         ConsoleExt.WriteLineWithPretext($"{message} (Numbers/Symbols Only!)", ConsoleExt.OutputType.Question);
         ConsoleExt.WriteLineWithPretext("Warning: numbers only in forms of 1,2,3 or 1+2+3 or 1-3", ConsoleExt.OutputType.Warning);
-        string question = Regex.Escape("Season Number(s): ");
+        var question = Regex.Escape("Season Number(s): ");
         var answer = Console.ReadLine();
-        if (answer != null)
-        {
-            string cutInputString = Regex.Replace(answer, question, "Season ");
-            InputStringHandler.ExtractingSeasonNumber(cutInputString);
-        }
+        if (answer == null) return SeasonNumbers;
+        var cutInputString = Regex.Replace(answer, question, "Season ");
+        ExtractingSeasonNumber(cutInputString);
 
-        return AnimeArchiveHandler.SeasonNumbers;
+        return SeasonNumbers;
     }
 
+    
+    //incomplete
     public static string ManualStringRemoval(string? userInputString, string inputString)
     {
         var pattern =
@@ -163,5 +159,19 @@ public static class HelperClass
         ConsoleExt.WriteLineWithPretext(removedWord.Trim(), ConsoleExt.OutputType.Info);
 
         return removedWord.Trim();
+    }
+
+    // Adds all the required folders that dont get created when building the program but that need to be there
+    public static void AddRequiredFolders()
+    {
+        if (!Directory.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, "Databases/Downloads")))
+        {
+            Directory.CreateDirectory(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, "Databases/Downloads"));
+        }
+
+        if (Directory.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, "Logs/Errors")))
+        {
+            Directory.CreateDirectory(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, "Logs/Errors"));
+        }
     }
 }

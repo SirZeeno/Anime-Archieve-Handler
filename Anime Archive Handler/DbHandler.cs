@@ -1,26 +1,35 @@
-﻿using FuzzySharp;
+﻿using System.Globalization;
+using FuzzySharp;
 using FuzzySharp.Extractor;
 using JikanDotNet;
+using CsvHelper;
+using CsvHelper.Configuration;
 using LiteDB;
 
 namespace Anime_Archive_Handler;
 
 using static AnimeArchiveHandler;
+using static FileHandler;
 
 public static class DbHandler
 {
-    private static readonly LiteDatabase Db = new(HelperClass.GetFileInProgramFolder("DataBase.db"));
-    private static readonly LiteDatabase Al = new(HelperClass.GetFileInProgramFolder("AnimeList.db"));
-    public static readonly ILiteCollection<Anime> AnimeList = Db.GetCollection<Anime>("Anime"); //loads anime database
+    private static readonly LiteDatabase Db = new(GetFileInProgramFolder("DataBase.db")); // need to cache those in the program settings and only search for them again if it cant be found in the same location
+    private static readonly LiteDatabase Al = new(GetFileInProgramFolder("AnimeList.db"));
+    private static readonly LiteDatabase Ats = new(GetFileInProgramFolder("Animetosho.db"));
+    private static readonly LiteDatabase Ts = new(GetFileInProgramFolder("TestDatabase.db")); // for testing purposes only
+    internal static readonly ILiteCollection<AnimeDto> AnimeDb = Db.GetCollection<AnimeDto>("Anime"); //loads anime database
     private static readonly ILiteCollection<TitleEntryDb> TitleEntryList = Db.GetCollection<TitleEntryDb>("TitleEntry");
-    internal static readonly ILiteCollection<Anime> ToWatchList = Al.GetCollection<Anime>("ToWatch");
-    internal static readonly ILiteCollection<TitleEntryDb> ToWatchListTitles = Al.GetCollection<TitleEntryDb>("ToWatchTitleEntry");
-    internal static readonly ILiteCollection<SeasonNumberDb> ToWatchListSeasons = Al.GetCollection<SeasonNumberDb>("ToWatchSeasons");
+    private static readonly ILiteCollection<AnimeDto> ToWatchList = Al.GetCollection<AnimeDto>("ToWatch");
+    private static readonly ILiteCollection<TitleEntryDb> ToWatchListTitles = Al.GetCollection<TitleEntryDb>("ToWatchTitleEntry");
+    private static readonly ILiteCollection<Animetosho> Animetosho = Ats.GetCollection<Animetosho>("Animetosho");
+    private static readonly ILiteCollection<AnimeDto> AnimeDtoTest = Ts.GetCollection<AnimeDto>("AnimeDto"); // for testing purposes only
+    
+    private static readonly string CsvFile = GetFileInProgramFolder("torrents-latest.csv");
 
     public static void EnsureIndexDb()
     {
         // Ensure index on MalId
-        AnimeList.EnsureIndex(x => x.MalId);
+        AnimeDb.EnsureIndex(x => x.MalId);
         TitleEntryList.EnsureIndex(x => x.MalId);
         ToWatchList.EnsureIndex(x => x.MalId);
         ToWatchListTitles.EnsureIndex(x => x.MalId);
@@ -32,7 +41,7 @@ public static class DbHandler
 
     public static void PopulateTitleEntryDb()
     {
-        var animes = AnimeList.FindAll();
+        var animes = AnimeDb.FindAll();
         foreach (var anime in animes)
         {
             foreach (var titleEntry in anime.Titles)
@@ -48,7 +57,7 @@ public static class DbHandler
         }
     }
     
-    public static void SaveToAnimeList(Anime anime)
+    public static void SaveToAnimeList(AnimeDto anime, int[]? seasonNumber)
     {
         if (CheckAnimeExistence(anime.MalId))
         {
@@ -66,20 +75,13 @@ public static class DbHandler
             };
             ToWatchListTitles.Insert(titleEntryDb);
         }
-        var seasonNumberDb = new SeasonNumberDb()
-        {
-            MalId = anime.MalId,
-            // need to figure out how to get the season number
-        };
-        ToWatchListSeasons.Insert(seasonNumberDb);
         ConsoleExt.WriteLineWithPretext("Anime Successfully added to the Anime List!", ConsoleExt.OutputType.Info);
     }
     
-    public static void RemoveFromAnimeList(Anime anime)
+    public static void RemoveFromAnimeList(AnimeDto anime)
     {
         ToWatchList.DeleteMany(x => x.MalId == anime.MalId);
         ToWatchListTitles.DeleteMany(x => x.MalId == anime.MalId);
-        ToWatchListSeasons.DeleteMany(x => x.MalId == anime.MalId);
         ConsoleExt.WriteLineWithPretext("Anime Successfully removed to the Anime List!", ConsoleExt.OutputType.Info);
     }
 
@@ -90,12 +92,12 @@ public static class DbHandler
         return anime != null || animeTitle != null;
     }
 
-    public static Anime? FindAnimeById(long malId)
+    public static AnimeDto? FindAnimeById(long malId)
     {
-        return AnimeList.FindOne(x => x != null && x.MalId == malId);
+        return AnimeDb.FindOne(x => x != null && x.MalId == malId);
     }
     
-    public static Anime? GetAnimeWithTitle(string title)
+    public static AnimeDto? GetAnimeWithTitle(string title)
     {
         var similarityPercentage = JsonFileUtility.GetValue<int>(UserSettingsFile, "SimilarityPercentage");
         var normalizedTitle = NormalizeTitle(title);
@@ -109,14 +111,14 @@ public static class DbHandler
         var matches = Process.ExtractTop(normalizedTitle, enumerable);
 
         var extractedResults = matches as ExtractedResult<string>[] ?? matches.ToArray();
-        if (!extractedResults.Any() || extractedResults.First().Score <= similarityPercentage) return null;
+        if (extractedResults.Length == 0 || extractedResults.First().Score <= similarityPercentage) return null;
         
         // Use LiteDB's Query syntax to find the first matching record based on the title
         var titleEntryDb = TitleEntryList.Find(Query.EQ("Title", extractedResults.First().Value)).FirstOrDefault();
 
         if (titleEntryDb == null) return null;
         var malId = titleEntryDb.MalId;
-        return AnimeList.FindOne(Query.EQ("MalId", malId));
+        return AnimeDb.FindOne(Query.EQ("MalId", malId));
 
     }
 
@@ -142,7 +144,7 @@ public static class DbHandler
         return potentialTitles;
     }
         
-    public static string GetAnimeTitleWithAnime(Anime? anime)
+    public static string GetAnimeTitleWithAnime(AnimeDto? anime)
     {
         string? englishTitle = null;
         string? defaultTitle = null;
@@ -165,79 +167,42 @@ public static class DbHandler
         return defaultTitle ?? "";
     }
 
-    
-    [Obsolete("UpdateNullDbPlaces is not being used anymore and will be replaced soon")]
-    private static void UpdateNullDbPlaces()
+    internal static void CsvToDb(string csvFilePath)
     {
-        //need to rework this to find each null place in order, request with jikan to see if there is new information and then input that information to that line where the null was
-        int id = 1;
-        using var stream = File.OpenRead("JsonPath");
-        using var reader = new StreamReader(stream);
-
-        var lineCount = 1;
-
-        while (reader.ReadLine() is { } line)
+        // Create or open a LiteDB database
+        using var reader = new StreamReader(csvFilePath);
+        var config = new CsvConfiguration(CultureInfo.InvariantCulture)
         {
-            if (!string.IsNullOrWhiteSpace(line) && line.ToLower() != "null") id = lineCount;
-            lineCount++;
-        }
-    }
-    
-    [Obsolete("ConvertAnimeDb is not being used anymore and will be removed soon")]
-    public static void ConvertAnimeDb()
-    {
-        var animeData = JsonFileUtility.ReadFromJsonFile("JsonPath");
-        using (var db = new LiteDatabase(HelperClass.GetFileInProgramFolder("DataBase.db")))
-        {
-            var col = db.GetCollection<Anime>("Anime");
+            HasHeaderRecord = true, // Assuming your CSV file has a header row
+            // ... any other configurations
+        };
 
-            foreach (var anime in animeData.Where(anime => anime != null))
+        using var csv = new CsvReader(reader, config);
+
+        while (csv.Read())
+        {
+            try
             {
-                if (anime != null) col.Insert(anime);
+                var record = csv.GetRecord<Animetosho>();
+                Animetosho.Upsert(record!);
+            }
+            catch (Exception ex)
+            {
+                ErrorLogger("processing record", ex);
             }
         }
 
-        ConsoleExt.WriteLineWithPretext("Done Converting Database", ConsoleExt.OutputType.Info);
+        ConsoleExt.WriteLineWithPretext("Finished importing CSV into database", ConsoleExt.OutputType.Info);
     }
-    
-    /*
-    public static void TestNestedPropertyLimitation()
+
+    internal static AnimeDto RemapToAnimeDto(Anime anime)
     {
-        var db = new LiteDatabase(@HelperClass.GetFileInProgramFolder("TestDatabase.db"));
-        var col = db.GetCollection<TestData>("testData");
-
-        // Insert some sample data
-        col.Insert(new TestData { Titles = new List<TitleEntry> { new TitleEntry { Type = "english", Title = "SampleTitle1" } } });
-        col.Insert(new TestData { Titles = new List<TitleEntry> { new TitleEntry { Type = "japanese", Title = "SampleTitle2" } } });
-
-        // Direct query
-        var directResults = col.Find(Query.EQ("Titles.Title", "SampleTitle1")).ToList();
-        Console.WriteLine($"Direct Query Results Count: {directResults.Count}");
-
-        // Wildcard query
-        var wildcardResults = col.Find(Query.EQ("Titles.$.Title", "SampleTitle1")).ToList();
-        Console.WriteLine($"Wildcard Query Results Count: {wildcardResults.Count}");
-
-        // List item query (e.g., query the first item in the Titles list)
-        var listItemResults = col.Find(Query.EQ("Titles[0].Title", "SampleTitle1")).ToList();
-        Console.WriteLine($"List Item Query Results Count: {listItemResults.Count}");
+        var mapper = new MapperlyMaps();
+        return mapper.animeDto(anime);
     }
-
-    private class TestData
-    {
-        public int Id { get; set; }
-        public List<TitleEntry> Titles { get; set; }
-    }
-    */
 }
 
 public class TitleEntryDb : TitleEntry
 {
     public long? MalId { get; init; }
-}
-
-public class SeasonNumberDb
-{
-    public long? MalId { get; init; }
-    public int[]? SeasonNumbers { get; init; }
 }

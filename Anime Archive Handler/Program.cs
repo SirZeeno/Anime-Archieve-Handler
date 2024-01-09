@@ -47,6 +47,7 @@ internal abstract class AnimeArchiveHandler
     private static bool _hasSubFolder;
     private static bool _hasMultipleParts;
 
+    // need to refactor this entire starting function and check that all the features are there and de-mess things for cleaner and less boilerplate code
     private static void Main(string[] args)
     {
         EnsureIndexDb();
@@ -57,28 +58,35 @@ internal abstract class AnimeArchiveHandler
                 foreach (var arg in args)
                 {
                     //Task.Run(Start).Wait();
-                    AnimeListHandler.StartAnimeListEditing();
 
                     _sourceFolder = arg;
                     _hasSubFolder = HasSubFolders(arg);
+                    
                     ConsoleExt.WriteLineWithPretext($"Has sub-folders: {_hasSubFolder}", ConsoleExt.OutputType.Info);
+                    
                     _animeName = RemoveUnnecessaryNamePieces(new DirectoryInfo(arg).Name);
                     var animeTitleInDb = GetAnimeWithTitle(_animeName);
+                    
                     if (animeTitleInDb != null)
                     {
                         ConsoleExt.WriteLineWithPretext(animeTitleInDb.MalId, ConsoleExt.OutputType.Info);
                         ConsoleExt.WriteLineWithPretext($"{GetAnimeTitleWithAnime(animeTitleInDb)}, {animeTitleInDb.MalId}", ConsoleExt.OutputType.Info);
                     }
+                    
                     else
                     {
                         ConsoleExt.WriteLineWithPretext("No Anime found in DataBase!", ConsoleExt.OutputType.Error);
                     }
+                    
                     _hasMultipleParts = HasMultipleParts(new DirectoryInfo(arg).Name);
                     ExtractingSeasonNumber(new DirectoryInfo(arg).Name);
-                    var folders = _hasSubFolder ? GetSeasonDirectories() : new[] { arg };
+                    
+                    var folders = _hasSubFolder ? GetSeasonDirectories() : [arg];
+                    
                     foreach (var folder in folders)
                     {
                         var directoryFiles = Directory.GetFiles(folder); //for further use when moving the episodes
+                        
                         if (FileIntegrityCheck(directoryFiles))
                         {
                             ExtractingLanguage(folder);
@@ -87,6 +95,7 @@ internal abstract class AnimeArchiveHandler
                                 //ConsoleExt.WriteLineWithPretext("Moving All the Season Episodes!", ConsoleExt.OutputType.Info);
                                 //ConsoleExt.WriteLineWithPretext("Copied all Episodes from that Season to the Anime Folder.", ConsoleExt.OutputType.Info);
                             }
+                            
                             else
                             {
                                 if (ManualInformationChecking())
@@ -97,6 +106,7 @@ internal abstract class AnimeArchiveHandler
                                 //need to see whats wrong and correct it
                             }
                         }
+                        
                         else
                         {
                             ConsoleExt.WriteLineWithPretext("Moving on to next...", ConsoleExt.OutputType.Warning);
@@ -109,7 +119,16 @@ internal abstract class AnimeArchiveHandler
                 break;
             }
             case 0:
-                AnimeListHandler.StartAnimeListEditing();
+                if (ManualInformationChecking("Do you want to edit the AnimeList?"))
+                {
+                    AnimeListHandler.StartAnimeListEditing();
+                }
+                
+                else
+                {
+                    //Task.Run(async () => await WebScraper.ScrapeAnimetoshoExports()).GetAwaiter().GetResult();
+                    //ManualBbEditing.StartEditing();
+                }
                 break;
         }
 
@@ -145,7 +164,7 @@ internal abstract class AnimeArchiveHandler
             select folder).ToArray();
     }
 
-    //Creates all the folders if they dont already exist
+    // Creates all the folders if they dont already exist and is used for the folder structure that is the output and store folder for the entire program
     private static void DirectoryCreator()
     {
         if (SubOrDub == null || _animeName == null || SeasonNumbers == null)
@@ -183,7 +202,7 @@ internal abstract class AnimeArchiveHandler
                                       season + @"\" + _animeName + " #" + episodeNumber + fileExtension;
                 if (!CheckForExistence(file,
                         File.Exists(destinationFile) ? destinationFile : GetFileInProgramFolder("UserSettings.json")) &&
-                    !FileIntegrityCheck(File.Exists(destinationFile) ? new[] { destinationFile } : new[] { "" }))
+                    !FileIntegrityCheck(File.Exists(destinationFile) ? [destinationFile] : new[] { "" }))
                 {
                     var fileInfo = new FileInfo(file);
                     var fileSize = fileInfo.Length;

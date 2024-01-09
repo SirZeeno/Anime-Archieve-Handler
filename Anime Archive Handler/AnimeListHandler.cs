@@ -1,5 +1,4 @@
 ﻿using System.Text.RegularExpressions;
-using JikanDotNet;
 
 namespace Anime_Archive_Handler;
 
@@ -11,13 +10,12 @@ using static FileHandler;
 
 public static class AnimeListHandler
 {
-    //need to also add a season feature to the list that allows for the anime list to also have the season information that tells what season the user wants
-
     private static string _animeList =
         GetValue<string>(UserSettingsFile, "AnimeListOutput");
 
-    private static readonly string AnimeListBackup = HelperClass.GetFileInProgramFolder("AnimeList.db");
-    private static List<Anime?>? _anime;
+    private static readonly string AnimeListBackup = GetFileInProgramFolder("AnimeList.db");
+    private static List<AnimeDto?>? _anime;
+    private static int[]? _seasonNumber;
 
     public static void StartAnimeListEditing()
     {
@@ -25,21 +23,21 @@ public static class AnimeListHandler
 
         ConsoleExt.WriteLineWithPretext($"Anime List is Stored at: {_animeList}", ConsoleExt.OutputType.Info);
         CheckFileExistence(_animeList);
-        
-        //being able to add different seasons of the same anime to the database
 
         while (true)
         {
-            _anime = new List<Anime?>();
-            ConsoleExt.WriteLineWithPretext("What Anime would you like to Add/Remove to the List?",
+            _anime = new List<AnimeDto?>();
+            ConsoleExt.WriteLineWithPretext("What Anime would you like to Add/Remove to the List? (+/- before the link or name)",
                 ConsoleExt.OutputType.Question);
             Console.Write("Anime Name or URL: ");
 
-            string? inputString = Console.ReadLine();
+            var inputString = Console.ReadLine();
             string pattern = Regex.Escape("Anime Name or URL: ");
             if (inputString == null) return;
-            string cutInputString = Regex.Replace(inputString, pattern, "");
-            string? animeName = CheckIfUrl(cutInputString);
+            var cutInputString = Regex.Replace(inputString, pattern, "");
+            var animeName = CheckIfUrl(cutInputString);
+
+            _seasonNumber = ExtractingSeasonNumber(animeName);
 
             // Adds the anime to the list
             if (cutInputString.StartsWith("+"))
@@ -56,7 +54,7 @@ public static class AnimeListHandler
             //if nothing is there then its going to look them up in the database and let the user decide what to do depending on the result
             else
             {
-                bool animeExistences = animeName != null && CheckAnimeExistence(GetAnimeWithTitle(animeName)?.MalId);
+                var animeExistences = CheckAnimeExistence(GetAnimeWithTitle(animeName)?.MalId);
                 if (animeExistences)
                 {
                     if (!HelperClass.ManualInformationChecking(
@@ -66,49 +64,36 @@ public static class AnimeListHandler
                 else
                 {
                     if (!HelperClass.ManualInformationChecking(
-                            "Anime does not exist in the Anime List! Would you like to add it?")) continue;
+                            "Anime does NOT exist in the Anime List! Would you like to add it?")) continue;
                     AddAnime(animeName);
                 }
             }
         }
     }
 
-    private static string? CheckIfUrl(string cutInputString)
+    private static string CheckIfUrl(string cutInputString)
     {
-        if (cutInputString.Contains("https://") || cutInputString.Contains("http://"))
-        {
-            string animeName = UrlNameExtractor(cutInputString);
-            ConsoleExt.WriteLineWithPretext($"Anime Name: {animeName}", ConsoleExt.OutputType.Info);
-            return animeName;
-        }
-        else
-        {
-            return cutInputString;
-        }
+        if (!cutInputString.Contains("https://") && !cutInputString.Contains("http://")) return cutInputString;
+        var animeName = UrlNameExtractor(cutInputString);
+        ConsoleExt.WriteLineWithPretext($"Anime Name: {animeName}", ConsoleExt.OutputType.Info);
+        return animeName;
+
     }
 
     private static void AddAnime(string? animeName)
     {
-        if (animeName != null)
-        {
-            ExtractingSeasonNumber(animeName);
-            _anime?.Add(GetAnimeWithTitle(RemoveUnnecessaryNamePieces(animeName)));
-        }
+        _anime?.Add(GetAnimeWithTitle(RemoveUnnecessaryNamePieces(animeName)));
 
         if (_anime == null) return;
         foreach (var anime in _anime.Where(anime => anime != null))
         {
-            if (anime != null) SaveToAnimeList(anime);
+            if (anime != null) SaveToAnimeList(anime, _seasonNumber);
         }
     }
 
     private static void RemoveAnime(string? animeName)
     {
-        if (animeName != null)
-        {
-            ExtractingSeasonNumber(animeName);
-            _anime?.Add(GetAnimeWithTitle(RemoveUnnecessaryNamePieces(animeName)));
-        }
+        _anime?.Add(GetAnimeWithTitle(RemoveUnnecessaryNamePieces(animeName)));
 
         if (_anime == null) return;
         foreach (var anime in _anime.Where(anime => anime != null))

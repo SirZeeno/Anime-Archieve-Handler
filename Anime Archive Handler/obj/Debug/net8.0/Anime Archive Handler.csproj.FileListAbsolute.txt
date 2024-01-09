@@ -1,0 +1,29 @@
+F:\My Programs\Anime Archive Handler\net8.0\Anime Archive Handler.exe
+F:\My Programs\Anime Archive Handler\net8.0\Anime Archive Handler.deps.json
+F:\My Programs\Anime Archive Handler\net8.0\Anime Archive Handler.runtimeconfig.json
+F:\My Programs\Anime Archive Handler\net8.0\Anime Archive Handler.dll
+F:\My Programs\Anime Archive Handler\net8.0\Anime Archive Handler.pdb
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\obj\Debug\net8.0\Anime Archive Handler.csproj.AssemblyReference.cache
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\obj\Debug\net8.0\Anime Archive Handler.GeneratedMSBuildEditorConfig.editorconfig
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\obj\Debug\net8.0\Anime Archive Handler.AssemblyInfoInputs.cache
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\obj\Debug\net8.0\Anime Archive Handler.AssemblyInfo.cs
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\obj\Debug\net8.0\Anime Archive Handler.csproj.CoreCompileInputs.cache
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\obj\Debug\net8.0\Anime Archive Handler.sourcelink.json
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\obj\Debug\net8.0\Anime Archive Handler.csproj.CopyComplete
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\obj\Debug\net8.0\Anime Archive Handler.dll
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\obj\Debug\net8.0\refint\Anime Archive Handler.dll
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\obj\Debug\net8.0\Anime Archive Handler.pdb
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\obj\Debug\net8.0\Anime Archive Handler.genruntimeconfig.cache
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\obj\Debug\net8.0\ref\Anime Archive Handler.dll
+F:\My Programs\Anime Archive Handler\net8.0\Databases\Deprecated\AnimeList.json
+F:\My Programs\Anime Archive Handler\net8.0\Databases\Deprecated\DataBase.json
+F:\My Programs\Anime Archive Handler\net8.0\Databases\torrents-latest.csv
+F:\My Programs\Anime Archive Handler\net8.0\External Dependencies\ffmpeg.exe
+F:\My Programs\Anime Archive Handler\net8.0\External Dependencies\ffprobe.exe
+F:\My Programs\Anime Archive Handler\net8.0\Settings\UserSettings.json
+F:\My Programs\Anime Archive Handler\net8.0\External Dependencies\Instructions.txt
+F:\My Programs\Anime Archive Handler\net8.0\Databases\AnimeList.db
+F:\My Programs\Anime Archive Handler\net8.0\Databases\Animetosho.db
+F:\My Programs\Anime Archive Handler\net8.0\Databases\DataBase.db
+F:\My Programs\Anime Archive Handler\net8.0\Databases\TestDatabase.db
+F:\My Programs\Anime Archive Handler\net8.0\External Dependencies\LiteDB.Studio.exe
