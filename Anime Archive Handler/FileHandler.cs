@@ -156,7 +156,6 @@ public static class FileHandler
     // Takes a input of a text file to convert into a csv file while is needed to create updated torrent database
     internal static string TextToCsv(string inputFilePath)
     {
-        inputFilePath = "path_to_your_text_file.txt"; // Path to your text file
         var outputFilePath = Path.ChangeExtension(inputFilePath, ".csv"); // Path for the new CSV file
 
         // Reading from the text file

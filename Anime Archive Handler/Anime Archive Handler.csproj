@@ -49,9 +49,6 @@
         <None Update="Databases\Deprecated\DataBase.json">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="Databases\torrents-latest.csv">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
         <None Update="External Dependencies\Instructions.txt">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
@@ -67,11 +64,15 @@
         <None Update="External Dependencies\LiteDB.Studio.exe">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+        <None Update="Databases\Deprecated\torrents-latest.csv">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
     <ItemGroup>
       <Folder Include="Databases\Downloads\" />
-      <Folder Include="External Dependencies\Fetching Programs\" />
+      <Folder Include="External Dependencies\Fetching Programs\Manga\" />
+      <Folder Include="External Dependencies\Fetching Programs\Nhentai\" />
       <Folder Include="Logs\Errors\" />
     </ItemGroup>
 

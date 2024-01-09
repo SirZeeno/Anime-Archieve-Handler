@@ -1,11 +1,12 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using JikanDotNet;
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+
+// ReSharper disable InconsistentNaming
+// ReSharper disable UnusedMember.Global
+// ReSharper disable IdentifierTypo
 
 namespace Anime_Archive_Handler;
 
-[SuppressMessage("ReSharper", "InconsistentNaming")]
-[SuppressMessage("ReSharper", "IdentifierTypo")]
-[SuppressMessage("ReSharper", "UnusedMember.Global")]
-#nullable disable
 public abstract class Animetosho
 {
     public int? id { get; set; }
@@ -52,3 +53,14 @@ public abstract class Animetosho
     public string srctitle { get; set; }
     public int? status { get; set; }
 }
+public class AnimeDto : Anime
+{
+    public int AnimeSeason { get; set; }
+}
+    
+public class NeededDirectories
+{
+    public string path { get; set; }
+    public bool enabled { get; set; }
+}
+

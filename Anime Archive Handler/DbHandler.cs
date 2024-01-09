@@ -5,6 +5,7 @@ using JikanDotNet;
 using CsvHelper;
 using CsvHelper.Configuration;
 using LiteDB;
+using Riok.Mapperly.Abstractions;
 
 namespace Anime_Archive_Handler;
 
@@ -198,11 +199,17 @@ public static class DbHandler
     internal static AnimeDto RemapToAnimeDto(Anime anime)
     {
         var mapper = new MapperlyMaps();
-        return mapper.animeDto(anime);
+        return mapper.AnimeDto(anime);
     }
 }
 
 public class TitleEntryDb : TitleEntry
 {
     public long? MalId { get; init; }
+}
+
+[Mapper(UseDeepCloning = true, IgnoreObsoleteMembersStrategy = IgnoreObsoleteMembersStrategy.Both)]
+public partial class MapperlyMaps
+{
+    public partial AnimeDto AnimeDto(Anime anime);
 }

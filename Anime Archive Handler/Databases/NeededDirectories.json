@@ -1,3 +1,18 @@
-﻿{
-  
-}
+﻿[
+  {
+    "path": "External Dependencies/Fetching Programs/Manga",
+    "enabled": true
+  },
+  {
+    "path": "External Dependencies/Fetching Programs/Nhentai",
+    "enabled": true
+  },
+  {
+    "path": "Logs/Errors",
+    "enabled": true
+  },
+  {
+    "path": "Databases/Downloads",
+    "enabled": true
+  }
+]
