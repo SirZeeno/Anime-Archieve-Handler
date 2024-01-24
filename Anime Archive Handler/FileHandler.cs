@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using System.Reflection;
 using System.Security.Cryptography;
+using System.Text.RegularExpressions;
 using CsvHelper;
 using CsvHelper.Configuration;
 using FFMpegCore;
@@ -10,6 +11,8 @@ namespace Anime_Archive_Handler;
 
 public static class FileHandler
 {
+
+    private static string? _errorLogFile;
     
     //File integrity checks if all the files in a anime folder arent corrupted and returns false if the file is corrupt and is used to check if the downloaded anime is fully working
     // and if one of the filed in the anime stored structure is corrupted
@@ -117,65 +120,134 @@ public static class FileHandler
     // could use a uid that gets generated new everytime the program gets started, but this uid needs to get associated with the log file
     internal static void ErrorLogger(string errorInfo, Exception ex)
     {
+        if (_errorLogFile == null || File.Exists(_errorLogFile))
+        {
+            var stream = File.Create(Path.Combine(GetDirectoryInProgramFolder("Errors"), $"Error Log: {DateTime.Now:MM/dd/yyyy HH:mm:ss}.txt"));
+            _errorLogFile = stream.Name;
+            stream.Close();
+        }
         // Log the error or handle it as needed
         var errorMessage = $"Error, {errorInfo}: {ex.Message}";
         ConsoleExt.WriteLineWithPretext(errorMessage, ConsoleExt.OutputType.Error);
 
         // Write the error message to the log file
-        using var logWriter = new StreamWriter(Path.Combine(GetDirectoryInProgramFolder("Errors"), $"Error Log: {DateTime.Now:MM/dd/yyyy HH:mm:ss}.txt"), append: true);
+        using var logWriter = new StreamWriter(Path.Combine(GetDirectoryInProgramFolder("Errors"), _errorLogFile), append: true);
         logWriter.WriteLine($"{DateTime.Now:MM/dd/yyyy HH:mm:ss}: {errorMessage}");
         // Optionally, write more details about the error or the problematic record
-    }
-    
-    // returns a specified setting which can be used to get user settings or stored settings
-    internal static string ReturnSettings(string filePath, string sectionName, string keyName)
-    {
-        var parser = new FileIniDataParser();
-        var data = parser.ReadFile(filePath);
-        
-        // Read the value
-        var someValue = data[sectionName][keyName];
-        return someValue;
-    }
-    
-    // is used to write or update settings in the user settings or in the stored settings
-    internal static void WriteSetting(string filePath, string sectionName, string keyName, string keyValue)
-    {
-        var parser = new FileIniDataParser();
-        
-        // Read the INI file
-        var data = parser.ReadFile(filePath);
-        
-        // Update a specific key
-        data[sectionName][keyName] = keyValue;
-        
-        // Write the updated data back to the file
-        parser.WriteFile(filePath, data);
     }
     
     // Takes a input of a text file to convert into a csv file while is needed to create updated torrent database
     internal static string TextToCsv(string inputFilePath)
     {
-        var outputFilePath = Path.ChangeExtension(inputFilePath, ".csv"); // Path for the new CSV file
-
-        // Reading from the text file
-        using (var reader = new StreamReader(inputFilePath))
-        using (var csvReader = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture) 
-               {
-                   Delimiter = "\t", // Set the delimiter used in your text file to tabs
-                   HasHeaderRecord = true, // If your file has header row
-               }))
+        try
         {
-            // Writing to the CSV file
-            using (var writer = new StreamWriter(outputFilePath))
-            using (var csvWriter = new CsvWriter(writer, CultureInfo.InvariantCulture))
+            var outputFilePath = Path.ChangeExtension(inputFilePath, ".csv"); // Path for the new CSV file
+
+            // Reading from the text file
+            using (var reader = new StreamReader(inputFilePath))
+            using (var csvReader = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)
+                   {
+                       Delimiter = "\t", // Set the delimiter used in your text file to tabs
+                       HasHeaderRecord = true, // If your file has header row
+                   }))
             {
-                var records = csvReader.GetRecords<Animetosho>();
-                csvWriter.WriteRecords(records);
+                // Writing to the CSV file
+                using (var writer = new StreamWriter(outputFilePath))
+                using (var csvWriter = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                {
+                    var records = csvReader.GetRecords<Animetosho>();
+                    csvWriter.WriteRecords(records);
+                }
             }
+
+            Console.WriteLine("File converted successfully.");
+            return outputFilePath;
+        }
+        catch (Exception e)
+        {
+            // Log or print exception details
+            ConsoleExt.WriteLineWithPretext("Error converting file: ", ConsoleExt.OutputType.Error, e);
+            throw;
+        }
+    }
+}
+
+public static class SettingsManager 
+{
+    private static readonly FileIniDataParser Parser = new FileIniDataParser();
+
+    // Returns a specified setting which can be used to get user settings or stored settings
+    private static string GetValue(string filePath, string sectionName, string keyName)
+    {
+        string pattern = @"\./";
+        
+        var data = Parser.ReadFile(filePath);
+        var match = Regex.Match(data[sectionName][keyName], pattern);
+
+        // checks for ./ which means that its a directory and its inside the working directory
+        return match.Success ? Regex.Replace(data[sectionName][keyName], pattern, Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)! + @"\") : data[sectionName][keyName];
+    }
+
+    // Is used to write or update settings in the user settings or in the stored settings
+    internal static void SetValue(string filePath, string sectionName, string keyName, string keyValue) 
+    {
+        var data = Parser.ReadFile(filePath);
+
+        data[sectionName][keyName] = keyValue;
+        Parser.WriteFile(filePath, data);
+    }
+
+    internal static string GetSetting(string sectionName, string keyName)
+    {
+        string settings = FileHandler.GetFileInProgramFolder("Settings.ini");
+        string userSettings = FileHandler.GetFileInProgramFolder("UserSettings.ini");
+
+        string setting = GetValue(userSettings, sectionName, keyName);
+
+        if (setting != "null") return setting;
+        setting = GetValue(settings, $"Cached {sectionName}", keyName);
+        if (setting == "null")
+        {
+            setting = GetValue(settings, $"Default {sectionName}", keyName);
         }
 
-        Console.WriteLine("File converted successfully.");
-        return outputFilePath;
+        return setting;
+    }
+}
+
+public interface IDirectoryCreation
+{
+    string location { get;}
+    static abstract void CreateDirectory();
+}
+
+// need to figure out how to access a non-static variable in a static function and class
+public class CreateHentaiDirectory : IDirectoryCreation
+{
+    public string location => SettingsManager.GetSetting("Output Paths", "HentaiOutputFolder"); //the user set location or default location
+
+    public static void CreateDirectory()
+    {
+        
+    }
+}
+
+public class CreateMangaDirectory : IDirectoryCreation
+{
+    public string location => SettingsManager.GetSetting("Output Paths", "MangaOutputFolder"); //the user set location or default location
+
+    public static void CreateDirectory()
+    {
+        
+    }
+}
+
+public class CreateAnimeDirectory : IDirectoryCreation
+{
+    public string location => SettingsManager.GetSetting("Output Paths", "AnimeOutputFolder"); //the user set location or default location
+
+    public static void CreateDirectory()
+    {
+        
     }
 }

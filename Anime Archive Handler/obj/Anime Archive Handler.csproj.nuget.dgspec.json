@@ -72,6 +72,14 @@
               "target": "Package",
               "version": "[5.0.17, )"
             },
+            "Lucene.Net": {
+              "target": "Package",
+              "version": "[3.0.3, )"
+            },
+            "Lucene.Net.Linq": {
+              "target": "Package",
+              "version": "[3.6.0, )"
+            },
             "MediaInfo.Wrapper": {
               "target": "Package",
               "version": "[21.9.3, )"
@@ -95,10 +103,6 @@
             "Riok.Mapperly": {
               "target": "Package",
               "version": "[3.3.0, )"
-            },
-            "ScrapySharp": {
-              "target": "Package",
-              "version": "[3.0.0, )"
             },
             "ini-parser": {
               "target": "Package",

@@ -21,13 +21,14 @@
         <PackageReference Include="ini-parser" Version="3.4.0" />
         <PackageReference Include="JikanDotNet" Version="2.7.0" />
         <PackageReference Include="LiteDB" Version="5.0.17" />
+        <PackageReference Include="Lucene.Net" Version="3.0.3" />
+        <PackageReference Include="Lucene.Net.Linq" Version="3.6.0" />
         <PackageReference Include="MediaInfo.Wrapper" Version="21.9.3" />
         <PackageReference Include="Microsoft.NET.Build.Containers" Version="8.0.100" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
         <PackageReference Include="NReco.VideoInfo" Version="1.2.0" />
         <PackageReference Include="PuppeteerSharp" Version="13.0.2" />
         <PackageReference Include="Riok.Mapperly" Version="3.3.0" />
-        <PackageReference Include="ScrapySharp" Version="3.0.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -73,7 +74,11 @@
       <Folder Include="Databases\Downloads\" />
       <Folder Include="External Dependencies\Fetching Programs\Manga\" />
       <Folder Include="External Dependencies\Fetching Programs\Nhentai\" />
+      <Folder Include="External Dependencies\Meilisearch\Linux\" />
+      <Folder Include="External Dependencies\Meilisearch\Mac\" />
+      <Folder Include="External Dependencies\Meilisearch\Windows\" />
       <Folder Include="Logs\Errors\" />
+      <Folder Include="Testing\" />
     </ItemGroup>
 
 </Project>
