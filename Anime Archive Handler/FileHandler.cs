@@ -202,14 +202,21 @@ public static class SettingsManager
         string settings = FileHandler.GetFileInProgramFolder("Settings.ini");
         string userSettings = FileHandler.GetFileInProgramFolder("UserSettings.ini");
 
+        // checks if the user has set a value in that settings and caches and returns it if they did
         string setting = GetValue(userSettings, sectionName, keyName);
-
-        if (setting != "null") return setting;
-        setting = GetValue(settings, $"Cached {sectionName}", keyName);
-        if (setting == "null")
+        if (setting != "null")
         {
-            setting = GetValue(settings, $"Default {sectionName}", keyName);
+            SetValue(settings, $"Cached {sectionName}", keyName, setting);
+            return setting;
         }
+        
+        // checks if there is a cached value for that setting and returns it
+        setting = GetValue(settings, $"Cached {sectionName}", keyName);
+        if (setting != "null") return setting;
+        
+        // checks if there is a default value for that setting and caches and returns it
+        setting = GetValue(settings, $"Default {sectionName}", keyName);
+        SetValue(settings, $"Cached {sectionName}", keyName, setting);
 
         return setting;
     }
