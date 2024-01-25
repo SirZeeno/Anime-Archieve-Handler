@@ -2523,31 +2523,24 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\leon\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "/Users/leonklewer/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "F:\\Rider Projects\\Anime Archieve Handler\\Anime Archieve Handler\\Anime Archive Handler\\Anime Archive Handler.csproj",
+      "projectUniqueName": "/Users/leonklewer/Documents/Console Apps/Anime-Archieve-Handler/Anime Archive Handler/Anime Archive Handler.csproj",
       "projectName": "Anime Archive Handler",
-      "projectPath": "F:\\Rider Projects\\Anime Archieve Handler\\Anime Archieve Handler\\Anime Archive Handler\\Anime Archive Handler.csproj",
-      "packagesPath": "C:\\Users\\leon\\.nuget\\packages\\",
-      "outputPath": "F:\\Rider Projects\\Anime Archieve Handler\\Anime Archieve Handler\\Anime Archive Handler\\obj\\",
+      "projectPath": "/Users/leonklewer/Documents/Console Apps/Anime-Archieve-Handler/Anime Archive Handler/Anime Archive Handler.csproj",
+      "packagesPath": "/Users/leonklewer/.nuget/packages/",
+      "outputPath": "/Users/leonklewer/Documents/Console Apps/Anime-Archieve-Handler/Anime Archive Handler/obj/",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-      ],
       "configFilePaths": [
-        "C:\\Users\\leon\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "/Users/leonklewer/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -2647,7 +2640,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "c:\\program files\\dotnet\\sdk\\8.0.100/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.100/PortableRuntimeIdentifierGraph.json"
       }
     }
   },
