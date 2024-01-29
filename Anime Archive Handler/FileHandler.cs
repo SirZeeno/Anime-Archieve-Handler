@@ -184,7 +184,7 @@ public static class SettingsManager
         var data = Parser.ReadFile(filePath);
         var match = Regex.Match(data[sectionName][keyName], pattern);
 
-        // checks for ./ which means that its a directory and its inside the working directory
+        // checks for ./ which means that its a directory so it will return a full directory, otherwise returns a unchanged string
         return match.Success ? Regex.Replace(data[sectionName][keyName], pattern, Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)! + @"\") : data[sectionName][keyName];
     }
 
@@ -195,6 +195,16 @@ public static class SettingsManager
 
         data[sectionName][keyName] = keyValue;
         Parser.WriteFile(filePath, data);
+    }
+    
+    // Need to find a way to initialize the most used file paths at the beginning and cache the location for later, but update it if it doesnt exist
+    internal static void CacheSetting(string sectionName, string keyName, string keyValue) 
+    {
+        string settings = FileHandler.GetFileInProgramFolder("Settings.ini");
+        var data = Parser.ReadFile(settings);
+
+        data[sectionName][keyName] = keyValue;
+        Parser.WriteFile(settings, data);
     }
 
     internal static string GetSetting(string sectionName, string keyName)

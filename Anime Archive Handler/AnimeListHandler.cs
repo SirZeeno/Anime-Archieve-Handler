@@ -98,7 +98,7 @@ public static class AnimeListHandler
         if (_anime == null) return;
         foreach (var anime in _anime.Where(anime => anime != null))
         {
-            if (anime != null) RemoveFromAnimeList(anime);
+            if (anime != null) RemoveFromAnimeList(anime.MalId);
         }
     }
 

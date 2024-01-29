@@ -56,11 +56,28 @@ public abstract class Animetosho
 public class AnimeDto : Anime
 {
     public int AnimeSeason { get; set; }
+    public int AnimePart { get; set; }
 }
     
 public class NeededDirectories
 {
     public string path { get; set; }
     public bool enabled { get; set; }
+}
+
+public class NHentai
+{
+    public string title { get; set; }
+    public string subtitle { get; set; }
+    public string upload_date { get; set; }
+    public string parody { get; set; }
+    public string[] character { get; set; }
+    public string[] tag { get; set; }
+    public string[] artist { get; set; }
+    public string[] group { get; set; }
+    public string[] language { get; set; }
+    public string[] category { get; set; }
+    public string URL { get; set; }
+    public int Pages { get; set; }
 }
 

@@ -79,10 +79,10 @@ public static class DbHandler
         ConsoleExt.WriteLineWithPretext("Anime Successfully added to the Anime List!", ConsoleExt.OutputType.Info);
     }
     
-    public static void RemoveFromAnimeList(AnimeDto anime)
+    public static void RemoveFromAnimeList(long? animeId)
     {
-        ToWatchList.DeleteMany(x => x.MalId == anime.MalId);
-        ToWatchListTitles.DeleteMany(x => x.MalId == anime.MalId);
+        ToWatchList.DeleteMany(x => x.MalId == animeId);
+        ToWatchListTitles.DeleteMany(x => x.MalId == animeId);
         ConsoleExt.WriteLineWithPretext("Anime Successfully removed to the Anime List!", ConsoleExt.OutputType.Info);
     }
 
@@ -93,9 +93,24 @@ public static class DbHandler
         return anime != null || animeTitle != null;
     }
 
-    public static AnimeDto? FindAnimeById(long malId)
+    public static object? FindById<T>(long? malId, ILiteCollection<T> database)
     {
-        return AnimeDb.FindOne(x => x != null && x.MalId == malId);
+        if (database == AnimeDb)
+        {
+            ILiteCollection<AnimeDto?>? d = database as ILiteCollection<AnimeDto?>;
+            return d?.FindOne(x => x != null && x.MalId == malId);
+        }
+
+        if (database != ToWatchListTitles) return null;
+        {
+            ILiteCollection<TitleEntryDb?>? d = database as ILiteCollection<TitleEntryDb?>;
+            return d?.FindOne(x => x != null && x.MalId == malId);
+        }
+    }
+
+    public static long? FindLastAnimeIdInDb()
+    {
+        return AnimeDb.FindOne(Query.All("MalId", Query.Descending)).MalId;
     }
     
     public static AnimeDto? GetAnimeWithTitle(string title)
@@ -136,7 +151,7 @@ public static class DbHandler
         // Fetch all potential TitleEntryDb from the database
         var allTitleEntries = TitleEntryList.FindAll().ToHashSet();
 
-        // Filter titles based on the first N characters
+        // Filter titles based on the first number of characters
         foreach (var titleEntry in from titleEntry in allTitleEntries where titleEntry.Title != null let firstNCharacters = titleEntry.Title[..Math.Min(characterSearchRange, titleEntry.Title.Length)] where firstNCharacters.ToCharArray().Any(normalizedTitle.Contains) select titleEntry)
         {
             potentialTitles.Add(titleEntry.Title);
@@ -175,7 +190,6 @@ public static class DbHandler
         var config = new CsvConfiguration(CultureInfo.InvariantCulture)
         {
             HasHeaderRecord = true, // Assuming your CSV file has a header row
-            // ... any other configurations
         };
 
         using var csv = new CsvReader(reader, config);
@@ -189,7 +203,7 @@ public static class DbHandler
             }
             catch (Exception ex)
             {
-                ErrorLogger("processing record", ex);
+                ErrorLogger("Processing Record Failed! ", ex);
             }
         }
 
