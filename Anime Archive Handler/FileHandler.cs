@@ -189,7 +189,7 @@ public static class SettingsManager
     }
 
     // Is used to write or update settings in the user settings or in the stored settings
-    internal static void SetValue(string filePath, string sectionName, string keyName, string keyValue) 
+    private static void SetValue(string filePath, string sectionName, string keyName, string keyValue) 
     {
         var data = Parser.ReadFile(filePath);
 
@@ -198,9 +198,11 @@ public static class SettingsManager
     }
     
     // Need to find a way to initialize the most used file paths at the beginning and cache the location for later, but update it if it doesnt exist
-    internal static void CacheSetting(string sectionName, string keyName, string keyValue) 
+    private static void CacheSetting(string sectionName, string keyName, string keyValue) 
     {
+        // need to get this before executing function to have it on hand all time
         string settings = FileHandler.GetFileInProgramFolder("Settings.ini");
+        
         var data = Parser.ReadFile(settings);
 
         data[sectionName][keyName] = keyValue;
@@ -229,6 +231,16 @@ public static class SettingsManager
         SetValue(settings, $"Cached {sectionName}", keyName, setting);
 
         return setting;
+    }
+
+    private static void GoGetter()
+    {
+        string settings = FileHandler.GetFileInProgramFolder("Settings.ini");
+        string userSettings = FileHandler.GetFileInProgramFolder("UserSettings.ini");
+        
+        CacheSetting("CachedFileLocations", "SettingsFileLocation", settings);
+        CacheSetting("CachedFileLocations", "UserSettingsFileLocation", userSettings);
+        
     }
 }
 

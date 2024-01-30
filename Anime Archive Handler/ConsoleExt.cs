@@ -15,7 +15,7 @@ public static class ConsoleExt
         var length1 = CurrentTime();
         var length2 = DetermineOutputType(outputType);
         Console.WriteLine(output);
-        if (exception != null && outputType == OutputType.Error)
+        if (exception != null)
         {
             FileHandler.ErrorLogger(output!.ToString()!, exception);
         }
@@ -27,7 +27,7 @@ public static class ConsoleExt
         var length1 = CurrentTime();
         var length2 = DetermineOutputType(outputType);
         Console.Write(output);
-        if (exception != null && outputType == OutputType.Error)
+        if (exception != null)
         {
             FileHandler.ErrorLogger(output!.ToString()!, exception);
         }
