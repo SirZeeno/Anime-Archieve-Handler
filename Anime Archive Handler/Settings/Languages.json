@@ -3,121 +3,151 @@
     {
       "name": "Arabic",
       "short_form": "AR",
+      "form": [
+        {
+          "sub": false
+        },
+        {
+          "dub": false
+        }],
       "is_active": false
     },
     {
       "name": "Armenian",
       "short_form": "HY",
+      "form": ["sub", "dub"],
       "is_active": false
     },
     {
       "name": "Bengali",
       "short_form": "BN",
+      "form": ["sub", "dub"],
       "is_active": false
     },
     {
       "name": "Bulgarian",
       "short_form": "BG",
+      "form": ["sub", "dub"],
       "is_active": false
     },
     {
       "name": "Chinese",
       "short_form": "ZH",
+      "form": ["sub", "dub"],
       "is_active": false
     },
     {
       "name": "Danish",
       "short_form": "DA",
+      "form": ["sub", "dub"],
       "is_active": false
     },
     {
       "name": "Dutch",
       "short_form": "NL",
+      "form": ["sub", "dub"],
       "is_active": false
     },
     {
       "name": "English",
       "short_form": "EN",
+      "form": ["sub", "dub"],
       "is_active": true
     },
     {
       "name": "Finnish",
       "short_form": "FI",
+      "form": ["sub", "dub"],
       "is_active": false
     },
     {
       "name": "French",
       "short_form": "FR",
+      "form": ["sub", "dub"],
       "is_active": false
     },
     {
       "name": "German",
       "short_form": "DE",
+      "form": ["sub", "dub"],
       "is_active": true
     },
     {
       "name": "Greek",
       "short_form": "EL",
+      "form": ["sub", "dub"],
       "is_active": false
     },
     {
       "name": "Hindi",
       "short_form": "HI",
+      "form": ["sub", "dub"],
       "is_active": false
     },
     {
       "name": "Hungarian",
       "short_form": "HU",
+      "form": ["sub", "dub"],
       "is_active": false
     },
     {
       "name": "Indonesian",
       "short_form": "ID",
+      "form": ["sub", "dub"],
       "is_active": false
     },
     {
       "name": "Italian",
       "short_form": "IT",
+      "form": ["sub", "dub"],
       "is_active": false
     },
     {
       "name": "Japanese",
       "short_form": "JA",
+      "form": ["sub", "dub"],
       "is_active": false
     },
     {
       "name": "Korean",
       "short_form": "KO",
+      "form": ["sub", "dub"],
       "is_active": false
     },
     {
       "name": "Polish",
       "short_form": "PL",
+      "form": ["sub", "dub"],
       "is_active": false
     },
     {
       "name": "Portuguese",
       "short_form": "PT",
+      "form": ["sub", "dub"],
       "is_active": false
     },
     {
       "name": "Russian",
       "short_form": "RU",
+      "form": ["sub", "dub"],
       "is_active": false
     },
     {
       "name": "Spanish",
       "short_form": "ES",
+      "form": ["sub", "dub"],
       "is_active": false
     },
     {
       "name": "Turkish",
       "short_form": "TR",
+      "form": ["sub", "dub"],
       "is_active": false
     },
     {
       "name": "Vietnamese",
       "short_form": "VI",
+      "form": ["sub", "dub"],
       "is_active": false
     }
   ]

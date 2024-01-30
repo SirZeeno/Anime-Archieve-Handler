@@ -19,23 +19,7 @@ public static class JsonFileUtility
         File.WriteAllText(filePath, updatedJsonText);
     }
 
-    public static int FindLastNonNullLine(string filePath)
-    {
-        using var stream = File.OpenRead(filePath);
-        using var reader = new StreamReader(stream);
-
-        var lineCount = 1;
-        var lastNonNullLine = -1;
-
-        while (reader.ReadLine() is { } line)
-        {
-            if (!string.IsNullOrWhiteSpace(line) && line.ToLower() != "null") lastNonNullLine = lineCount;
-            lineCount++;
-        }
-
-        return lastNonNullLine;
-    }
-
+    // might be able to rework this to work with the new manifest.json reading system but retain the modular readability when adding a new format
     [Obsolete("This will be replaced soon by an INI reading system")]
     public static T GetValue<T>(string filePath, string variableName)
     {
@@ -48,7 +32,7 @@ public static class JsonFileUtility
             if (valueToken != null) return valueToken.Value<T>()!;
 
             ConsoleExt.WriteLineWithPretext($"Variable '{variableName}' not found in the JSON file.",
-                ConsoleExt.OutputType.Warning);
+                ConsoleExt.OutputType.Warning, new Exception($"Tried retrieving a setting that doesnt exist or is null from the {filePath} file."));
             return default!;
         }
         catch (Exception)
@@ -58,7 +42,7 @@ public static class JsonFileUtility
     }
 }
 
-public class Language
+public abstract class Language
 {
     public string Name { get; set; }
     public string ShortForm { get; set; }
