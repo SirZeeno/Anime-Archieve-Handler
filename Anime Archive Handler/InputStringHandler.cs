@@ -7,25 +7,17 @@ using static AnimeArchiveHandler;
 using static HelperClass;
 using static FileHandler;
 
-public static class InputStringHandler
+public static partial class InputStringHandler
 {
     //removes all unnecessary pieces from the anime name
     internal static string RemoveUnnecessaryNamePieces(string fileName)
     {
-        const string pattern1 = @"\[.*?\]|\(.*?\)";
-        const string pattern2 = "_";
-        const string pattern3 = @"(?i)(Season|Seasons|S)\s*(\d+)";
-        const string pattern4 = @"\d+(st|nd|rd|th)";
-        const string pattern5 = @"(?<!['\w])[MCDLXVI]+(?![\w'])";
-        const string pattern6 = @"\s{2,}.*$";
-
-        var withoutBrackets = Replace(fileName, pattern1, string.Empty);
-        var withoutUnderscore = Replace(withoutBrackets, pattern2, " ");
-        var withoutSeason = Replace(withoutUnderscore, pattern3, " ");
-        var withoutOrdinal = Replace(withoutSeason, pattern4, string.Empty);
-        var withoutRomanNumerals = Replace(withoutOrdinal, pattern5, string.Empty);
-        var withoutAfterSpaces =
-            Replace(withoutRomanNumerals, pattern6, string.Empty); //removes everything after 2 spaces
+        var withoutBrackets = MyRegex6().Replace(fileName, string.Empty);
+        var withoutUnderscore = MyRegex7().Replace(withoutBrackets, " ");
+        var withoutSeason = MyRegex8().Replace(withoutUnderscore, " ");
+        var withoutOrdinal = MyRegex9().Replace(withoutSeason, string.Empty);
+        var withoutRomanNumerals = MyRegex10().Replace(withoutOrdinal, string.Empty);
+        var withoutAfterSpaces = MyRegex11().Replace(withoutRomanNumerals, string.Empty); //removes everything after 2 spaces
 
         var output = withoutAfterSpaces.ApplyCase(LetterCasing.Title).TrimStart().TrimEnd();
         ConsoleExt.WriteLineWithPretext(output, ConsoleExt.OutputType.Info);
@@ -39,19 +31,13 @@ public static class InputStringHandler
             ConsoleExt.WriteLineWithPretext("Tried to extract Url but input was null!", ConsoleExt.OutputType.Error);
             return string.Empty;
         }
-        
-        const string pattern2 = @"\/ep-\d+";
-        const string pattern3 = "-";
-        const string pattern4 = @"\b\w+\s*$";
 
         if (inputUrl.Contains("gogoanime"))
         {
-            const string pattern = @"https:\/\/gogoanime\.\w+\/watch\/";
-
-            var removedWebsite = Replace(inputUrl, pattern, "");
-            var removedEpisode = Replace(removedWebsite, pattern2, "");
-            var removedDashes = Replace(removedEpisode, pattern3, " ");
-            var removedLastWord = Replace(removedDashes, pattern4, "");
+            var removedWebsite = MyRegex12().Replace(inputUrl, "");
+            var removedEpisode = MyRegex13().Replace(removedWebsite, "");
+            var removedDashes = MyRegex14().Replace(removedEpisode, " ");
+            var removedLastWord = MyRegex15().Replace(removedDashes, "");
             ConsoleExt.WriteLineWithPretext(removedLastWord.Trim(), ConsoleExt.OutputType.Info);
 
             return removedLastWord.Trim();
@@ -59,12 +45,10 @@ public static class InputStringHandler
 
         if (inputUrl.Contains("anix"))
         {
-            const string pattern = @"https:\/\/anix\.\w+\/anime\/";
-
-            var removedWebsite = Replace(inputUrl, pattern, "");
-            var removedEpisode = Replace(removedWebsite, pattern2, "");
-            var removedDashes = Replace(removedEpisode, pattern3, " ");
-            var removedLastWord = Replace(removedDashes, pattern4, "");
+            var removedWebsite = MyRegex16().Replace(inputUrl, "");
+            var removedEpisode = MyRegex17().Replace(removedWebsite, "");
+            var removedDashes = MyRegex18().Replace(removedEpisode, " ");
+            var removedLastWord = MyRegex19().Replace(removedDashes, "");
             ConsoleExt.WriteLineWithPretext(removedLastWord.Trim(), ConsoleExt.OutputType.Info);
 
             return removedLastWord.Trim();
@@ -82,11 +66,8 @@ public static class InputStringHandler
     //Checks if the Folder Name indicates if the anime has multiple parts
     internal static bool HasMultipleParts(string fileName)
     {
-        const string pattern = @"(?i)(Part|Parts|P)\s*(\d+)\s*[+\-]+\s*(\d+)";
-        const string pattern2 = @"(?i)(Part|Parts|P)\s*(\d+)";
-
-        var match1 = Match(fileName, pattern);
-        var match2 = Match(fileName, pattern2);
+        var match1 = MyRegex20().Match(fileName);
+        var match2 = MyRegex21().Match(fileName);
 
         if (match1.Success || match2.Success) return true;
         ConsoleExt.WriteLineWithPretext("No Anime Season Part Found!", ConsoleExt.OutputType.Info);
@@ -96,15 +77,10 @@ public static class InputStringHandler
     //extracts the season number from the folder name
     internal static int[] ExtractingSeasonNumber(string fileName)
     {
-        const string pattern = @"(?i)(Season|Seasons|S)\s*(\d+)\s*[+\-]+\s*(\d+)";
-        const string pattern4 = @"(?i)(Season|Seasons|S)\s*(\d+)";
-        const string pattern2 = @"(?i)\d+\s*(st|nd|rd|th)\s*(Season|Seasons|S)";
-        const string pattern5 = @"(?<!['\w])[MCDLXVI]+(?![\w'])";
-
-        var match1 = Match(fileName, pattern);
-        var match2 = Match(fileName, pattern2);
-        var match4 = Match(fileName, pattern4);
-        var match5 = Match(fileName, pattern5);
+        var match1 = MyRegex().Match(fileName);
+        var match2 = MyRegex1().Match(fileName);
+        var match4 = MyRegex2().Match(fileName);
+        var match5 = MyRegex3().Match(fileName);
 
         if (!match1.Success && !match2.Success && !match4.Success && !match5.Success)
         {
@@ -119,8 +95,7 @@ public static class InputStringHandler
             return SeasonNumbers;
         }
 
-        const string pattern3 = @"[+-]";
-        var match3 = Match(match1.Value, pattern3);
+        var match3 = MyRegex4().Match(match1.Value);
 
         if (!match3.Success)
         {
@@ -152,7 +127,7 @@ public static class InputStringHandler
         }
 
         var seasonNumbers = new List<int>();
-        foreach (Match match in Matches(match1.ToString(), @"\d+"))
+        foreach (Match match in MyRegex5().Matches(match1.ToString()))
             seasonNumbers.Add(Convert.ToInt32(match.Value));
         switch (match3.ToString())
         {
@@ -203,7 +178,7 @@ public static class InputStringHandler
         var match = Match(fileName, pattern);
         if (match.Success)
         {
-            SubOrDub = Languages.Dub;
+            SubOrDub = Language.Dub;
             ConsoleExt.WriteLineWithPretext("Language is Dub", ConsoleExt.OutputType.Info);
             return;
         }
@@ -214,14 +189,14 @@ public static class InputStringHandler
         if (languages.Contains("eng", StringComparer.OrdinalIgnoreCase) ||
             languages.Contains("ger", StringComparer.OrdinalIgnoreCase))
         {
-            SubOrDub = Languages.Dub;
+            SubOrDub = Language.Dub;
             ConsoleExt.WriteLineWithPretext("Language is Dub", ConsoleExt.OutputType.Info);
             return;
         }
 
         if (languages.Contains("jpn", StringComparer.OrdinalIgnoreCase))
         {
-            SubOrDub = Languages.Sub;
+            SubOrDub = Language.Sub;
             ConsoleExt.WriteLineWithPretext("Language is Sub", ConsoleExt.OutputType.Info);
             return;
         }
@@ -238,11 +213,11 @@ public static class InputStringHandler
             switch (argument.ToLower())
             {
                 case "sub":
-                    SubOrDub = Languages.Sub;
+                    SubOrDub = Language.Sub;
                     ConsoleExt.WriteLineWithPretext("Language is Sub", ConsoleExt.OutputType.Info);
                     break;
                 case "dub":
-                    SubOrDub = Languages.Dub;
+                    SubOrDub = Language.Dub;
                     ConsoleExt.WriteLineWithPretext("Language is Dub", ConsoleExt.OutputType.Info);
                     break;
                 default:
@@ -256,18 +231,66 @@ public static class InputStringHandler
                     switch (index)
                     {
                         case 1:
-                            SubOrDub = Languages.Sub;
+                            SubOrDub = Language.Sub;
                             break;
                         case 2:
-                            SubOrDub = Languages.Dub;
+                            SubOrDub = Language.Dub;
                             break;
                         default:
                             Console.WriteLine("Invalid input! Anime is defaulted to Dubbed!");
-                            SubOrDub = Languages.Dub;
+                            SubOrDub = Language.Dub;
                             break;
                     }
 
                     break;
             }
     }
+
+    // ExtractingSeasonNumber()
+    [GeneratedRegex(@"(?i)(Season|Seasons|S)\s*(\d+)\s*[+\-]+\s*(\d+)", RegexOptions.None, "en-US")]
+    private static partial Regex MyRegex();
+    [GeneratedRegex(@"(?i)\d+\s*(st|nd|rd|th)\s*(Season|Seasons|S)", RegexOptions.None, "en-US")]
+    private static partial Regex MyRegex1();
+    [GeneratedRegex(@"(?i)(Season|Seasons|S)\s*(\d+)", RegexOptions.None, "en-US")]
+    private static partial Regex MyRegex2();
+    [GeneratedRegex(@"(?<!['\w])[MCDLXVI]+(?![\w'])")]
+    private static partial Regex MyRegex3();
+    [GeneratedRegex("[+-]")]
+    private static partial Regex MyRegex4();
+    [GeneratedRegex(@"\d+")]
+    private static partial Regex MyRegex5();
+    [GeneratedRegex(@"\[.*?\]|\(.*?\)")]
+    
+    // RemoveUnnecessaryNamePieces()
+    private static partial Regex MyRegex6();
+    [GeneratedRegex("_")]
+    private static partial Regex MyRegex7();
+    [GeneratedRegex(@"(?i)(Season|Seasons|S)\s*(\d+)", RegexOptions.None, "en-US")]
+    private static partial Regex MyRegex8();
+    [GeneratedRegex(@"\d+(st|nd|rd|th)")]
+    private static partial Regex MyRegex9();
+    [GeneratedRegex(@"(?<!['\w])[MCDLXVI]+(?![\w'])")]
+    private static partial Regex MyRegex10();
+    [GeneratedRegex(@"\s{2,}.*$")]
+    private static partial Regex MyRegex11();
+    [GeneratedRegex(@"https:\/\/gogoanime\.\w+\/watch\/")]
+    private static partial Regex MyRegex12();
+    [GeneratedRegex(@"\/ep-\d+")]
+    private static partial Regex MyRegex13();
+    [GeneratedRegex("-")]
+    private static partial Regex MyRegex14();
+    [GeneratedRegex(@"\b\w+\s*$")]
+    private static partial Regex MyRegex15();
+    [GeneratedRegex(@"https:\/\/anix\.\w+\/anime\/")]
+    private static partial Regex MyRegex16();
+    [GeneratedRegex(@"\/ep-\d+")]
+    private static partial Regex MyRegex17();
+    [GeneratedRegex("-")]
+    private static partial Regex MyRegex18();
+    [GeneratedRegex(@"\b\w+\s*$")]
+    private static partial Regex MyRegex19();
+    [GeneratedRegex(@"(?i)(Part|Parts|P)\s*(\d+)\s*[+\-]+\s*(\d+)", RegexOptions.None, "en-US")]
+    private static partial Regex MyRegex20();
+    [GeneratedRegex(@"(?i)(Part|Parts|P)\s*(\d+)", RegexOptions.None, "en-US")]
+    private static partial Regex MyRegex21();
 }

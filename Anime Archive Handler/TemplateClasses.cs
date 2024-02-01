@@ -81,3 +81,16 @@ public class NHentai
     public int Pages { get; set; }
 }
 
+public class Languages
+{
+    public string name { get; set; }
+    public string short_form { get; set; }
+    public LanguageForm form { get; set; }
+    public bool is_active { get; set; }
+}
+
+public abstract class LanguageForm
+{
+    public bool sub { get; set; }
+    public bool dub { get; set; }
+}

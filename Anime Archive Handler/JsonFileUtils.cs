@@ -6,13 +6,13 @@ namespace Anime_Archive_Handler;
 
 public static class JsonFileUtility
 {
-    public static List<Language>? GetLanguages(string filePath)
+    public static List<Languages>? GetLanguages(string filePath)
     {
         // Deserialize from JSON to C# Object
-        return JsonConvert.DeserializeObject<List<Language>>(filePath);
+        return JsonConvert.DeserializeObject<List<Languages>>(filePath);
     }
 
-    public static void WriteLanguages(string filePath, List<Language> root)
+    public static void WriteLanguages(string filePath, List<Languages> root)
     {
         // Serialize back to JSON
         var updatedJsonText = JsonConvert.SerializeObject(root, Formatting.Indented);
@@ -35,16 +35,11 @@ public static class JsonFileUtility
                 ConsoleExt.OutputType.Warning, new Exception($"Tried retrieving a setting that doesnt exist or is null from the {filePath} file."));
             return default!;
         }
-        catch (Exception)
+        catch (Exception e)
         {
-            throw new Exception($"Variable '{variableName}' not found in the JSON file.");
+            var message = $"Variable '{variableName}' not found in the JSON file.";
+            ConsoleExt.WriteLineWithPretext(message, ConsoleExt.OutputType.Error, new Exception(message + $" {e.Message}"));
+            throw;
         }
     }
-}
-
-public abstract class Language
-{
-    public string Name { get; set; }
-    public string ShortForm { get; set; }
-    public bool IsActive { get; set; }
 }
