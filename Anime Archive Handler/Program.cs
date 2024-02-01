@@ -38,7 +38,7 @@ internal abstract class AnimeArchiveHandler
     private static readonly bool MultiplePartsInOneFolder =
         GetValue<bool>(UserSettingsFile, "MultiplePartsInOneFolder");
 
-    internal static Languages? SubOrDub;
+    internal static Language? SubOrDub;
     private static string? _animeName;
     internal static int[]? SeasonNumbers;
     internal static int[]? PartNumbers;
@@ -250,7 +250,7 @@ internal abstract class AnimeArchiveHandler
         }
     }
 
-    internal enum Languages
+    internal enum Language
     {
         Sub,
         Dub
