@@ -9,7 +9,6 @@ using Riok.Mapperly.Abstractions;
 
 namespace Anime_Archive_Handler;
 
-using static AnimeArchiveHandler;
 using static FileHandler;
 
 public static class DbHandler
@@ -17,15 +16,16 @@ public static class DbHandler
     private static readonly LiteDatabase Db = new(GetFileInProgramFolder("DataBase.db")); // need to cache those in the program settings and only search for them again if it cant be found in the same location
     private static readonly LiteDatabase Al = new(GetFileInProgramFolder("AnimeList.db"));
     private static readonly LiteDatabase Ats = new(GetFileInProgramFolder("Animetosho.db"));
+    private static readonly LiteDatabase Nh = new(GetFileInProgramFolder("Nhentai.db"));
     private static readonly LiteDatabase Ts = new(GetFileInProgramFolder("TestDatabase.db")); // for testing purposes only
+    
     internal static readonly ILiteCollection<AnimeDto> AnimeDb = Db.GetCollection<AnimeDto>("Anime"); //loads anime database
     private static readonly ILiteCollection<TitleEntryDb> TitleEntryList = Db.GetCollection<TitleEntryDb>("TitleEntry");
     private static readonly ILiteCollection<AnimeDto> ToWatchList = Al.GetCollection<AnimeDto>("ToWatch");
     private static readonly ILiteCollection<TitleEntryDb> ToWatchListTitles = Al.GetCollection<TitleEntryDb>("ToWatchTitleEntry");
     private static readonly ILiteCollection<Animetosho> Animetosho = Ats.GetCollection<Animetosho>("Animetosho");
+    private static readonly ILiteCollection<NHentaiMetaData> Nhentai = Nh.GetCollection<NHentaiMetaData>("NHentaiMetaData");
     private static readonly ILiteCollection<AnimeDto> AnimeDtoTest = Ts.GetCollection<AnimeDto>("AnimeDto"); // for testing purposes only
-    
-    private static readonly string CsvFile = GetFileInProgramFolder("torrents-latest.csv");
 
     public static void EnsureIndexDb()
     {
@@ -97,13 +97,13 @@ public static class DbHandler
     {
         if (database == AnimeDb)
         {
-            ILiteCollection<AnimeDto?>? d = database as ILiteCollection<AnimeDto?>;
+            var d = database as ILiteCollection<AnimeDto?>;
             return d?.FindOne(x => x != null && x.MalId == malId);
         }
 
         if (database != ToWatchListTitles) return null;
         {
-            ILiteCollection<TitleEntryDb?>? d = database as ILiteCollection<TitleEntryDb?>;
+            var d = database as ILiteCollection<TitleEntryDb?>;
             return d?.FindOne(x => x != null && x.MalId == malId);
         }
     }
@@ -115,7 +115,7 @@ public static class DbHandler
     
     public static AnimeDto? GetAnimeWithTitle(string title)
     {
-        var similarityPercentage = JsonFileUtility.GetValue<int>(UserSettingsFile, "SimilarityPercentage");
+        var similarityPercentage = int.Parse(SettingsManager.GetSetting("Execution Settings", "SimilarityPercentage"));
         var normalizedTitle = NormalizeTitle(title);
 
         // Fetch potential matches from the database 
@@ -146,7 +146,7 @@ public static class DbHandler
     private static IEnumerable<string> FetchPotentialMatchesFromDatabase(string normalizedTitle)
     {
         var potentialTitles = new HashSet<string>();
-        var characterSearchRange = JsonFileUtility.GetValue<int>(UserSettingsFile, "CharacterSearchRange");
+        var characterSearchRange = int.Parse(SettingsManager.GetSetting("Execution Settings", "CharacterSearchRange"));
     
         // Fetch all potential TitleEntryDb from the database
         var allTitleEntries = TitleEntryList.FindAll().ToHashSet();
@@ -210,16 +210,16 @@ public static class DbHandler
         ConsoleExt.WriteLineWithPretext("Finished importing CSV into database", ConsoleExt.OutputType.Info);
     }
 
+    internal static void NhentaiMetadata()
+    {
+        
+    }
+
     internal static AnimeDto RemapToAnimeDto(Anime anime)
     {
         var mapper = new MapperlyMaps();
         return mapper.AnimeDto(anime);
     }
-}
-
-public class TitleEntryDb : TitleEntry
-{
-    public long? MalId { get; init; }
 }
 
 [Mapper(UseDeepCloning = true, IgnoreObsoleteMembersStrategy = IgnoreObsoleteMembersStrategy.Both)]

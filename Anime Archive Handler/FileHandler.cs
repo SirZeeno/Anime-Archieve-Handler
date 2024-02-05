@@ -1,11 +1,9 @@
-﻿using System.Globalization;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
-using CsvHelper;
-using CsvHelper.Configuration;
 using FFMpegCore;
 using IniParser;
+using static Anime_Archive_Handler.FileHandler;
 
 namespace Anime_Archive_Handler;
 
@@ -135,46 +133,11 @@ public static class FileHandler
         logWriter.WriteLine($"{DateTime.Now:MM/dd/yyyy HH:mm:ss}: {errorMessage}");
         // Optionally, write more details about the error or the problematic record
     }
-    
-    // Takes a input of a text file to convert into a csv file while is needed to create updated torrent database
-    internal static string TextToCsv(string inputFilePath)
-    {
-        try
-        {
-            var outputFilePath = Path.ChangeExtension(inputFilePath, ".csv"); // Path for the new CSV file
-
-            // Reading from the text file
-            using (var reader = new StreamReader(inputFilePath))
-            using (var csvReader = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)
-                   {
-                       Delimiter = "\t", // Set the delimiter used in your text file to tabs
-                       HasHeaderRecord = true, // If your file has header row
-                   }))
-            {
-                // Writing to the CSV file
-                using (var writer = new StreamWriter(outputFilePath))
-                using (var csvWriter = new CsvWriter(writer, CultureInfo.InvariantCulture))
-                {
-                    var records = csvReader.GetRecords<Animetosho>();
-                    csvWriter.WriteRecords(records);
-                }
-            }
-
-            Console.WriteLine("File converted successfully.");
-            return outputFilePath;
-        }
-        catch (Exception e)
-        {
-            // Log or print exception details
-            ConsoleExt.WriteLineWithPretext("Error converting file: ", ConsoleExt.OutputType.Error, e);
-            throw;
-        }
-    }
 }
 
 public static class SettingsManager 
 {
-    private static readonly FileIniDataParser Parser = new FileIniDataParser();
+    private static readonly FileIniDataParser Parser = new();
 
     // Returns a specified setting which can be used to get user settings or stored settings
     private static string GetValue(string filePath, string sectionName, string keyName)
@@ -201,7 +164,7 @@ public static class SettingsManager
     private static void CacheSetting(string sectionName, string keyName, string keyValue) 
     {
         // need to get this before executing function to have it on hand all time
-        string settings = FileHandler.GetFileInProgramFolder("Settings.ini");
+        string settings = GetFileInProgramFolder("Settings.ini");
         
         var data = Parser.ReadFile(settings);
 
@@ -211,8 +174,8 @@ public static class SettingsManager
 
     internal static string GetSetting(string sectionName, string keyName)
     {
-        string settings = FileHandler.GetFileInProgramFolder("Settings.ini");
-        string userSettings = FileHandler.GetFileInProgramFolder("UserSettings.ini");
+        string settings = AnimeArchiveHandler.SettingsPath;
+        string userSettings = GetValue(settings, "Cached File Locations", "UserSettingsFileLocation");
 
         // checks if the user has set a value in that settings and caches and returns it if they did
         string setting = GetValue(userSettings, sectionName, keyName);
@@ -233,50 +196,14 @@ public static class SettingsManager
         return setting;
     }
 
-    private static void GoGetter()
+    internal static string GoGetter()
     {
-        string settings = FileHandler.GetFileInProgramFolder("Settings.ini");
-        string userSettings = FileHandler.GetFileInProgramFolder("UserSettings.ini");
+        string settings = GetFileInProgramFolder("Settings.ini");
+        string userSettings = GetFileInProgramFolder("UserSettings.ini");
         
-        CacheSetting("CachedFileLocations", "SettingsFileLocation", settings);
-        CacheSetting("CachedFileLocations", "UserSettingsFileLocation", userSettings);
-        
-    }
-}
+        CacheSetting("Cached File Locations", "SettingsFileLocation", settings);
+        CacheSetting("Cached File Locations", "UserSettingsFileLocation", userSettings);
 
-public interface IDirectoryCreation
-{
-    string location { get;}
-    static abstract void CreateDirectory();
-}
-
-// need to figure out how to access a non-static variable in a static function and class
-public class CreateHentaiDirectory : IDirectoryCreation
-{
-    public string location => SettingsManager.GetSetting("Output Paths", "HentaiOutputFolder"); //the user set location or default location
-
-    public static void CreateDirectory()
-    {
-        
-    }
-}
-
-public class CreateMangaDirectory : IDirectoryCreation
-{
-    public string location => SettingsManager.GetSetting("Output Paths", "MangaOutputFolder"); //the user set location or default location
-
-    public static void CreateDirectory()
-    {
-        
-    }
-}
-
-public class CreateAnimeDirectory : IDirectoryCreation
-{
-    public string location => SettingsManager.GetSetting("Output Paths", "AnimeOutputFolder"); //the user set location or default location
-
-    public static void CreateDirectory()
-    {
-        
+        return settings;
     }
 }

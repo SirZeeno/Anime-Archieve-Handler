@@ -1,8 +1,9 @@
 ﻿using System.Text.RegularExpressions;
-using static System.Text.RegularExpressions.Regex;
 using HtmlAgilityPack;
 
 namespace Anime_Archive_Handler;
+
+using static Regex;
 using static FileHandler;
 
 public static partial class WebScraper
@@ -35,12 +36,13 @@ public static partial class WebScraper
                             // Write the byte array to the local file
                             await File.WriteAllBytesAsync(localFilePath, fileBytes);
 
-                            Console.WriteLine("File downloaded successfully.");
+                            ConsoleExt.WriteLineWithPretext("File downloaded successfully.", ConsoleExt.OutputType.Info);
                         }
                     
                         else
                         {
-                            Console.WriteLine($"Failed to download file. Status code: {response.StatusCode}");
+                            string message = $"Failed to download file. Status code: {response.StatusCode}";
+                            ConsoleExt.WriteLineWithPretext(message, ConsoleExt.OutputType.Error, new Exception("message"));
                         }
 
                         break;
@@ -84,12 +86,13 @@ public static partial class WebScraper
                                     // Write the byte array to the local file
                                     await File.WriteAllBytesAsync(localFilePath, fileBytes);
 
-                                    Console.WriteLine("File downloaded successfully.");
+                                    ConsoleExt.WriteLineWithPretext("File downloaded successfully.", ConsoleExt.OutputType.Info);
                                 }
                     
                                 else
                                 {
-                                    Console.WriteLine($"Failed to download file. Status code: {response.StatusCode}");
+                                    string message = $"Failed to download file. Status code: {response.StatusCode}";
+                                    ConsoleExt.WriteLineWithPretext(message, ConsoleExt.OutputType.Error, new Exception("message"));
                                 }
                             }
                         }
@@ -100,7 +103,7 @@ public static partial class WebScraper
             }
             catch (Exception e)
             {
-                ConsoleExt.WriteLineWithPretext(e, ConsoleExt.OutputType.Error);
+                ConsoleExt.WriteLineWithPretext(e, ConsoleExt.OutputType.Error, e);
             
                 throw;
             }
@@ -133,12 +136,13 @@ public static partial class WebScraper
                             // Write the byte array to the local file
                             await File.WriteAllBytesAsync(localFilePath, fileBytes);
 
-                            Console.WriteLine("File downloaded successfully.");
+                            ConsoleExt.WriteLineWithPretext("File downloaded successfully.", ConsoleExt.OutputType.Info);
                         }
                     
                         else
                         {
-                            Console.WriteLine($"Failed to download file. Status code: {response.StatusCode}");
+                            string message = $"Failed to download file. Status code: {response.StatusCode}";
+                            ConsoleExt.WriteLineWithPretext(message, ConsoleExt.OutputType.Error, new Exception("message"));
                         }
 
                         break;
@@ -182,12 +186,13 @@ public static partial class WebScraper
                                     // Write the byte array to the local file
                                     await File.WriteAllBytesAsync(localFilePath, fileBytes);
 
-                                    Console.WriteLine("File downloaded successfully.");
+                                    ConsoleExt.WriteLineWithPretext("File downloaded successfully.", ConsoleExt.OutputType.Info);
                                 }
                     
                                 else
                                 {
-                                    Console.WriteLine($"Failed to download file. Status code: {response.StatusCode}");
+                                    string message = $"Failed to download file. Status code: {response.StatusCode}";
+                                    ConsoleExt.WriteLineWithPretext(message, ConsoleExt.OutputType.Error, new Exception("message"));
                                 }
                             }
                         }
@@ -198,7 +203,7 @@ public static partial class WebScraper
             }
             catch (Exception e)
             {
-                ConsoleExt.WriteLineWithPretext(e, ConsoleExt.OutputType.Error);
+                ConsoleExt.WriteLineWithPretext(e, ConsoleExt.OutputType.Error, e);
             
                 throw;
             }
@@ -248,19 +253,20 @@ public static partial class WebScraper
                         // Write the byte array to the local file
                         await File.WriteAllBytesAsync(localFilePath, fileBytes);
 
-                        Console.WriteLine("File downloaded successfully.");
+                        ConsoleExt.WriteLineWithPretext("File downloaded successfully.", ConsoleExt.OutputType.Info);
                     }
                     
                     else
                     {
-                        Console.WriteLine($"Failed to download file. Status code: {response.StatusCode}");
+                        string message = $"Failed to download file. Status code: {response.StatusCode}";
+                        ConsoleExt.WriteLineWithPretext(message, ConsoleExt.OutputType.Error, new Exception("message"));
                     }
                 }
             }
         }
         catch (Exception e)
         {
-            ConsoleExt.WriteLineWithPretext(e, ConsoleExt.OutputType.Error);
+            ConsoleExt.WriteLineWithPretext(e, ConsoleExt.OutputType.Error, e);
             
             throw;
         }
