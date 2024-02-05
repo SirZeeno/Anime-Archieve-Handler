@@ -7,9 +7,11 @@ using static InputStringHandler;
 using static DbHandler;
 using static HelperClass;
 using static FileHandler;
+using static SettingsManager;
 
 //before doing the integrity check on each episode in the folder i need to make sure the files that i am checking are actual video files and not checksum files or any other files like in the Akashic Records of Bastard Magic Instructor folder
 //if the selected anime from the database is not the correct anime, create a selection of all the high similarity matches and let the user choose the correct one. But if they are still not correct, the user can choose to use a custom Name or anime
+// surrealdb might me a good replacement for litedb
 
 /// <summary>
 /// The following animes are having issues in the database search process and are returning an incorrect anime or version of the anime
@@ -31,12 +33,10 @@ using static FileHandler;
 internal abstract class AnimeArchiveHandler
 {
     internal static readonly string UserSettingsFile = GetFileInProgramFolder("UserSettings.json");
-    private static readonly string AnimeOutputFolder =
-        GetValue<string>(UserSettingsFile, "AnimeOutputFolder");
-    internal static readonly bool HeadlessOperations =
-        GetValue<bool>(UserSettingsFile, "HeadlessOperations");
-    private static readonly bool MultiplePartsInOneFolder =
-        GetValue<bool>(UserSettingsFile, "MultiplePartsInOneFolder");
+    private static readonly string AnimeOutputFolder = GetSetting("Output Paths", "AnimeOutputFolder");
+    internal static readonly bool HeadlessOperations = bool.Parse(GetSetting("Execution Settings", "HeadlessOperations"));
+    private static readonly bool MultiplePartsInOneFolder = bool.Parse(GetSetting("Execution Settings", "MultiplePartsInOneFolder"));
+    internal static readonly string SettingsPath = GoGetter();
 
     internal static Language? SubOrDub;
     private static string? _animeName;

@@ -2,16 +2,14 @@
 
 namespace Anime_Archive_Handler;
 
-using static AnimeArchiveHandler;
 using static InputStringHandler;
 using static DbHandler;
-using static JsonFileUtility;
 using static FileHandler;
+using static SettingsManager;
 
 public static class AnimeListHandler
 {
-    private static string _animeList =
-        GetValue<string>(UserSettingsFile, "AnimeListOutput");
+    private static string _animeList = GetSetting("Output Paths", "AnimeListOutput");
 
     private static readonly string AnimeListBackup = GetFileInProgramFolder("AnimeList.db");
     private static List<AnimeDto?>? _anime;

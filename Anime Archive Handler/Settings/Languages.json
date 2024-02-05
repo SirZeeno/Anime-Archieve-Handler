@@ -3,7 +3,7 @@
     {
       "name": "Arabic",
       "short_form": "AR",
-      "form": [
+      "language_form": [
         {
           "sub": false
         },
@@ -15,7 +15,7 @@
     {
       "name": "Armenian",
       "short_form": "HY",
-      "form": [
+      "language_form": [
         {
           "sub": false
         },
@@ -27,7 +27,7 @@
     {
       "name": "Bengali",
       "short_form": "BN",
-      "form": [
+      "language_form": [
         {
           "sub": false
         },
@@ -39,7 +39,7 @@
     {
       "name": "Bulgarian",
       "short_form": "BG",
-      "form": [
+      "language_form": [
         {
           "sub": false
         },
@@ -51,7 +51,7 @@
     {
       "name": "Chinese",
       "short_form": "ZH",
-      "form": [
+      "language_form": [
         {
           "sub": false
         },
@@ -63,7 +63,7 @@
     {
       "name": "Danish",
       "short_form": "DA",
-      "form": [
+      "language_form": [
         {
           "sub": false
         },
@@ -75,7 +75,7 @@
     {
       "name": "Dutch",
       "short_form": "NL",
-      "form": [
+      "language_form": [
         {
           "sub": false
         },
@@ -87,7 +87,7 @@
     {
       "name": "English",
       "short_form": "EN",
-      "form": [
+      "language_form": [
         {
           "sub": false
         },
@@ -99,7 +99,7 @@
     {
       "name": "Finnish",
       "short_form": "FI",
-      "form": [
+      "language_form": [
         {
           "sub": false
         },
@@ -111,7 +111,7 @@
     {
       "name": "French",
       "short_form": "FR",
-      "form": [
+      "language_form": [
         {
           "sub": false
         },
@@ -123,7 +123,7 @@
     {
       "name": "German",
       "short_form": "DE",
-      "form": [
+      "language_form": [
         {
           "sub": false
         },
@@ -135,7 +135,7 @@
     {
       "name": "Greek",
       "short_form": "EL",
-      "form": [
+      "language_form": [
         {
           "sub": false
         },
@@ -147,7 +147,7 @@
     {
       "name": "Hindi",
       "short_form": "HI",
-      "form": [
+      "language_form": [
         {
           "sub": false
         },
@@ -159,7 +159,7 @@
     {
       "name": "Hungarian",
       "short_form": "HU",
-      "form": [
+      "language_form": [
         {
           "sub": false
         },
@@ -171,7 +171,7 @@
     {
       "name": "Indonesian",
       "short_form": "ID",
-      "form": [
+      "language_form": [
         {
           "sub": false
         },
@@ -183,7 +183,7 @@
     {
       "name": "Italian",
       "short_form": "IT",
-      "form": [
+      "language_form": [
         {
           "sub": false
         },
@@ -195,7 +195,7 @@
     {
       "name": "Japanese",
       "short_form": "JA",
-      "form": [
+      "language_form": [
         {
           "sub": false
         },
@@ -207,7 +207,7 @@
     {
       "name": "Korean",
       "short_form": "KO",
-      "form": [
+      "language_form": [
         {
           "sub": false
         },
@@ -219,7 +219,7 @@
     {
       "name": "Polish",
       "short_form": "PL",
-      "form": [
+      "language_form": [
         {
           "sub": false
         },
@@ -231,7 +231,7 @@
     {
       "name": "Portuguese",
       "short_form": "PT",
-      "form": [
+      "language_form": [
         {
           "sub": false
         },
@@ -243,7 +243,7 @@
     {
       "name": "Russian",
       "short_form": "RU",
-      "form": [
+      "language_form": [
         {
           "sub": false
         },
@@ -255,7 +255,7 @@
     {
       "name": "Spanish",
       "short_form": "ES",
-      "form": [
+      "language_form": [
         {
           "sub": false
         },
@@ -267,7 +267,7 @@
     {
       "name": "Turkish",
       "short_form": "TR",
-      "form": [
+      "language_form": [
         {
           "sub": false
         },
@@ -279,7 +279,7 @@
     {
       "name": "Vietnamese",
       "short_form": "VI",
-      "form": [
+      "language_form": [
         {
           "sub": false
         },

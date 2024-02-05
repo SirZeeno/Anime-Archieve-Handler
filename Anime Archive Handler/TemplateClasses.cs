@@ -58,6 +58,11 @@ public class AnimeDto : Anime
     public int AnimeSeason { get; set; }
     public int AnimePart { get; set; }
 }
+
+public class TitleEntryDb : TitleEntry
+{
+    public long? MalId { get; init; }
+}
     
 public class NeededDirectories
 {
@@ -65,7 +70,7 @@ public class NeededDirectories
     public bool enabled { get; set; }
 }
 
-public class NHentai
+public class NHentaiMetaData
 {
     public string title { get; set; }
     public string subtitle { get; set; }
@@ -81,7 +86,7 @@ public class NHentai
     public int Pages { get; set; }
 }
 
-public class Languages
+public abstract class Languages
 {
     public string name { get; set; }
     public string short_form { get; set; }
