@@ -14,7 +14,14 @@ public static class ConsoleExt
     {
         var length1 = CurrentTime();
         var length2 = DetermineOutputType(outputType);
-        Console.WriteLine(output);
+        if (output is string[] array)
+        {
+            Console.WriteLine(string.Join(", ", array));
+        }
+        else
+        {
+            Console.WriteLine(output);
+        }
         if (exception != null)
         {
             FileHandler.ErrorLogger(output!.ToString()!, exception);

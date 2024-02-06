@@ -5,6 +5,7 @@ using JikanDotNet;
 using CsvHelper;
 using CsvHelper.Configuration;
 using LiteDB;
+using Newtonsoft.Json;
 using Riok.Mapperly.Abstractions;
 
 namespace Anime_Archive_Handler;
@@ -210,9 +211,33 @@ public static class DbHandler
         ConsoleExt.WriteLineWithPretext("Finished importing CSV into database", ConsoleExt.OutputType.Info);
     }
 
-    internal static void NhentaiMetadata()
+    internal static async Task NhentaiMetadata(string folderPath)
     {
-        
+        var dir = await Task.Run(() => Directory.GetDirectories(folderPath));
+        foreach (var directory in dir)
+        {
+            var files = await Task.Run(() =>Directory.GetFiles(directory));
+            // Gets the file with .json as the extension
+            var file = files.FirstOrDefault(f => Path.GetExtension(f).Equals(".json", StringComparison.OrdinalIgnoreCase));
+
+            if (file == null) continue;
+            
+            // Read the file content into a string
+            var json = await File.ReadAllTextAsync(file);
+            
+            // Deserialize from JSON to NHentaiMetaData structure
+            var metaData = JsonConvert.DeserializeObject<NHentaiMetaData>(json);
+            
+            if (metaData == null) continue;
+
+            ConsoleExt.WriteLineWithPretext(metaData.title, ConsoleExt.OutputType.Info);
+            ConsoleExt.WriteLineWithPretext(metaData.artist, ConsoleExt.OutputType.Info);
+            ConsoleExt.WriteLineWithPretext(metaData.category, ConsoleExt.OutputType.Info);
+            ConsoleExt.WriteLineWithPretext(metaData.character, ConsoleExt.OutputType.Info);
+            ConsoleExt.WriteLineWithPretext(metaData.group, ConsoleExt.OutputType.Info);
+
+            Nhentai.Insert(metaData);
+        }
     }
 
     internal static AnimeDto RemapToAnimeDto(Anime anime)

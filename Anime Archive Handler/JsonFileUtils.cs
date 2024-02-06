@@ -7,8 +7,11 @@ public static class JsonFileUtility
 {
     public static List<Languages>? GetLanguages(string filePath)
     {
-        // Deserialize from JSON to C# Object
-        return JsonConvert.DeserializeObject<List<Languages>>(filePath);
+        // Read the file content into a string
+        string json = File.ReadAllText(filePath);
+        
+        // Deserialize from JSON to Language structure
+        return JsonConvert.DeserializeObject<List<Languages>>(json);
     }
 
     public static void WriteLanguages(string filePath, List<Languages> root)
