@@ -12,6 +12,7 @@ public static class JikanHandler
 
     //need to look into making the json database update every so often
     //need to look into hosting my own jikan API server
+    //need to work on getting getAnimeRelations to work so i can link all relational animes together
 
     public static async Task Start()
     {
@@ -50,6 +51,8 @@ public static class JikanHandler
         ConsoleExt.WriteWithPretext("Getting Anime with ID: " + _id, ConsoleExt.OutputType.Info);
         IJikan jikan = new Jikan(new JikanClientConfiguration { SuppressException = true });
         BaseJikanResponse<Anime> responseString = await jikan.GetAnimeAsync(id);
+        PaginatedJikanResponse<ICollection<RelatedEntry>> responseString2 = await jikan.GetAnimeRelationsAsync(id);
+        
         if (responseString != null)
         {
             var anime = responseString.Data;

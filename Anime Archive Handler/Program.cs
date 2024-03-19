@@ -1,8 +1,8 @@
-﻿using System.Text.RegularExpressions;
+﻿using FFMpegCore;
+using Spectre.Console;
 
 namespace Anime_Archive_Handler;
 
-using static JsonFileUtility;
 using static InputStringHandler;
 using static DbHandler;
 using static HelperClass;
@@ -30,18 +30,30 @@ using static SettingsManager;
 ///     and need the check to actually check either via a checksum or by just checking the names of the files within the
 ///     destination folder
 /// </summary>
-internal abstract class AnimeArchiveHandler
+internal abstract partial class AnimeArchiveHandler
 {
-    internal static readonly string UserSettingsFile = GetFileInProgramFolder("UserSettings.json");
-    private static readonly string AnimeOutputFolder = GetSetting("Output Paths", "AnimeOutputFolder");
+    internal static readonly string SettingsPath = GoGetter();
+    internal static readonly string UserSettingsFile = GetFileInProgramFolder("UserSettings.ini"); // needs to initialize after the settings path
+    internal static readonly string AnimeOutputFolder = GetSetting("Output Paths", "AnimeOutputFolder");
     internal static readonly bool HeadlessOperations = bool.Parse(GetSetting("Execution Settings", "HeadlessOperations"));
     private static readonly bool MultiplePartsInOneFolder = bool.Parse(GetSetting("Execution Settings", "MultiplePartsInOneFolder"));
-    internal static readonly string SettingsPath = GoGetter();
 
-    internal static Language? SubOrDub;
+    private static Language? _subOrDub;
+    public static Language? GetSubOrDub() { return _subOrDub;}
+    public static void SetSubOrDub(Language subOrDub) { _subOrDub = subOrDub;}
+    
     private static string? _animeName;
-    internal static int[]? SeasonNumbers;
-    internal static int[]? PartNumbers;
+    public static string? GetAnimeName() { return _animeName;}
+    public static void SetAnimeName(string? animeName) { _animeName = animeName;}
+    
+    private static int[]? _seasonNumbers;
+    public static int[]? GetSeasonNumbers() { return _seasonNumbers;}
+    public static void SetSeasonNumbers(int[]? seasonNumbers) { _seasonNumbers = seasonNumbers;}
+
+    private static int[]? _partNumbers;
+    public static int[]? GetPartNumbers() { return _partNumbers;}
+    public static void SetPartNumbers(int[]? partNumbers) { _partNumbers = partNumbers;}
+    
     private static string? _sourceFolder;
 
     private static bool _hasSubFolder;
@@ -50,90 +62,122 @@ internal abstract class AnimeArchiveHandler
     // need to refactor this entire starting function and check that all the features are there and de-mess things for cleaner and less boilerplate code
     private static void Main(string[] args)
     {
-        EnsureIndexDb();
-        switch (args.Length)
+        InitializeProject();
+        ConsoleExt.WriteLineWithPretext($"{args.Length} Selected Input Files/Folders", ConsoleExt.OutputType.Info);
+        var font = FigletFont.Load(GetFileInProgramFolder(GetSetting("Execution Settings", "FigletFontFileName")));
+        
+        AnsiConsole.Write(
+            new FigletText(font, "AAH")
+                .Color(Color.Green));
+        
+        var programExecution = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                .Title("[grey]What do you want to do?[/]")
+                .PageSize(10)
+                .MoreChoicesText("[grey](Move up and down to reveal more Choices)[/]")
+                .AddChoices("Add To Anime Collection", "Edit Anime List", "Manual DB Editing", "Scrape Animetosho Exports"));
+        switch (programExecution)
         {
-            case >= 1:
-            {
-                foreach (var arg in args)
+            case "Add To Anime YourCollection":
+                if (args.Length == 0)
                 {
-                    //Task.Run(Start).Wait();
-
-                    _sourceFolder = arg;
-                    _hasSubFolder = HasSubFolders(arg);
-                    
-                    ConsoleExt.WriteLineWithPretext($"Has sub-folders: {_hasSubFolder}", ConsoleExt.OutputType.Info);
-                    
-                    _animeName = RemoveUnnecessaryNamePieces(new DirectoryInfo(arg).Name);
-                    var animeTitleInDb = GetAnimeWithTitle(_animeName);
-                    
-                    if (animeTitleInDb != null)
-                    {
-                        ConsoleExt.WriteLineWithPretext(animeTitleInDb.MalId, ConsoleExt.OutputType.Info);
-                        ConsoleExt.WriteLineWithPretext($"{GetAnimeTitleWithAnime(animeTitleInDb)}, {animeTitleInDb.MalId}", ConsoleExt.OutputType.Info);
-                    }
-                    
-                    else
-                    {
-                        ConsoleExt.WriteLineWithPretext("No Anime found in DataBase!", ConsoleExt.OutputType.Error);
-                    }
-                    
-                    _hasMultipleParts = HasMultipleParts(new DirectoryInfo(arg).Name);
-                    ExtractingSeasonNumber(new DirectoryInfo(arg).Name);
-                    
-                    var folders = _hasSubFolder ? GetSeasonDirectories() : [arg];
-                    
-                    foreach (var folder in folders)
-                    {
-                        var directoryFiles = Directory.GetFiles(folder); //for further use when moving the episodes
-                        
-                        if (FileIntegrityCheck(directoryFiles))
-                        {
-                            ExtractingLanguage(folder);
-                            if (HeadlessOperations)
-                            {
-                                //ConsoleExt.WriteLineWithPretext("Moving All the Season Episodes!", ConsoleExt.OutputType.Info);
-                                //ConsoleExt.WriteLineWithPretext("Copied all Episodes from that Season to the Anime Folder.", ConsoleExt.OutputType.Info);
-                            }
-                            
-                            else
-                            {
-                                if (ManualInformationChecking())
-                                {
-                                    //ConsoleExt.WriteLineWithPretext("Moving All the Season Episodes!", ConsoleExt.OutputType.Info);
-                                    //ConsoleExt.WriteLineWithPretext("Copied all Episodes from that Season to the Anime Folder.", ConsoleExt.OutputType.Info);
-                                }
-                                //need to see whats wrong and correct it
-                            }
-                        }
-                        
-                        else
-                        {
-                            ConsoleExt.WriteLineWithPretext("Moving on to next...", ConsoleExt.OutputType.Warning);
-                        }
-                    }
-
-                    //ConsoleExt.WriteLineWithPretext($"Database Last Entre was on Line: {FindLastNonNullLine(JsonPath)}", ConsoleExt.OutputType.Info);
+                    string temp = GetSetting("Input Paths", "AnimeInputFolders");
+                    if (temp != "null") args = temp.Split(",", StringSplitOptions.TrimEntries);
                 }
-
+                AddAnimeToCollection(args);
                 break;
-            }
-            case 0:
-                if (ManualInformationChecking("Do you want to edit the AnimeList?"))
-                {
-                    AnimeListHandler.StartAnimeListEditing();
-                }
-                
-                else
-                {
-                    //Task.Run(async () => await WebScraper.ScrapeAnimetoshoExports()).GetAwaiter().GetResult();
-                    //ManualBbEditing.StartEditing();
-                }
+            case "Edit Anime List":
+                AnimeListHandler.StartAnimeListEditing();
+                break;
+            case "Manual DB Editing":
+                break;
+            case "Scrape Animetosho Exports":
+                Task.Run(async () => await WebScraper.ScrapeAnimetoshoExports()).GetAwaiter().GetResult();
                 break;
         }
-
+        
         ConsoleExt.WriteLineWithPretext("Program has finished running!", ConsoleExt.OutputType.Info);
         Thread.Sleep(1000000);
+    }
+
+    private static async void InitializeProject()
+    {
+        await AnsiConsole.Status()
+            .Spinner(Spinner.Known.Dots2)
+            .SpinnerStyle(Style.Parse("darkorange3"))
+            .StartAsync("[darkorange3]Initializing...[/]", _ =>
+            {
+                AnsiConsole.MarkupLine("[green]Initializing FFmpeg Binaries...[/]");
+                // Set the path to FFmpeg and FFProbe binaries
+                GlobalFFOptions.Configure(options =>
+                {
+                    options.BinaryFolder = GetSetting("Program Paths", "FfmpegBinFolderPath");
+                    options.TemporaryFilesFolder = "./External Dependencies/Temp";
+                });
+                
+                AnsiConsole.MarkupLine("[green]Ensuring Database Indexes...[/]");
+                EnsureIndexDb();
+                
+                AnsiConsole.MarkupLine("[green]Adding Required Folders...[/]");
+                AddRequiredFolders();
+                Console.Clear();
+                
+                return Task.CompletedTask;
+            });
+    }
+
+    private static void AddAnimeToCollection(string[] args)
+    {
+        if (args.Length == 0) throw new FileNotFoundException("Input Value cannot be an empty collection. Select folder/s while opening this Program or set the source folder in UserSettings.ini", nameof(args));
+        foreach (var arg in args)
+        {
+            _sourceFolder = arg;
+            _hasSubFolder = HasSubFolders(arg);
+                    
+            ConsoleExt.WriteLineWithPretext($"Has sub-folders: {_hasSubFolder}", ConsoleExt.OutputType.Info);
+                    
+            _animeName = RemoveUnnecessaryNamePieces(new DirectoryInfo(arg).Name);
+            var animeTitleInDb = GetAnimesWithTitle(_animeName)!.First();
+
+            ConsoleExt.WriteLineWithPretext(animeTitleInDb.MalId, ConsoleExt.OutputType.Info);
+            ConsoleExt.WriteLineWithPretext($"{GetAnimeTitleWithAnime(animeTitleInDb)}, {animeTitleInDb.MalId}", ConsoleExt.OutputType.Info);
+
+            _hasMultipleParts = HasMultipleParts(new DirectoryInfo(arg).Name);
+            ExtractingSeasonNumber(new DirectoryInfo(arg).Name);
+                    
+            var folders = _hasSubFolder ? GetSeasonDirectories() : [arg];
+                    
+            foreach (var folder in folders)
+            {
+                var directoryFiles = Directory.GetFiles(folder); //for further use when moving the episodes
+                        
+                if (FileIntegrityCheck(directoryFiles))
+                {
+                    ExtractingLanguage(folder);
+                    if (HeadlessOperations)
+                    {
+                        //ConsoleExt.WriteLineWithPretext("Moving All the Season Episodes!", ConsoleExt.OutputType.Info);
+                        //ConsoleExt.WriteLineWithPretext("Copied all Episodes from that Season to the Anime Folder.", ConsoleExt.OutputType.Info);
+                    }
+                            
+                    else
+                    {
+                        if (ManualInformationChecking())
+                        {
+                            //ConsoleExt.WriteLineWithPretext("Moving All the Season Episodes!", ConsoleExt.OutputType.Info);
+                            //ConsoleExt.WriteLineWithPretext("Copied all Episodes from that Season to the Anime Folder.", ConsoleExt.OutputType.Info);
+                        }
+                    }
+                }
+                        
+                else
+                {
+                    ConsoleExt.WriteLineWithPretext("Moving on to next...", ConsoleExt.OutputType.Warning);
+                }
+            }
+
+            //ConsoleExt.WriteLineWithPretext($"Database Last Entre was on Line: {FindLastNonNullLine(JsonPath)}", ConsoleExt.OutputType.Info);
+        }
     }
     
     //Checks if the input folder has sub-folders
@@ -147,102 +191,99 @@ internal abstract class AnimeArchiveHandler
     private static string[] GetSeasonDirectories()
     {
         var allFolders = Directory.GetDirectories(_sourceFolder ?? throw new InvalidOperationException());
-        var pattern = @"\d+";
 
         foreach (var folder in allFolders)
         {
             var splitFolderName = folder.Split(@"\");
             var lastSplit = splitFolderName.Length;
 
-            var match = Regex.Match(splitFolderName[lastSplit - 1], pattern);
+            var match = MyRegex().Match(splitFolderName[lastSplit - 1]);
             if (match.Success) ConsoleExt.WriteLineWithPretext(folder, ConsoleExt.OutputType.Info);
         }
 
         return (from folder in allFolders
-            let match = Regex.Match(folder.Split(@"\")[folder.Split(@"\").Length - 1], pattern)
-            where match.Success
+            let match = MyRegex().Match(folder.Split(@"\")[folder.Split(@"\").Length - 1])
+                where match.Success
             select folder).ToArray();
     }
 
     // Creates all the folders if they dont already exist and is used for the folder structure that is the output and store folder for the entire program
     private static void DirectoryCreator()
     {
-        if (SubOrDub == null || _animeName == null || SeasonNumbers == null)
+        if (_subOrDub == null || _animeName == null || _seasonNumbers!.Length == 0)
         {
-            ConsoleExt.WriteLineWithPretext("Anime Name, Sub or Dub, or Season Number is null",
+            ConsoleExt.WriteLineWithPretext($"Anime Name: {_animeName}, Sub or Dub: {_subOrDub.ToString()}, or Season Number: {_seasonNumbers!.Length} is null",
                 ConsoleExt.OutputType.Error);
             return;
         }
 
         if (!Directory.Exists(AnimeOutputFolder)) Directory.CreateDirectory(AnimeOutputFolder);
-        if (!Directory.Exists(Path.Combine(AnimeOutputFolder, SubOrDub.ToString()!)))
-            Directory.CreateDirectory(Path.Combine(AnimeOutputFolder, SubOrDub.ToString()!));
-        if (!Directory.Exists(Path.Combine(AnimeOutputFolder, SubOrDub.ToString()!, _animeName)))
-            Directory.CreateDirectory(Path.Combine(AnimeOutputFolder, SubOrDub.ToString()!, _animeName));
+        if (!Directory.Exists(Path.Combine(AnimeOutputFolder, _subOrDub.ToString()!)))
+            Directory.CreateDirectory(Path.Combine(AnimeOutputFolder, _subOrDub.ToString()!));
+        if (!Directory.Exists(Path.Combine(AnimeOutputFolder, _subOrDub.ToString()!, _animeName)))
+            Directory.CreateDirectory(Path.Combine(AnimeOutputFolder, _subOrDub.ToString()!, _animeName));
 
-        if (Directory.Exists(Path.Combine(AnimeOutputFolder, SubOrDub.ToString()!, _animeName, @"\Season ",
-                SeasonNumbers[0].ToString()))) //this is only applicable for one season
-            return;
-        Directory.CreateDirectory(Path.Combine(AnimeOutputFolder, SubOrDub.ToString()!, _animeName, @"\Season ",
-            SeasonNumbers[0].ToString()));
+        foreach (var season in _seasonNumbers)
+        {
+            if (Directory.Exists(Path.Combine(AnimeOutputFolder, _subOrDub.ToString()!, _animeName, @"\Season ",
+                    season.ToString())))
+                return;
+            Directory.CreateDirectory(Path.Combine(AnimeOutputFolder, _subOrDub.ToString()!, _animeName, @"\Season ",
+                season.ToString()));
+        }
     }
 
-
+    // Make a checksum from before you moved the file to after you moved it and check if they match
     // Moves all the episodes to the destination folder
-    private static void MoveEpisodes(string[] files)
+    private static async Task MoveEpisodes(string[] files)
     {
-        if (SeasonNumbers == null) return;
-        foreach (var season in SeasonNumbers)
+        if (_seasonNumbers == null) return;
+        foreach (var season in _seasonNumbers)
         {
             var episodeNumber = 1;
-            foreach (var file in files)
+            foreach (var sourceFile in files)
             {
-                var fileExtension = new FileInfo(file).Extension;
-                var destinationFile = AnimeOutputFolder + @"\" + SubOrDub + @"\" + _animeName + @"\Season " +
-                                      season + @"\" + _animeName + " #" + episodeNumber + fileExtension;
-                if (!CheckForExistence(file,
-                        File.Exists(destinationFile) ? destinationFile : GetFileInProgramFolder("UserSettings.json")) &&
-                    !FileIntegrityCheck(File.Exists(destinationFile) ? [destinationFile] : new[] { "" }))
+                var fileExtension = new FileInfo(sourceFile).Extension;
+                if (_animeName != null)
                 {
-                    var fileInfo = new FileInfo(file);
-                    var fileSize = fileInfo.Length;
-
-                    //smaller = more precision, but slower
-                    var bufferSize = 4096 * 4096;
-                    var buffer = new byte[bufferSize];
-
-                    long totalBytesRead = 0;
-
-                    var preMessage = "Episode " + episodeNumber + ": ";
-
-                    using (var source = new FileStream(file, FileMode.Open, FileAccess.Read))
+                    var destinationFile = Path.Combine(AnimeOutputFolder, _subOrDub.ToString()!, _animeName, "Season " + season, _animeName + " #" + episodeNumber + fileExtension);
+                    if (IsValidToMove(sourceFile, destinationFile))
                     {
-                        using (var destination =
-                               new FileStream(destinationFile, FileMode.Create, FileAccess.Write))
+                        try
                         {
-                            int bytesRead;
-                            while ((bytesRead = source.Read(buffer, 0, buffer.Length)) > 0)
-                            {
-                                totalBytesRead += bytesRead;
-                                var progress = (int)((double)totalBytesRead / fileSize * 100);
+                            var fileInfo = new FileInfo(sourceFile);
+                            var totalBytes = fileInfo.Length;
+                            var chunkSizeMultiplier = int.Parse(GetSetting("Execution Settings", "FileTransferBufferChunkMultiplier"));
 
-                                destination.Write(buffer, 0, bytesRead);
+                            await using var sourceStream = new FileStream(sourceFile, FileMode.Open, FileAccess.Read);
+                            await using var destinationStream = new FileStream(destinationFile, FileMode.Create, FileAccess.Write);
 
-                                Console.CursorLeft = 0;
-                                Console.Write(ConsoleExt.WriteWithPretext(preMessage, ConsoleExt.OutputType.Info));
-                                Console.CursorLeft = 0 + preMessage.Length;
-                                Console.Write("[");
-                                Console.CursorLeft = 1 + preMessage.Length;
-                                Console.Write(new string('=', progress / 2));
-                                Console.CursorLeft = 51 + preMessage.Length;
-                                Console.Write("]");
-                                Console.CursorLeft = 53 + preMessage.Length;
-                                Console.Write($"{progress}%");
-                            }
+                            await AnsiConsole.Progress()
+                                .Start(async ctx =>
+                                {
+                                    // Defining the progress task
+                                    var task = ctx.AddTask($"Moving [{sourceFile}]");
+
+                                    var buffer = new byte[1024 * chunkSizeMultiplier];
+                                    int bytesRead;
+                                    long totalBytesRead = 0;
+
+                                    while ((bytesRead = await sourceStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                                    {
+                                        await destinationStream.WriteAsync(buffer, 0, bytesRead);
+                                        totalBytesRead += bytesRead;
+                                        task.Value = (double)totalBytesRead / totalBytes * 100;
+                                    }
+                                });
+                        }
+                        catch (Exception ex)
+                        {
+                            ConsoleExt.WriteLineWithPretext($"Error moving file '{sourceFile}'", ConsoleExt.OutputType.Error, ex);
+                            AnsiConsole.WriteException(ex, 
+                                ExceptionFormats.ShortenPaths | ExceptionFormats.ShortenTypes |
+                                ExceptionFormats.ShortenMethods | ExceptionFormats.ShowLinks);
                         }
                     }
-
-                    Console.WriteLine();
                 }
 
                 episodeNumber++;
@@ -255,4 +296,7 @@ internal abstract class AnimeArchiveHandler
         Sub,
         Dub
     }
+
+    [System.Text.RegularExpressions.GeneratedRegex(@"\d+")]
+    private static partial System.Text.RegularExpressions.Regex MyRegex();
 }

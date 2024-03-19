@@ -14,7 +14,11 @@ public static class ConsoleExt
     {
         var length1 = CurrentTime();
         var length2 = DetermineOutputType(outputType);
-        if (output is string[] array)
+        if (output is List<T> list)
+        {
+            Console.WriteLine(string.Join(", ", list));
+        }
+        if (output is T[] array)
         {
             Console.WriteLine(string.Join(", ", array));
         }
@@ -33,7 +37,18 @@ public static class ConsoleExt
     {
         var length1 = CurrentTime();
         var length2 = DetermineOutputType(outputType);
-        Console.Write(output);
+        if (output is List<T> list)
+        {
+            Console.WriteLine(string.Join(", ", list));
+        }
+        if (output is T[] array)
+        {
+            Console.Write(string.Join(", ", array));
+        }
+        else
+        {
+            Console.Write(output);
+        }
         if (exception != null)
         {
             FileHandler.ErrorLogger(output!.ToString()!, exception);

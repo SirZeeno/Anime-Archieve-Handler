@@ -72,6 +72,8 @@ public class NeededDirectories
 
 public class NHentaiMetaData
 {
+    public int id { get; set; }
+    public int nhentaiId { get; set; }
     public string title { get; set; }
     public string subtitle { get; set; }
     public string upload_date { get; set; }
@@ -84,6 +86,8 @@ public class NHentaiMetaData
     public string[] category { get; set; }
     public string URL { get; set; }
     public int Pages { get; set; }
+    
+    public string folderLocation { get; set; }
 }
 
 public abstract class Languages

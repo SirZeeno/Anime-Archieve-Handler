@@ -46,9 +46,9 @@ public static partial class InputStringHandler
         if (inputUrl.Contains("anix"))
         {
             var removedWebsite = MyRegex16().Replace(inputUrl, "");
-            var removedEpisode = MyRegex17().Replace(removedWebsite, "");
-            var removedDashes = MyRegex18().Replace(removedEpisode, " ");
-            var removedLastWord = MyRegex19().Replace(removedDashes, "");
+            var removedEpisode = MyRegex13().Replace(removedWebsite, "");
+            var removedDashes = MyRegex14().Replace(removedEpisode, " ");
+            var removedLastWord = MyRegex15().Replace(removedDashes, "");
             ConsoleExt.WriteLineWithPretext(removedLastWord.Trim(), ConsoleExt.OutputType.Info);
 
             return removedLastWord.Trim();
@@ -57,7 +57,7 @@ public static partial class InputStringHandler
     }
 
     //Checks if the Folder Name indicates if the anime has and OVA
-    internal static bool HasOva(string fileName)
+    internal static bool HasOva(string folderName)
     {
         
         return false;
@@ -82,48 +82,49 @@ public static partial class InputStringHandler
         var match4 = MyRegex2().Match(fileName);
         var match5 = MyRegex3().Match(fileName);
 
+        int[] seasonNumber = [];
+
         if (!match1.Success && !match2.Success && !match4.Success && !match5.Success)
         {
-            SeasonNumbers = [1];
+            seasonNumber = [1];
             ConsoleExt.WriteLineWithPretext("No Anime Season number Found!", ConsoleExt.OutputType.Warning);
             if (!HeadlessOperations)
             {
                 ManualSeasonNumber("What Anime Season is it?");
-                return SeasonNumbers;
             }
-            ConsoleExt.WriteLineWithPretext($"Season Number: {SeasonNumbers[0]}", ConsoleExt.OutputType.Info);
-            return SeasonNumbers;
+            ConsoleExt.WriteLineWithPretext($"Season Number: {seasonNumber[0]}", ConsoleExt.OutputType.Info);
+            return seasonNumber;
         }
 
         var match3 = MyRegex4().Match(match1.Value);
 
         if (!match3.Success)
         {
-            SeasonNumbers = new int[1];
-            if (int.TryParse(new string(match1.Value.Where(char.IsDigit).ToArray()), out SeasonNumbers[0]))
+            seasonNumber = [1];
+            if (int.TryParse(new string(match1.Value.Where(char.IsDigit).ToArray()), out seasonNumber[0]))
             {
             }
             else
             {
-                if (int.TryParse(new string(match4.Value.Where(char.IsDigit).ToArray()), out SeasonNumbers[0]))
+                if (int.TryParse(new string(match4.Value.Where(char.IsDigit).ToArray()), out seasonNumber[0]))
                 {
                 }
                 else
                 {
-                    if (int.TryParse(new string(match2.Value.Where(char.IsDigit).ToArray()), out SeasonNumbers[0]))
+                    if (int.TryParse(new string(match2.Value.Where(char.IsDigit).ToArray()), out seasonNumber[0]))
                     {
                     }
                     else
                     {
-                        if (int.TryParse(ConvertRomanToNumber(match5.Value).ToString(), out SeasonNumbers[0]))
+                        if (int.TryParse(ConvertRomanToNumber(match5.Value).ToString(), out seasonNumber[0]))
                         {
                         }
                     }
                 }
             }
 
-            ConsoleExt.WriteLineWithPretext($"Season Number: {SeasonNumbers[0]}", ConsoleExt.OutputType.Info);
-            return SeasonNumbers;
+            ConsoleExt.WriteLineWithPretext($"Season Number: {seasonNumber[0]}", ConsoleExt.OutputType.Info);
+            return seasonNumber;
         }
 
         var seasonNumbers = new List<int>();
@@ -133,11 +134,10 @@ public static partial class InputStringHandler
         {
             case "+":
             {
-                SeasonNumbers = new int[seasonNumbers.Count];
-                SeasonNumbers = seasonNumbers.ToArray();
-                ConsoleExt.WriteWithPretext($"Season Numbers: {SeasonNumbers[0]}", ConsoleExt.OutputType.Info);
-                foreach (var number in SeasonNumbers)
-                    if (number != SeasonNumbers[0])
+                seasonNumber = seasonNumbers.ToArray();
+                ConsoleExt.WriteWithPretext($"Season Numbers: {seasonNumber[0]}", ConsoleExt.OutputType.Info);
+                foreach (var number in seasonNumber)
+                    if (number != seasonNumber[0])
                         Console.Write(", " + number);
                 Console.WriteLine();
                 return seasonNumbers.ToArray();
@@ -146,13 +146,13 @@ public static partial class InputStringHandler
             {
                 var lowestNumber = seasonNumbers.Min();
                 var highestNumber = seasonNumbers.Max();
-                SeasonNumbers = new int[highestNumber];
+                seasonNumber = [highestNumber];
                 var index = 0;
                 ConsoleExt.WriteWithPretext($"Season Numbers: {lowestNumber}", ConsoleExt.OutputType.Info);
                 for (var i = lowestNumber; i <= highestNumber; i++)
                 {
-                    SeasonNumbers[index] = i;
-                    if (index != 0) Console.Write($", {SeasonNumbers[index]}");
+                    seasonNumber[index] = i;
+                    if (index != 0) Console.Write($", {seasonNumber[index]}");
                     index++;
                 }
 
@@ -161,9 +161,9 @@ public static partial class InputStringHandler
             }
         }
 
-        if (SeasonNumbers == null)
+        if (seasonNumber.Length == 0)
         {
-            ConsoleExt.WriteLineWithPretext("Invalid symbol", ConsoleExt.OutputType.Error);
+            ConsoleExt.WriteLineWithPretext("Invalid Folder Name Input... No Folders have been Supplied.", ConsoleExt.OutputType.Error, new FormatException());
         }
 
         return [1];
@@ -178,7 +178,7 @@ public static partial class InputStringHandler
         var match = Match(fileName, pattern);
         if (match.Success)
         {
-            SubOrDub = Language.Dub;
+            SetSubOrDub(Language.Dub);
             ConsoleExt.WriteLineWithPretext("Language is Dub", ConsoleExt.OutputType.Info);
             return;
         }
@@ -189,14 +189,14 @@ public static partial class InputStringHandler
         if (languages.Contains("eng", StringComparer.OrdinalIgnoreCase) ||
             languages.Contains("ger", StringComparer.OrdinalIgnoreCase))
         {
-            SubOrDub = Language.Dub;
+            SetSubOrDub(Language.Dub);
             ConsoleExt.WriteLineWithPretext("Language is Dub", ConsoleExt.OutputType.Info);
             return;
         }
 
         if (languages.Contains("jpn", StringComparer.OrdinalIgnoreCase))
         {
-            SubOrDub = Language.Sub;
+            SetSubOrDub(Language.Sub);
             ConsoleExt.WriteLineWithPretext("Language is Sub", ConsoleExt.OutputType.Info);
             return;
         }
@@ -213,11 +213,11 @@ public static partial class InputStringHandler
             switch (argument.ToLower())
             {
                 case "sub":
-                    SubOrDub = Language.Sub;
+                    SetSubOrDub(Language.Sub);
                     ConsoleExt.WriteLineWithPretext("Language is Sub", ConsoleExt.OutputType.Info);
                     break;
                 case "dub":
-                    SubOrDub = Language.Dub;
+                    SetSubOrDub(Language.Dub);
                     ConsoleExt.WriteLineWithPretext("Language is Dub", ConsoleExt.OutputType.Info);
                     break;
                 default:
@@ -231,14 +231,14 @@ public static partial class InputStringHandler
                     switch (index)
                     {
                         case 1:
-                            SubOrDub = Language.Sub;
+                            SetSubOrDub(Language.Sub);
                             break;
                         case 2:
-                            SubOrDub = Language.Dub;
+                            SetSubOrDub(Language.Dub);
                             break;
                         default:
                             Console.WriteLine("Invalid input! Anime is defaulted to Dubbed!");
-                            SubOrDub = Language.Dub;
+                            SetSubOrDub(Language.Dub);
                             break;
                     }
 
@@ -259,9 +259,9 @@ public static partial class InputStringHandler
     private static partial Regex MyRegex4();
     [GeneratedRegex(@"\d+")]
     private static partial Regex MyRegex5();
-    [GeneratedRegex(@"\[.*?\]|\(.*?\)")]
     
     // RemoveUnnecessaryNamePieces()
+    [GeneratedRegex(@"\[.*?\]|\(.*?\)")]
     private static partial Regex MyRegex6();
     [GeneratedRegex("_")]
     private static partial Regex MyRegex7();
@@ -283,12 +283,6 @@ public static partial class InputStringHandler
     private static partial Regex MyRegex15();
     [GeneratedRegex(@"https:\/\/anix\.\w+\/anime\/")]
     private static partial Regex MyRegex16();
-    [GeneratedRegex(@"\/ep-\d+")]
-    private static partial Regex MyRegex17();
-    [GeneratedRegex("-")]
-    private static partial Regex MyRegex18();
-    [GeneratedRegex(@"\b\w+\s*$")]
-    private static partial Regex MyRegex19();
     [GeneratedRegex(@"(?i)(Part|Parts|P)\s*(\d+)\s*[+\-]+\s*(\d+)", RegexOptions.None, "en-US")]
     private static partial Regex MyRegex20();
     [GeneratedRegex(@"(?i)(Part|Parts|P)\s*(\d+)", RegexOptions.None, "en-US")]

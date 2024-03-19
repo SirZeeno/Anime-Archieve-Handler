@@ -1,16 +1,29 @@
-﻿using System.Reflection;
+﻿using System.Globalization;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
+using CsvHelper;
+using CsvHelper.Configuration;
 using FFMpegCore;
 using IniParser;
-using static Anime_Archive_Handler.FileHandler;
 
 namespace Anime_Archive_Handler;
+using static FileHandler;
 
 public static class FileHandler
 {
-
+    internal static readonly string CacheFilePath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, "Settings/Cache.json");
+    private static readonly Dictionary<string, string> FileCache = JsonFileUtility.LoadCache(CacheFilePath);
     private static string? _errorLogFile;
+    
+    // Implements checks for file existence, integrity, etc.
+    internal static bool IsValidToMove(string sourceFile, string destinationFile)
+    {
+        var existence = CheckForExistence(sourceFile, destinationFile);
+        if (!existence) return FileIntegrityCheck([sourceFile]);
+        ConsoleExt.WriteLineWithPretext("File Already Exists in Output Folder", ConsoleExt.OutputType.Warning);
+        return !FileIntegrityCheck([sourceFile, destinationFile]);
+    }
     
     //File integrity checks if all the files in a anime folder arent corrupted and returns false if the file is corrupt and is used to check if the downloaded anime is fully working
     // and if one of the filed in the anime stored structure is corrupted
@@ -49,6 +62,40 @@ public static class FileHandler
         return nothingCorrupt;
     }
     
+    public static string ReadAnimetoshoTxt(string filePath)
+    {
+        try
+        {
+            var outputFilePath = Path.ChangeExtension(filePath, ".csv"); // Path for the new CSV file
+
+            // Reading from the text file
+            using (var reader = new StreamReader(filePath))
+            using (var csvReader = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)
+                   {
+                       Delimiter = "\t", // Set the delimiter used in your text file to tabs
+                       HasHeaderRecord = true, // If your file has header row
+                   }))
+            {
+                // Writing to the CSV file
+                using (var writer = new StreamWriter(outputFilePath))
+                using (var csvWriter = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                {
+                    var records = csvReader.GetRecords<Animetosho>();
+                    csvWriter.WriteRecords(records);
+                }
+            }
+
+            ConsoleExt.WriteLineWithPretext("File converted successfully.", ConsoleExt.OutputType.Info);
+            return outputFilePath;
+        }
+        catch (Exception e)
+        {
+            // Log or print exception details
+            ConsoleExt.WriteLineWithPretext("Error converting file: ", ConsoleExt.OutputType.Error, e);
+            throw;
+        }
+    }
+    
     //Extracts the Audio Track Language by reading the Metadata and is used for language detection of a downloaded anime
     internal static List<string?> TrackLanguageFromMetadata(string videoFilePath)
     {
@@ -59,8 +106,8 @@ public static class FileHandler
             .Where(audioStreamLanguage => audioStreamLanguage != null).ToList();
     }
     
-    // Checks if the currently transferring anime already existing in the output folder
-    internal static bool CheckForExistence(string source, string destination)
+    // Checks if the file already existing in the output folder
+    private static bool CheckForExistence(string source, string destination)
     {
         var sourceHash = GetMd5Checksum(source);
         var destinationHash = GetMd5Checksum(destination);
@@ -87,22 +134,30 @@ public static class FileHandler
     // returns the file path in the program folder and is used to find a file in the program directory when it isn't always gonna be in the same place
     internal static string GetFileInProgramFolder(string fileNameWithExtension)
     {
-        foreach (var file in Directory.GetFiles(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, fileNameWithExtension, SearchOption.AllDirectories))
+        if (FileCache.TryGetValue(fileNameWithExtension, out var cachedPath) && File.Exists(cachedPath))
         {
+            return cachedPath;
+        }
+
+        var baseDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
+
+        foreach (var file in Directory.GetFiles(baseDirectory, fileNameWithExtension, SearchOption.AllDirectories))
+        {
+            var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileNameWithExtension);
+            FileCache[fileNameWithoutExtension] = file;
+            JsonFileUtility.SaveCache(FileCache, CacheFilePath); // Save the cache every time it's updated
             return file;
         }
 
         var message = $"Couldn't find {fileNameWithExtension} file in program directory!";
-        ConsoleExt.WriteLineWithPretext(message, ConsoleExt.OutputType.Error, new InvalidOperationException());
-        throw new InvalidOperationException();
+        ConsoleExt.WriteLineWithPretext(message, ConsoleExt.OutputType.Error, new FileNotFoundException());
+        throw new FileNotFoundException($"");
     }
 
     // returns the directory in the program folder and is used when the folder directory that i'm looking for isn't always in the same spot
     internal static string GetDirectoryInProgramFolder(string directoryName)
     {
-        foreach (var directory in Directory.GetDirectories(
-                     Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, directoryName,
-                     SearchOption.AllDirectories))
+        foreach (var directory in Directory.GetDirectories(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, directoryName, SearchOption.AllDirectories))
         {
             return directory;
         }
@@ -120,7 +175,7 @@ public static class FileHandler
     {
         if (_errorLogFile == null || File.Exists(_errorLogFile))
         {
-            var stream = File.Create(Path.Combine(GetDirectoryInProgramFolder("Errors"), $"Error Log: {DateTime.Now:MM/dd/yyyy HH:mm:ss}.txt"));
+            var stream = File.Create(Path.Combine(GetDirectoryInProgramFolder("Errors"), $"Error Log {DateTime.Now:dd-mm-yyyy HH-mm-ss}.txt"));
             _errorLogFile = stream.Name;
             stream.Close();
         }
@@ -135,75 +190,56 @@ public static class FileHandler
     }
 }
 
-public static class SettingsManager 
+public static partial class SettingsManager 
 {
     private static readonly FileIniDataParser Parser = new();
 
     // Returns a specified setting which can be used to get user settings or stored settings
     private static string GetValue(string filePath, string sectionName, string keyName)
     {
-        string pattern = @"\./";
-        
         var data = Parser.ReadFile(filePath);
-        var match = Regex.Match(data[sectionName][keyName], pattern);
+        var match = MyRegex().Match(data[sectionName][keyName]);
 
         // checks for ./ which means that its a directory so it will return a full directory, otherwise returns a unchanged string
-        return match.Success ? Regex.Replace(data[sectionName][keyName], pattern, Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)! + @"\") : data[sectionName][keyName];
-    }
-
-    // Is used to write or update settings in the user settings or in the stored settings
-    private static void SetValue(string filePath, string sectionName, string keyName, string keyValue) 
-    {
-        var data = Parser.ReadFile(filePath);
-
-        data[sectionName][keyName] = keyValue;
-        Parser.WriteFile(filePath, data);
+        return match.Success ? GetDirectoryInProgramFolder(MyRegex().Replace(data[sectionName][keyName], "")) : data[sectionName][keyName];
     }
     
-    // Need to find a way to initialize the most used file paths at the beginning and cache the location for later, but update it if it doesnt exist
-    private static void CacheSetting(string sectionName, string keyName, string keyValue) 
-    {
-        // need to get this before executing function to have it on hand all time
-        string settings = GetFileInProgramFolder("Settings.ini");
-        
-        var data = Parser.ReadFile(settings);
-
-        data[sectionName][keyName] = keyValue;
-        Parser.WriteFile(settings, data);
-    }
-
+    // have to rework this so it works with the cache json file instead of th ini file to cache things, and use the settings.ini for default values and error logging
     internal static string GetSetting(string sectionName, string keyName)
     {
         string settings = AnimeArchiveHandler.SettingsPath;
-        string userSettings = GetValue(settings, "Cached File Locations", "UserSettingsFileLocation");
+        string userSettings = JsonFileUtility.LoadCache(CacheFilePath)["UserSettings"];
 
         // checks if the user has set a value in that settings and caches and returns it if they did
         string setting = GetValue(userSettings, sectionName, keyName);
         if (setting != "null")
         {
-            SetValue(settings, $"Cached {sectionName}", keyName, setting);
             return setting;
         }
-        
-        // checks if there is a cached value for that setting and returns it
-        setting = GetValue(settings, $"Cached {sectionName}", keyName);
-        if (setting != "null") return setting;
+
+        try
+        {
+            // checks if there is a cached value for that setting and returns it
+            setting = JsonFileUtility.LoadCache(CacheFilePath)[keyName];
+            if (setting != "null") return setting;
+        }
+        catch
+        {
+            // ignored
+        }
         
         // checks if there is a default value for that setting and caches and returns it
         setting = GetValue(settings, $"Default {sectionName}", keyName);
-        SetValue(settings, $"Cached {sectionName}", keyName, setting);
-
         return setting;
     }
 
     internal static string GoGetter()
     {
         string settings = GetFileInProgramFolder("Settings.ini");
-        string userSettings = GetFileInProgramFolder("UserSettings.ini");
-        
-        CacheSetting("Cached File Locations", "SettingsFileLocation", settings);
-        CacheSetting("Cached File Locations", "UserSettingsFileLocation", userSettings);
-
+        GetFileInProgramFolder("UserSettings.ini");
         return settings;
     }
+
+    [GeneratedRegex(@"\./")]
+    private static partial Regex MyRegex();
 }

@@ -1,9 +1,10 @@
 ﻿using System.Reflection;
 using System.Text.RegularExpressions;
-using static Anime_Archive_Handler.AnimeArchiveHandler;
-using static Anime_Archive_Handler.InputStringHandler;
 
 namespace Anime_Archive_Handler;
+
+using static InputStringHandler;
+
 
 public static class HelperClass
 { 
@@ -134,17 +135,15 @@ public static class HelperClass
         }
     }
 
-    public static int[]? ManualSeasonNumber(string message)
+    public static void ManualSeasonNumber(string message)
     {
         ConsoleExt.WriteLineWithPretext($"{message} (Numbers/Symbols Only!)", ConsoleExt.OutputType.Question);
         ConsoleExt.WriteLineWithPretext("Warning: numbers only in forms of 1,2,3 or 1+2+3 or 1-3", ConsoleExt.OutputType.Warning);
         var question = Regex.Escape("Season Number(s): ");
         var answer = Console.ReadLine();
-        if (answer == null) return SeasonNumbers;
+        if (answer == null) return;
         var cutInputString = Regex.Replace(answer, question, "Season ");
         ExtractingSeasonNumber(cutInputString);
-
-        return SeasonNumbers;
     }
 
     
@@ -173,5 +172,10 @@ public static class HelperClass
         {
             Directory.CreateDirectory(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, "Logs/Errors"));
         }
+    }
+
+    public static void PathFriendlyDateTime()
+    {
+        
     }
 }

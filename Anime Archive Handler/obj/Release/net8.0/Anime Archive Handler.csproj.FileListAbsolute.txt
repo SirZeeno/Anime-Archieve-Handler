@@ -1,0 +1,63 @@
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\Databases\AnimeList.db
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\Databases\Animetosho.db
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\Databases\DataBase.db
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\Databases\Deprecated\AnimeList.json
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\Databases\Deprecated\DataBase.json
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\Databases\Deprecated\torrents-latest.csv
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\Databases\NeededDirectories.json
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\Databases\Nhentai.db
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\Databases\TestDatabase.db
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\External Dependencies\ffmpeg.exe
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\External Dependencies\ffprobe.exe
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\External Dependencies\Fonts\univers.flf
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\External Dependencies\Instructions.txt
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\External Dependencies\LiteDB.Studio.exe
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\External Dependencies\Note.txt
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\Settings\Cache.json
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\Settings\Languages.json
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\Settings\Settings.ini
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\Settings\UserSettings.ini
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\Anime Archive Handler.exe
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\Anime Archive Handler.deps.json
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\Anime Archive Handler.runtimeconfig.json
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\Anime Archive Handler.dll
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\Anime Archive Handler.pdb
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\Common.Logging.dll
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\CsvHelper.dll
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\FFMpegCore.dll
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\FuzzySharp.dll
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\HtmlAgilityPack.dll
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\Humanizer.dll
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\INIFileParser.dll
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\Instances.dll
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\JikanDotNet.dll
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\LiteDB.dll
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\Lucene.Net.dll
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\Lucene.Net.Linq.dll
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\Newtonsoft.Json.dll
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\Python.Runtime.dll
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\Remotion.Linq.dll
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\Riok.Mapperly.Abstractions.dll
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\ICSharpCode.SharpZipLib.dll
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\Spectre.Console.dll
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\Spectre.Console.Json.dll
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\de\Humanizer.resources.dll
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\es\Humanizer.resources.dll
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\ja\Humanizer.resources.dll
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\ko-KR\Humanizer.resources.dll
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\vi\Humanizer.resources.dll
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\zh-CN\Humanizer.resources.dll
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\zh-Hans\Humanizer.resources.dll
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\bin\Release\net8.0\zh-Hant\Humanizer.resources.dll
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\obj\Release\net8.0\Anime Archive Handler.csproj.AssemblyReference.cache
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\obj\Release\net8.0\Anime Archive Handler.GeneratedMSBuildEditorConfig.editorconfig
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\obj\Release\net8.0\Anime Archive Handler.AssemblyInfoInputs.cache
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\obj\Release\net8.0\Anime Archive Handler.AssemblyInfo.cs
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\obj\Release\net8.0\Anime Archive Handler.csproj.CoreCompileInputs.cache
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\obj\Release\net8.0\Anime Archive Handler.sourcelink.json
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\obj\Release\net8.0\Anime Ar.7F900A50.Up2Date
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\obj\Release\net8.0\Anime Archive Handler.dll
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\obj\Release\net8.0\refint\Anime Archive Handler.dll
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\obj\Release\net8.0\Anime Archive Handler.pdb
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\obj\Release\net8.0\Anime Archive Handler.genruntimeconfig.cache
+F:\Rider Projects\Anime Archieve Handler\Anime Archieve Handler\Anime Archive Handler\obj\Release\net8.0\ref\Anime Archive Handler.dll

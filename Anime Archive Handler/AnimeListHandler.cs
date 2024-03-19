@@ -1,7 +1,10 @@
 ﻿using System.Text.RegularExpressions;
+using Anime_Archive_Handler.Interfaces;
+using Spectre.Console;
 
 namespace Anime_Archive_Handler;
 
+using static AnimeArchiveHandler;
 using static InputStringHandler;
 using static DbHandler;
 using static FileHandler;
@@ -22,6 +25,17 @@ public static class AnimeListHandler
         ConsoleExt.WriteLineWithPretext($"Anime List is Stored at: {_animeList}", ConsoleExt.OutputType.Info);
         CheckFileExistence(_animeList);
 
+        // Create the layout
+        var layout = new Layout("Root")
+            .SplitColumns(
+                new Layout("Console"),
+                new Layout("Results")
+                    .SplitRows(
+                        new Layout("Selection"),
+                        new Layout("Logs")));
+        
+        AnsiConsole.Write(layout);
+        
         while (true)
         {
             _anime = new List<AnimeDto?>();
@@ -52,7 +66,7 @@ public static class AnimeListHandler
             //if nothing is there then its going to look them up in the database and let the user decide what to do depending on the result
             else
             {
-                var animeExistences = CheckAnimeExistence(GetAnimeWithTitle(animeName)?.MalId);
+                var animeExistences = CheckAnimeExistence(GetAnimesWithTitle(animeName)?.First().MalId);
                 if (animeExistences)
                 {
                     if (!HelperClass.ManualInformationChecking(
@@ -78,25 +92,39 @@ public static class AnimeListHandler
 
     }
 
-    private static void AddAnime(string? animeName)
+    private static async void AddAnime(string? animeName)
     {
-        _anime?.Add(GetAnimeWithTitle(RemoveUnnecessaryNamePieces(animeName)));
-
+        if (HeadlessOperations)
+        {
+            if (animeName != null) _anime?.Add(GetAnimesWithTitle(RemoveUnnecessaryNamePieces(animeName))!.First());
+        }
+        else
+        {
+            if (animeName != null) _anime?.AddRange(GetAnimesWithTitle(RemoveUnnecessaryNamePieces(animeName))!);
+        }
+        
         if (_anime == null) return;
         foreach (var anime in _anime.Where(anime => anime != null))
         {
-            if (anime != null) SaveToAnimeList(anime, _seasonNumber);
+            if (anime != null) await SaveToDb(anime, new EditAnimeList());
         }
     }
 
     private static void RemoveAnime(string? animeName)
     {
-        _anime?.Add(GetAnimeWithTitle(RemoveUnnecessaryNamePieces(animeName)));
+        if (HeadlessOperations)
+        {
+            if (animeName != null) _anime?.Add(GetAnimesWithTitle(RemoveUnnecessaryNamePieces(animeName))!.First());
+        }
+        else
+        {
+            if (animeName != null) _anime?.AddRange(GetAnimesWithTitle(RemoveUnnecessaryNamePieces(animeName))!);
+        }
 
         if (_anime == null) return;
         foreach (var anime in _anime.Where(anime => anime != null))
         {
-            if (anime != null) RemoveFromAnimeList(anime.MalId);
+            if (anime != null) RemoveFromDb((long)anime.MalId!, new EditAnimeList());
         }
     }
 

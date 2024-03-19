@@ -1,11 +1,8 @@
-﻿using System.Globalization;
+﻿using Anime_Archive_Handler.Interfaces;
 using FuzzySharp;
 using FuzzySharp.Extractor;
 using JikanDotNet;
-using CsvHelper;
-using CsvHelper.Configuration;
 using LiteDB;
-using Newtonsoft.Json;
 using Riok.Mapperly.Abstractions;
 
 namespace Anime_Archive_Handler;
@@ -18,27 +15,27 @@ public static class DbHandler
     private static readonly LiteDatabase Al = new(GetFileInProgramFolder("AnimeList.db"));
     private static readonly LiteDatabase Ats = new(GetFileInProgramFolder("Animetosho.db"));
     private static readonly LiteDatabase Nh = new(GetFileInProgramFolder("Nhentai.db"));
-    private static readonly LiteDatabase Ts = new(GetFileInProgramFolder("TestDatabase.db")); // for testing purposes only
+    //private static readonly LiteDatabase Ts = new(GetFileInProgramFolder("TestDatabase.db")); // for testing purposes only
     
     internal static readonly ILiteCollection<AnimeDto> AnimeDb = Db.GetCollection<AnimeDto>("Anime"); //loads anime database
-    private static readonly ILiteCollection<TitleEntryDb> TitleEntryList = Db.GetCollection<TitleEntryDb>("TitleEntry");
-    private static readonly ILiteCollection<AnimeDto> ToWatchList = Al.GetCollection<AnimeDto>("ToWatch");
-    private static readonly ILiteCollection<TitleEntryDb> ToWatchListTitles = Al.GetCollection<TitleEntryDb>("ToWatchTitleEntry");
-    private static readonly ILiteCollection<Animetosho> Animetosho = Ats.GetCollection<Animetosho>("Animetosho");
-    private static readonly ILiteCollection<NHentaiMetaData> Nhentai = Nh.GetCollection<NHentaiMetaData>("NHentaiMetaData");
-    private static readonly ILiteCollection<AnimeDto> AnimeDtoTest = Ts.GetCollection<AnimeDto>("AnimeDto"); // for testing purposes only
+    private static readonly ILiteCollection<TitleEntryDb> TitleEntryListDb = Db.GetCollection<TitleEntryDb>("TitleEntry");
+    internal static readonly ILiteCollection<AnimeDto> ToWatchListDb = Al.GetCollection<AnimeDto>("ToWatch");
+    internal static readonly ILiteCollection<TitleEntryDb> ToWatchListTitlesDb = Al.GetCollection<TitleEntryDb>("ToWatchTitleEntry");
+    internal static readonly ILiteCollection<Animetosho> AnimetoshoDb = Ats.GetCollection<Animetosho>("Animetosho");
+    internal static readonly ILiteCollection<NHentaiMetaData> NhentaiDb = Nh.GetCollection<NHentaiMetaData>("NHentaiMetaData");
+    //private static readonly ILiteCollection<AnimeDto> AnimeDtoTestDb = Ts.GetCollection<AnimeDto>("AnimeDto"); // for testing purposes only
 
     public static void EnsureIndexDb()
     {
         // Ensure index on MalId
         AnimeDb.EnsureIndex(x => x.MalId);
-        TitleEntryList.EnsureIndex(x => x.MalId);
-        ToWatchList.EnsureIndex(x => x.MalId);
-        ToWatchListTitles.EnsureIndex(x => x.MalId);
+        TitleEntryListDb.EnsureIndex(x => x.MalId);
+        ToWatchListDb.EnsureIndex(x => x.MalId);
+        ToWatchListTitlesDb.EnsureIndex(x => x.MalId);
         
         // Ensure index on Title
-        TitleEntryList.EnsureIndex(x => x.Title);
-        ToWatchListTitles.EnsureIndex(x => x.Title);
+        TitleEntryListDb.EnsureIndex(x => x.Title);
+        ToWatchListTitlesDb.EnsureIndex(x => x.Title);
     }
 
     public static void PopulateTitleEntryDb()
@@ -54,43 +51,41 @@ public static class DbHandler
                     Title = titleEntry.Title,
                     Type = titleEntry.Type
                 };
-                TitleEntryList.Upsert(titleEntryDb);
+                TitleEntryListDb.Upsert(titleEntryDb);
             }
         }
     }
-    
-    public static void SaveToAnimeList(AnimeDto anime, int[]? seasonNumber)
+
+    public static async Task SaveToDb<T>(T inputPath, IEditingDatabase editingDatabase)
     {
-        if (CheckAnimeExistence(anime.MalId))
-        {
-            ConsoleExt.WriteLineWithPretext("Anime already exists in the Anime List! Skipped Anime...", ConsoleExt.OutputType.Warning);
-            return;
-        }
-        ToWatchList.Insert(anime);
-        foreach (var titleEntry in anime.Titles)
-        {
-            var titleEntryDb = new TitleEntryDb()
-            {
-                MalId = anime.MalId,
-                Title = titleEntry.Title,
-                Type = titleEntry.Type
-            };
-            ToWatchListTitles.Insert(titleEntryDb);
-        }
-        ConsoleExt.WriteLineWithPretext("Anime Successfully added to the Anime List!", ConsoleExt.OutputType.Info);
+        await editingDatabase.AddToDatabase(inputPath);
     }
     
-    public static void RemoveFromAnimeList(long? animeId)
+    public static async void RemoveFromDb(long id, IEditingDatabase editingDatabase)
     {
-        ToWatchList.DeleteMany(x => x.MalId == animeId);
-        ToWatchListTitles.DeleteMany(x => x.MalId == animeId);
-        ConsoleExt.WriteLineWithPretext("Anime Successfully removed to the Anime List!", ConsoleExt.OutputType.Info);
+        await editingDatabase.RemoveFromDatabase(id);
+    }
+
+    public static IEditingDatabase DetermineEditingClass<T>(T input)
+    {
+        string? inputPath = input?.ToString();
+        if (Path.HasExtension(inputPath) && Path.GetExtension(inputPath) == ".csv")
+        {
+            return new EditAnimetoshoDb();
+        }
+
+        if (input is AnimeDto)
+        {
+            return new EditAnimeList();
+        }
+
+        return new EditNhentaiDb();
     }
 
     public static bool CheckAnimeExistence(long? malId)
     {
-        var anime = ToWatchList.FindOne(x => x != null && x.MalId == malId);
-        var animeTitle = ToWatchListTitles.FindOne(x => x != null && x.MalId == malId);
+        var anime = ToWatchListDb.FindOne(x => x != null && x.MalId == malId);
+        var animeTitle = ToWatchListTitlesDb.FindOne(x => x != null && x.MalId == malId);
         return anime != null || animeTitle != null;
     }
 
@@ -102,7 +97,7 @@ public static class DbHandler
             return d?.FindOne(x => x != null && x.MalId == malId);
         }
 
-        if (database != ToWatchListTitles) return null;
+        if (database != ToWatchListTitlesDb) return null;
         {
             var d = database as ILiteCollection<TitleEntryDb?>;
             return d?.FindOne(x => x != null && x.MalId == malId);
@@ -114,6 +109,7 @@ public static class DbHandler
         return AnimeDb.FindOne(Query.All("MalId", Query.Descending)).MalId;
     }
     
+    /*
     public static AnimeDto? GetAnimeWithTitle(string title)
     {
         var similarityPercentage = int.Parse(SettingsManager.GetSetting("Execution Settings", "SimilarityPercentage"));
@@ -131,12 +127,36 @@ public static class DbHandler
         if (extractedResults.Length == 0 || extractedResults.First().Score <= similarityPercentage) return null;
         
         // Use LiteDB's Query syntax to find the first matching record based on the title
-        var titleEntryDb = TitleEntryList.Find(Query.EQ("Title", extractedResults.First().Value)).FirstOrDefault();
+        var titleEntryDb = TitleEntryListDb.Find(Query.EQ("Title", extractedResults.First().Value)).FirstOrDefault();
 
         if (titleEntryDb == null) return null;
         var malId = titleEntryDb.MalId;
         return AnimeDb.FindOne(Query.EQ("MalId", malId));
+    }
+    */
+    
+    public static IEnumerable<AnimeDto>? GetAnimesWithTitle(string title)
+    {
+        var similarityPercentage = int.Parse(SettingsManager.GetSetting("Execution Settings", "SimilarityPercentage"));
+        var normalizedTitle = NormalizeTitle(title);
 
+        // Fetch potential matches from the database 
+        var potentialMatches = FetchPotentialMatchesFromDatabase(normalizedTitle);
+
+        var enumerable = potentialMatches.ToList();
+
+        // Use Process.ExtractTop() to get the best match
+        var matches = Process.ExtractTop(normalizedTitle, enumerable);
+
+        var extractedResults = matches as ExtractedResult<string>[] ?? matches.ToArray();
+        if (extractedResults.Length == 0 || extractedResults.First().Score <= similarityPercentage) return null;
+        
+        // Use LiteDB's Query syntax to find the first matching record based on the title
+        var titleEntryDb = TitleEntryListDb.Find(Query.EQ("Title", extractedResults.First().Value));
+
+        if (titleEntryDb == null) return null;
+        var malId = titleEntryDb.First().MalId;
+        return AnimeDb.Find(Query.EQ("MalId", malId));
     }
 
     private static string NormalizeTitle(string title)
@@ -150,7 +170,7 @@ public static class DbHandler
         var characterSearchRange = int.Parse(SettingsManager.GetSetting("Execution Settings", "CharacterSearchRange"));
     
         // Fetch all potential TitleEntryDb from the database
-        var allTitleEntries = TitleEntryList.FindAll().ToHashSet();
+        var allTitleEntries = TitleEntryListDb.FindAll().ToHashSet();
 
         // Filter titles based on the first number of characters
         foreach (var titleEntry in from titleEntry in allTitleEntries where titleEntry.Title != null let firstNCharacters = titleEntry.Title[..Math.Min(characterSearchRange, titleEntry.Title.Length)] where firstNCharacters.ToCharArray().Any(normalizedTitle.Contains) select titleEntry)
@@ -182,62 +202,6 @@ public static class DbHandler
         if (englishTitle != null) return englishTitle;
 
         return defaultTitle ?? "";
-    }
-
-    internal static void CsvToDb(string csvFilePath)
-    {
-        // Create or open a LiteDB database
-        using var reader = new StreamReader(csvFilePath);
-        var config = new CsvConfiguration(CultureInfo.InvariantCulture)
-        {
-            HasHeaderRecord = true, // Assuming your CSV file has a header row
-        };
-
-        using var csv = new CsvReader(reader, config);
-
-        while (csv.Read())
-        {
-            try
-            {
-                var record = csv.GetRecord<Animetosho>();
-                Animetosho.Upsert(record!);
-            }
-            catch (Exception ex)
-            {
-                ErrorLogger("Processing Record Failed! ", ex);
-            }
-        }
-
-        ConsoleExt.WriteLineWithPretext("Finished importing CSV into database", ConsoleExt.OutputType.Info);
-    }
-
-    internal static async Task NhentaiMetadata(string folderPath)
-    {
-        var dir = await Task.Run(() => Directory.GetDirectories(folderPath));
-        foreach (var directory in dir)
-        {
-            var files = await Task.Run(() =>Directory.GetFiles(directory));
-            // Gets the file with .json as the extension
-            var file = files.FirstOrDefault(f => Path.GetExtension(f).Equals(".json", StringComparison.OrdinalIgnoreCase));
-
-            if (file == null) continue;
-            
-            // Read the file content into a string
-            var json = await File.ReadAllTextAsync(file);
-            
-            // Deserialize from JSON to NHentaiMetaData structure
-            var metaData = JsonConvert.DeserializeObject<NHentaiMetaData>(json);
-            
-            if (metaData == null) continue;
-
-            ConsoleExt.WriteLineWithPretext(metaData.title, ConsoleExt.OutputType.Info);
-            ConsoleExt.WriteLineWithPretext(metaData.artist, ConsoleExt.OutputType.Info);
-            ConsoleExt.WriteLineWithPretext(metaData.category, ConsoleExt.OutputType.Info);
-            ConsoleExt.WriteLineWithPretext(metaData.character, ConsoleExt.OutputType.Info);
-            ConsoleExt.WriteLineWithPretext(metaData.group, ConsoleExt.OutputType.Info);
-
-            Nhentai.Insert(metaData);
-        }
     }
 
     internal static AnimeDto RemapToAnimeDto(Anime anime)

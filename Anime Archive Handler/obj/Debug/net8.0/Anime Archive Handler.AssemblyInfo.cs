@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Anime Archive Handler")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ad8477edcc832cf653896ad9348de3ca1a16d5fc")]
 [assembly: System.Reflection.AssemblyProductAttribute("Anime Archive Handler")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Anime Archive Handler")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

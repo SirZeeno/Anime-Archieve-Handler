@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Anime_Archive_Handler;
 
@@ -19,5 +19,33 @@ public static class JsonFileUtility
         // Serialize back to JSON
         var updatedJsonText = JsonConvert.SerializeObject(root, Formatting.Indented);
         File.WriteAllText(filePath, updatedJsonText);
+    }
+
+    public static NHentaiMetaData? ReadMetaData(string filePath)
+    {
+        NHentaiMetaData? metaData = JsonConvert.DeserializeObject<NHentaiMetaData>(filePath);
+        return metaData;
+    }
+    
+    public static void SaveCache(Dictionary<string, string> fileCache, string cacheFilePath)
+    {
+        var json = JsonSerializer.Serialize(fileCache);
+        File.WriteAllText(cacheFilePath, json);
+    }
+
+    // LoadCache function loads a cache from the specified file path and returns a Dictionary<string, string> containing the cache data. If the specified file does not exist or the cache is null, it returns an empty Dictionary<string, string>.
+    public static Dictionary<string, string> LoadCache(string cacheFilePath)
+    {
+        var fileCache = new Dictionary<string, string>();
+        if (!File.Exists(cacheFilePath)) return new Dictionary<string, string>();
+        var json = File.ReadAllText(cacheFilePath);
+        var cache = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
+        if (cache == null) return new Dictionary<string, string>();
+        foreach (var kvp in cache)
+        {
+            fileCache[kvp.Key] = kvp.Value;
+        }
+
+        return fileCache;
     }
 }

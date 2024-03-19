@@ -42,3 +42,6 @@ Anime Archive Handler/obj/project.nuget.cache
 Anime Archive Handler/obj/project.packagespec.json
 Anime Archive Handler/obj/rider.project.model.nuget.info
 Anime Archive Handler/obj/rider.project.restore.info
+Anime Archive Handler/bin/Release/net8.0/External Dependencies/ffmpeg.exe
+Anime Archive Handler/bin/Release/net8.0/External Dependencies/ffprobe.exe
+*.csv

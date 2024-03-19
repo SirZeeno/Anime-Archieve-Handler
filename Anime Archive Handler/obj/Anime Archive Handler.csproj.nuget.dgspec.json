@@ -1,25 +1,32 @@
 {
   "format": 1,
   "restore": {
-    "/Users/leonklewer/Documents/Console Apps/Anime-Archieve-Handler/Anime Archive Handler/Anime Archive Handler.csproj": {}
+    "F:\\Rider Projects\\Anime Archieve Handler\\Anime Archieve Handler\\Anime Archive Handler\\Anime Archive Handler.csproj": {}
   },
   "projects": {
-    "/Users/leonklewer/Documents/Console Apps/Anime-Archieve-Handler/Anime Archive Handler/Anime Archive Handler.csproj": {
+    "F:\\Rider Projects\\Anime Archieve Handler\\Anime Archieve Handler\\Anime Archive Handler\\Anime Archive Handler.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/leonklewer/Documents/Console Apps/Anime-Archieve-Handler/Anime Archive Handler/Anime Archive Handler.csproj",
+        "projectUniqueName": "F:\\Rider Projects\\Anime Archieve Handler\\Anime Archieve Handler\\Anime Archive Handler\\Anime Archive Handler.csproj",
         "projectName": "Anime Archive Handler",
-        "projectPath": "/Users/leonklewer/Documents/Console Apps/Anime-Archieve-Handler/Anime Archive Handler/Anime Archive Handler.csproj",
-        "packagesPath": "/Users/leonklewer/.nuget/packages/",
-        "outputPath": "/Users/leonklewer/Documents/Console Apps/Anime-Archieve-Handler/Anime Archive Handler/obj/",
+        "projectPath": "F:\\Rider Projects\\Anime Archieve Handler\\Anime Archieve Handler\\Anime Archive Handler\\Anime Archive Handler.csproj",
+        "packagesPath": "C:\\Users\\leon\\.nuget\\packages\\",
+        "outputPath": "F:\\Rider Projects\\Anime Archieve Handler\\Anime Archieve Handler\\Anime Archive Handler\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "/Users/leonklewer/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\leon\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "c:\\program files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -40,7 +47,7 @@
           "dependencies": {
             "CsvHelper": {
               "target": "Package",
-              "version": "[30.0.1, )"
+              "version": "[31.0.2, )"
             },
             "FFMpegCore": {
               "target": "Package",
@@ -52,9 +59,41 @@
             },
             "HtmlAgilityPack": {
               "target": "Package",
-              "version": "[1.11.54, )"
+              "version": "[1.11.59, )"
             },
-            "Humanizer": {
+            "Humanizer.Core": {
+              "target": "Package",
+              "version": "[2.14.1, )"
+            },
+            "Humanizer.Core.de": {
+              "target": "Package",
+              "version": "[2.14.1, )"
+            },
+            "Humanizer.Core.es": {
+              "target": "Package",
+              "version": "[2.14.1, )"
+            },
+            "Humanizer.Core.ja": {
+              "target": "Package",
+              "version": "[2.14.1, )"
+            },
+            "Humanizer.Core.ko-KR": {
+              "target": "Package",
+              "version": "[2.14.1, )"
+            },
+            "Humanizer.Core.vi": {
+              "target": "Package",
+              "version": "[2.14.1, )"
+            },
+            "Humanizer.Core.zh-CN": {
+              "target": "Package",
+              "version": "[2.14.1, )"
+            },
+            "Humanizer.Core.zh-Hans": {
+              "target": "Package",
+              "version": "[2.14.1, )"
+            },
+            "Humanizer.Core.zh-Hant": {
               "target": "Package",
               "version": "[2.14.1, )"
             },
@@ -64,7 +103,7 @@
             },
             "LiteDB": {
               "target": "Package",
-              "version": "[5.0.17, )"
+              "version": "[5.0.19, )"
             },
             "Lucene.Net": {
               "target": "Package",
@@ -74,33 +113,29 @@
               "target": "Package",
               "version": "[3.6.0, )"
             },
-            "MediaInfo.Wrapper": {
-              "target": "Package",
-              "version": "[21.9.3, )"
-            },
-            "Microsoft.NET.Build.Containers": {
-              "target": "Package",
-              "version": "[8.0.100, )"
-            },
-            "NReco.VideoInfo": {
-              "target": "Package",
-              "version": "[1.2.0, )"
-            },
             "Newtonsoft.Json": {
               "target": "Package",
               "version": "[13.0.3, )"
             },
-            "PuppeteerSharp": {
-              "target": "Package",
-              "version": "[13.0.2, )"
-            },
             "Riok.Mapperly": {
               "target": "Package",
-              "version": "[3.3.0, )"
+              "version": "[3.4.0, )"
+            },
+            "Spectre.Console": {
+              "target": "Package",
+              "version": "[0.48.0, )"
+            },
+            "Spectre.Console.Json": {
+              "target": "Package",
+              "version": "[0.48.0, )"
             },
             "ini-parser": {
               "target": "Package",
               "version": "[3.4.0, )"
+            },
+            "pythonnet": {
+              "target": "Package",
+              "version": "[3.0.3, )"
             }
           },
           "imports": [
@@ -119,7 +154,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.100/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "c:\\program files\\dotnet\\sdk\\8.0.200/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
